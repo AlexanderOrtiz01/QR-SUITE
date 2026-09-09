@@ -1,16 +1,49 @@
-function App() {
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AppProvider } from './store/AppStore.jsx'
+import { useApp } from './store/useApp.js'
+import { Layout } from './components/Layout.jsx'
+import { Login } from './pages/Login.jsx'
+import { Dashboard } from './pages/Dashboard.jsx'
+import { Studio } from './pages/Studio.jsx'
+import { Projects } from './pages/Projects.jsx'
+import { QrList } from './pages/QrList.jsx'
+import { QrDetail } from './pages/QrDetail.jsx'
+import { Analytics } from './pages/Analytics.jsx'
+import { Settings } from './pages/Settings.jsx'
+import { Redirect } from './pages/Redirect.jsx'
+
+function Panel() {
+  const { ready, session } = useApp()
+  if (!ready) return null
+  if (!session) return <Login />
+
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-slate-950 px-6 text-center text-slate-100">
-      <h1 className="text-4xl font-bold tracking-tight">QR Suite</h1>
-      <p className="text-slate-400">
-        Entorno listo: React + Vite + Tailwind CSS. Edita{' '}
-        <code className="rounded bg-slate-800 px-1.5 py-0.5 text-sm">
-          src/App.jsx
-        </code>{' '}
-        para empezar.
-      </p>
-    </main>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="estudio" element={<Studio />} />
+        <Route path="proyectos" element={<Projects />} />
+        <Route path="codigos" element={<QrList />} />
+        <Route path="codigos/:shortCode" element={<QrDetail />} />
+        <Route path="analitica" element={<Analytics />} />
+        <Route path="ajustes" element={<Settings />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   )
 }
 
-export default App
+export default function App() {
+  return (
+    <AppProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* El motor de redirección va antes que el panel: una URL corta
+              escaneada desde un libro no debe pedir inicio de sesión. */}
+          <Route path="/r/:shortCode" element={<Redirect />} />
+          <Route path="/*" element={<Panel />} />
+        </Routes>
+      </BrowserRouter>
+    </AppProvider>
+  )
+}
