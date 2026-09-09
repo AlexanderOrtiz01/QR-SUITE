@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppProvider } from './store/AppStore.jsx'
 import { useApp } from './store/useApp.js'
@@ -8,9 +9,14 @@ import { Studio } from './pages/Studio.jsx'
 import { Projects } from './pages/Projects.jsx'
 import { QrList } from './pages/QrList.jsx'
 import { QrDetail } from './pages/QrDetail.jsx'
-import { Analytics } from './pages/Analytics.jsx'
 import { Settings } from './pages/Settings.jsx'
 import { Redirect } from './pages/Redirect.jsx'
+
+// Analítica es la única pantalla que carga Recharts (~144 KB gzip). Se separa
+// en su propio chunk para que no lo pague quien solo entra a crear un código.
+const Analytics = lazy(() =>
+  import('./pages/Analytics.jsx').then((m) => ({ default: m.Analytics })),
+)
 
 function Panel() {
   const { ready, session } = useApp()
@@ -25,7 +31,18 @@ function Panel() {
         <Route path="proyectos" element={<Projects />} />
         <Route path="codigos" element={<QrList />} />
         <Route path="codigos/:shortCode" element={<QrDetail />} />
-        <Route path="analitica" element={<Analytics />} />
+        <Route
+          path="analitica"
+          element={
+            <Suspense
+              fallback={
+                <p className="text-sm text-slate-500">Cargando analítica…</p>
+              }
+            >
+              <Analytics />
+            </Suspense>
+          }
+        />
         <Route path="ajustes" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

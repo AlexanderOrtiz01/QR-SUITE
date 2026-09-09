@@ -1,7 +1,19 @@
+import { Suspense, lazy, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { Button, Card, EmptyState } from '../components/ui.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
+
+// Recharts se carga aparte: el Dashboard debe pintar sus cifras sin esperarlo.
+const Sparkline = lazy(() =>
+  import('../components/Sparkline.jsx').then((m) => ({ default: m.Sparkline })),
+)
+
+const DAYS = 14
+
+function dayKey(date) {
+  return date.toISOString().slice(0, 10)
+}
 
 function Stat({ label, value, hint }) {
   return (
@@ -18,7 +30,28 @@ export function Dashboard() {
 
   const totalScans = qrs.reduce((sum, qr) => sum + (qr.total_scans || 0), 0)
   const published = qrs.filter((qr) => qr.status === 'published').length
+  const drafts = qrs.length - published
   const recent = qrs.slice(0, 5)
+
+  // Instante fijado al montar, igual que en Analítica: mantiene puro el render.
+  const [now] = useState(() => Date.now())
+
+  const trend = useMemo(() => {
+    const buckets = new Map()
+    for (let index = DAYS - 1; index >= 0; index -= 1) {
+      buckets.set(dayKey(new Date(now - index * 86400000)), 0)
+    }
+    scans.forEach((scan) => {
+      const key = dayKey(new Date(scan.timestamp))
+      if (buckets.has(key)) buckets.set(key, buckets.get(key) + 1)
+    })
+    return [...buckets.entries()].map(([key, value]) => ({
+      label: key.slice(5).replace('-', '/'),
+      value,
+    }))
+  }, [scans, now])
+
+  const periodScans = trend.reduce((sum, day) => sum + day.value, 0)
 
   return (
     <div className="space-y-6">
@@ -42,12 +75,30 @@ export function Dashboard() {
           hint={`${published} publicados`}
         />
         <Stat label="Escaneos totales" value={totalScans} />
-        <Stat
-          label="Escaneos registrados"
-          value={scans.length}
-          hint="Eventos con detalle técnico"
-        />
+        <Stat label="Borradores" value={drafts} hint="Pendientes de publicar" />
       </div>
+
+      <Card className="space-y-3">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-semibold">Escaneos de los últimos 14 días</h2>
+          <Link
+            to="/analitica"
+            className="text-sm text-ssf-blue hover:underline"
+          >
+            Ver analítica
+          </Link>
+        </div>
+        {periodScans === 0 ? (
+          <p className="text-sm text-slate-500">
+            Sin escaneos en el periodo. Abre la URL corta de un código para
+            registrar el primero.
+          </p>
+        ) : (
+          <Suspense fallback={<div className="h-14" />}>
+            <Sparkline data={trend} />
+          </Suspense>
+        )}
+      </Card>
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Últimos códigos</h2>
