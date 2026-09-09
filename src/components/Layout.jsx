@@ -73,54 +73,55 @@ export function Layout() {
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
-        <div
-          className={`flex gap-2 px-3 py-4 ${
-            collapsed
-              ? 'items-start lg:flex-col lg:items-center'
-              : 'items-start'
-          }`}
-        >
-          <div className="min-w-0 flex-1">
+        <div className="px-3 py-4">
+          {/* Los controles van en su propia fila: compartiéndola con el
+              logotipo, este no podría quedar centrado. */}
+          <div
+            className={`flex ${collapsed ? 'lg:justify-center' : ''} justify-end`}
+          >
+            <button
+              type="button"
+              onClick={toggleCollapsed}
+              aria-label={collapsed ? 'Expandir menú' : 'Plegar menú'}
+              aria-expanded={!collapsed}
+              className="hidden rounded-lg p-2 transition-colors hover:bg-white/10 lg:block"
+            >
+              <IconChevronLeft
+                className={`size-5 transition-transform ${collapsed ? 'rotate-180' : ''}`}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Cerrar menú"
+              className="rounded-lg p-2 transition-colors hover:bg-white/10 lg:hidden"
+            >
+              <IconClose className="size-5" />
+            </button>
+          </div>
+
+          <div className="flex flex-col items-center text-center">
             {/* Versión monocroma clara del emblema, pensada para fondos
                 oscuros: va directamente sobre el charcoal, sin placa. */}
             <img
               src="/mined-logo.png"
               alt="Ministerio de Educación de El Salvador"
-              className={`h-10 w-auto ${collapsed ? 'lg:hidden' : ''}`}
+              className={`h-14 w-auto ${collapsed ? 'lg:hidden' : ''}`}
             />
             {collapsed ? (
               <img
                 src="/mined-escudo.png"
                 alt="Ministerio de Educación de El Salvador"
-                className="mx-auto hidden h-10 w-auto lg:block"
+                className="hidden h-11 w-auto lg:block"
               />
             ) : null}
-            <div className={`mt-3 ${collapsed ? 'lg:hidden' : ''}`}>
+            <div className={`mt-3 w-full ${collapsed ? 'lg:hidden' : ''}`}>
               <p className="text-lg font-bold tracking-tight">QR Suite</p>
               <p className="truncate text-xs text-ssf-line">
                 {settings.orgName}
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={toggleCollapsed}
-            aria-label={collapsed ? 'Expandir menú' : 'Plegar menú'}
-            aria-expanded={!collapsed}
-            className="hidden rounded-lg p-2 transition-colors hover:bg-white/10 lg:block"
-          >
-            <IconChevronLeft
-              className={`size-5 transition-transform ${collapsed ? 'rotate-180' : ''}`}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Cerrar menú"
-            className="rounded-lg p-2 transition-colors hover:bg-white/10 lg:hidden"
-          >
-            <IconClose className="size-5" />
-          </button>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
