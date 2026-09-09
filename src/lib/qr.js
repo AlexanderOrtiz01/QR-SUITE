@@ -1,5 +1,6 @@
 import QRCodeStyling from 'qr-code-styling'
 import { ECC_LEVEL, LOGO_MARGIN_RATIO } from './brand.js'
+import { composeFramedSvg } from './frames.js'
 
 /**
  * Traduce el estilo institucional guardado en el documento del QR a las
@@ -10,6 +11,21 @@ import { ECC_LEVEL, LOGO_MARGIN_RATIO } from './brand.js'
  * legibilidad.
  */
 export function buildQrOptions({ data, style, size = 320, type = 'canvas' }) {
+  // Con degradado, qr-code-styling ignora `color`, así que se envía uno u
+  // otro pero nunca ambos.
+  const paint = style.gradient
+    ? {
+        gradient: {
+          type: style.gradient.type,
+          rotation: style.gradient.rotation ?? 0,
+          colorStops: [
+            { offset: 0, color: style.gradient.from },
+            { offset: 1, color: style.gradient.to },
+          ],
+        },
+      }
+    : { color: style.dark }
+
   return {
     width: size,
     height: size,
@@ -17,10 +33,10 @@ export function buildQrOptions({ data, style, size = 320, type = 'canvas' }) {
     data: data || ' ',
     margin: Math.round(size * 0.04),
     qrOptions: { errorCorrectionLevel: ECC_LEVEL },
-    dotsOptions: { color: style.dark, type: style.dotStyle },
+    dotsOptions: { ...paint, type: style.dotStyle },
     backgroundOptions: { color: style.light },
-    cornersSquareOptions: { color: style.dark, type: style.cornerSquareStyle },
-    cornersDotOptions: { color: style.dark, type: style.cornerDotStyle },
+    cornersSquareOptions: { ...paint, type: style.cornerSquareStyle },
+    cornersDotOptions: { ...paint, type: style.cornerDotStyle },
     image: style.logo || undefined,
     imageOptions: {
       crossOrigin: 'anonymous',
@@ -35,6 +51,62 @@ export function buildQrOptions({ data, style, size = 320, type = 'canvas' }) {
 /** Píxeles necesarios para imprimir `mm` milímetros a la resolución dada. */
 export function mmToPx(mm, dpi = 300) {
   return Math.round((mm / 25.4) * dpi)
+}
+
+/** Genera el SVG del código, sin marco. */
+export async function renderQrSvg({ data, style, size = 512 }) {
+  const instance = new QRCodeStyling(
+    buildQrOptions({ data, style, size, type: 'svg' }),
+  )
+  const blob = await instance.getRawData('svg')
+  return blob.text()
+}
+
+/**
+ * Genera el SVG definitivo: el código más su marco, si lo tiene.
+ *
+ * Es la única función que compone la pieza final, y la usan tanto la vista
+ * previa como la exportación.
+ */
+export async function renderFinalSvg({ data, style, size = 512 }) {
+  const qrSvg = await renderQrSvg({ data, style, size })
+  // Se compone siempre, incluso sin marco: así el resultado lleva un viewBox
+  // conocido y la interfaz puede escalarlo sin casos especiales.
+  return composeFramedSvg({
+    qrSvg,
+    frameId: style.frame,
+    label: style.frameLabel,
+    dark: style.dark,
+    light: style.light,
+    qrSize: size,
+  })
+}
+
+/** Rasteriza un SVG al tamaño pedido, respetando su relación de aspecto. */
+async function rasterize(svgString, targetWidth, format) {
+  const viewBox = svgString.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
+  const ratio = viewBox ? Number(viewBox[2]) / Number(viewBox[1]) : 1
+  const width = targetWidth
+  const height = Math.round(targetWidth * ratio)
+
+  const image = new Image()
+  image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`
+  await image.decode()
+
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const context = canvas.getContext('2d')
+  context.drawImage(image, 0, 0, width, height)
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) =>
+        blob ? resolve(blob) : reject(new Error('No se pudo rasterizar el QR')),
+      `image/${format}`,
+      1,
+    )
+  })
 }
 
 function triggerDownload(blob, filename) {
@@ -60,10 +132,13 @@ function slugify(text) {
 }
 
 /**
- * Exporta el QR al formato pedido.
+ * Exporta el código al formato pedido.
  *
  * - `svg`: vectorial, para colocar en InDesign/Illustrator sin pérdida.
  * - `png` / `webp`: rasterizados a la resolución de impresión indicada.
+ *
+ * En los rasterizados, `sizeMm` es el lado del código en sí; si lleva marco,
+ * el archivo resultante es mayor, que es lo que se espera al maquetar.
  */
 export async function exportQr({
   data,
@@ -74,18 +149,19 @@ export async function exportQr({
   dpi = 300,
 }) {
   const isVector = format === 'svg'
-  const pixels = isVector ? 1024 : mmToPx(sizeMm, dpi)
-  const instance = new QRCodeStyling(
-    buildQrOptions({
-      data,
-      style,
-      size: pixels,
-      type: isVector ? 'svg' : 'canvas',
-    }),
-  )
-  const blob = await instance.getRawData(format)
+  const qrPixels = isVector ? 1024 : mmToPx(sizeMm, dpi)
+  const svg = await renderFinalSvg({ data, style, size: qrPixels })
   const suffix = isVector ? 'vector' : `${sizeMm}mm-${dpi}dpi`
-  triggerDownload(blob, `${slugify(title)}-${suffix}.${format}`)
+  const name = `${slugify(title)}-${suffix}.${format}`
+
+  if (isVector) {
+    triggerDownload(new Blob([svg], { type: 'image/svg+xml' }), name)
+    return
+  }
+
+  const viewBox = svg.match(/viewBox="0 0 ([\d.]+) /)
+  const outerWidth = viewBox ? Math.round(Number(viewBox[1])) : qrPixels
+  triggerDownload(await rasterize(svg, outerWidth, format), name)
 }
 
 export { QRCodeStyling }

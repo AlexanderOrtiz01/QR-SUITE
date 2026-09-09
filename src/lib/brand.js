@@ -1,3 +1,5 @@
+import { DEFAULT_FRAME_LABEL } from './frames.js'
+
 /**
  * Configuración de marca institucional.
  *
@@ -32,6 +34,38 @@ export const CORNER_STYLES = [
   { id: 'extra-rounded', label: 'Extra redondeado' },
 ]
 
+/**
+ * Degradados institucionales. Se limitan a combinaciones de la propia paleta,
+ * y siempre de oscuro a oscuro: un degradado que aclare demasiado los módulos
+ * baja el contraste con el fondo y el código deja de leerse sobre papel.
+ */
+export const GRADIENT_PRESETS = [
+  {
+    id: 'charcoal-navy',
+    label: 'Charcoal → Azul SSF',
+    from: '#303845',
+    to: '#094680',
+  },
+  { id: 'navy-blue', label: 'Azul SSF → Azul', from: '#094680', to: '#4375D9' },
+  {
+    id: 'charcoal-blue',
+    label: 'Charcoal → Azul',
+    from: '#303845',
+    to: '#4375D9',
+  },
+  {
+    id: 'navy-charcoal',
+    label: 'Azul SSF → Charcoal',
+    from: '#094680',
+    to: '#303845',
+  },
+]
+
+export const GRADIENT_TYPES = [
+  { id: 'linear', label: 'Lineal' },
+  { id: 'radial', label: 'Radial' },
+]
+
 /** Nivel de corrección de errores forzado por el plan (30%) para admitir logo central. */
 export const ECC_LEVEL = 'H'
 
@@ -47,4 +81,7 @@ export const DEFAULT_STYLE = {
   cornerDotStyle: 'dot',
   logo: null,
   logoSize: 0.22,
+  gradient: null,
+  frame: 'none',
+  frameLabel: DEFAULT_FRAME_LABEL,
 }
