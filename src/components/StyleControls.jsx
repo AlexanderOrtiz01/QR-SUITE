@@ -206,18 +206,16 @@ export function GradientControls({ style, onChange, disabled = false }) {
         label="Degradado"
         hint="Solo combinaciones de la paleta institucional, y siempre entre tonos oscuros: aclarar los módulos reduce el contraste y el código deja de leerse sobre papel."
       >
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <button
             type="button"
             disabled={disabled}
             onClick={() => setPreset(null)}
             className={tileClass(!gradient)}
           >
-            <span className="flex items-center gap-2">
-              <span className="size-8 shrink-0 rounded border border-slate-300 bg-white" />
-              <span className="font-medium text-ssf-charcoal">
-                Sin degradado
-              </span>
+            <span className="block h-9 w-full rounded border border-slate-300 bg-white" />
+            <span className="mt-1.5 block truncate text-ssf-charcoal">
+              Sin degradado
             </span>
           </button>
           {GRADIENT_PRESETS.map((preset) => (
@@ -227,17 +225,21 @@ export function GradientControls({ style, onChange, disabled = false }) {
               disabled={disabled}
               onClick={() => setPreset(preset)}
               className={tileClass(gradient?.preset === preset.id)}
+              title={`${preset.from} → ${preset.to}`}
             >
-              <span className="flex items-center gap-2">
-                <span
-                  className="size-8 shrink-0 rounded border border-slate-300"
-                  style={{
-                    background: `linear-gradient(135deg, ${preset.from}, ${preset.to})`,
-                  }}
-                />
-                <span className="min-w-0 font-medium text-ssf-charcoal">
-                  {preset.label}
-                </span>
+              {/* La muestra refleja el tipo elegido, para que no prometa un
+                  degradado lineal cuando el código va a salir radial. */}
+              <span
+                className="block h-9 w-full rounded border border-slate-300"
+                style={{
+                  background:
+                    gradient?.type === 'radial'
+                      ? `radial-gradient(circle, ${preset.from}, ${preset.to})`
+                      : `linear-gradient(135deg, ${preset.from}, ${preset.to})`,
+                }}
+              />
+              <span className="mt-1.5 block truncate text-ssf-charcoal">
+                {preset.label}
               </span>
             </button>
           ))}

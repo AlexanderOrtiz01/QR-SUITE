@@ -35,29 +35,109 @@ export const CORNER_STYLES = [
 ]
 
 /**
- * Degradados institucionales. Se limitan a combinaciones de la propia paleta,
- * y siempre de oscuro a oscuro: un degradado que aclare demasiado los módulos
- * baja el contraste con el fondo y el código deja de leerse sobre papel.
+ * Tonos institucionales disponibles para los degradados: los de la hoja de
+ * estilo del tema de gobierno más el azul del emblema del Ministerio.
+ */
+const TONES = {
+  charcoal: '#303845',
+  pizarra: '#3C4557',
+  navySsf: '#094680',
+  azul: '#4375D9',
+  navyMined: '#001860',
+  tinta: '#111827',
+}
+
+/**
+ * Degradados institucionales.
+ *
+ * Todos van de un tono oscuro a otro tono oscuro. Un degradado que aclare los
+ * módulos reduce el contraste con el fondo y el código deja de leerse sobre
+ * papel, que es el destino de este proyecto.
  */
 export const GRADIENT_PRESETS = [
   {
     id: 'charcoal-navy',
     label: 'Charcoal → Azul SSF',
-    from: '#303845',
-    to: '#094680',
+    from: TONES.charcoal,
+    to: TONES.navySsf,
   },
-  { id: 'navy-blue', label: 'Azul SSF → Azul', from: '#094680', to: '#4375D9' },
+  {
+    id: 'navy-blue',
+    label: 'Azul SSF → Azul',
+    from: TONES.navySsf,
+    to: TONES.azul,
+  },
   {
     id: 'charcoal-blue',
     label: 'Charcoal → Azul',
-    from: '#303845',
-    to: '#4375D9',
+    from: TONES.charcoal,
+    to: TONES.azul,
   },
   {
     id: 'navy-charcoal',
     label: 'Azul SSF → Charcoal',
-    from: '#094680',
-    to: '#303845',
+    from: TONES.navySsf,
+    to: TONES.charcoal,
+  },
+  {
+    id: 'mined-navy',
+    label: 'Azul MINED → Azul SSF',
+    from: TONES.navyMined,
+    to: TONES.navySsf,
+  },
+  {
+    id: 'mined-blue',
+    label: 'Azul MINED → Azul',
+    from: TONES.navyMined,
+    to: TONES.azul,
+  },
+  {
+    id: 'navy-mined',
+    label: 'Azul SSF → Azul MINED',
+    from: TONES.navySsf,
+    to: TONES.navyMined,
+  },
+  {
+    id: 'pizarra-mined',
+    label: 'Pizarra → Azul MINED',
+    from: TONES.pizarra,
+    to: TONES.navyMined,
+  },
+  {
+    id: 'charcoal-pizarra',
+    label: 'Charcoal → Pizarra',
+    from: TONES.charcoal,
+    to: TONES.pizarra,
+  },
+  {
+    id: 'tinta-navy',
+    label: 'Tinta → Azul SSF',
+    from: TONES.tinta,
+    to: TONES.navySsf,
+  },
+  {
+    id: 'tinta-charcoal',
+    label: 'Tinta → Charcoal',
+    from: TONES.tinta,
+    to: TONES.charcoal,
+  },
+  {
+    id: 'blue-navy',
+    label: 'Azul → Azul SSF',
+    from: TONES.azul,
+    to: TONES.navySsf,
+  },
+  {
+    id: 'blue-mined',
+    label: 'Azul → Azul MINED',
+    from: TONES.azul,
+    to: TONES.navyMined,
+  },
+  {
+    id: 'pizarra-azul',
+    label: 'Pizarra → Azul',
+    from: TONES.pizarra,
+    to: TONES.azul,
   },
 ]
 
