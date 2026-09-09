@@ -17,6 +17,8 @@ import {
 import { StepHeader, StepProgress, TabBar } from '../components/Wizard.jsx'
 import {
   ColorControls,
+  FrameControls,
+  GradientControls,
   LogoControls,
   ShapeControls,
 } from '../components/StyleControls.jsx'
@@ -53,7 +55,9 @@ const STEPS = [
 
 const STYLE_TABS = [
   { id: 'colores', label: 'Colores' },
+  { id: 'degradado', label: 'Degradado' },
   { id: 'forma', label: 'Forma' },
+  { id: 'marco', label: 'Marco' },
   { id: 'logo', label: 'Logotipo' },
 ]
 
@@ -248,8 +252,14 @@ export function Studio() {
               {styleTab === 'colores' ? (
                 <ColorControls style={style} onChange={setStyle} />
               ) : null}
+              {styleTab === 'degradado' ? (
+                <GradientControls style={style} onChange={setStyle} />
+              ) : null}
               {styleTab === 'forma' ? (
                 <ShapeControls style={style} onChange={setStyle} />
+              ) : null}
+              {styleTab === 'marco' ? (
+                <FrameControls style={style} onChange={setStyle} />
               ) : null}
               {styleTab === 'logo' ? (
                 <LogoControls style={style} onChange={setStyle} />

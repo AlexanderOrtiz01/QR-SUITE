@@ -3,8 +3,18 @@ import {
   CORNER_STYLES,
   DOT_STYLES,
   ECC_LEVEL,
+  GRADIENT_PRESETS,
+  GRADIENT_TYPES,
 } from '../lib/brand.js'
-import { Field, Select } from './ui.jsx'
+import { FRAMES, frameThumbnail } from '../lib/frames.js'
+import { Field, Input, Select } from './ui.jsx'
+
+const TILE =
+  'rounded-lg border p-2 text-left text-xs transition-colors disabled:opacity-50'
+
+function tileClass(active) {
+  return `${TILE} ${active ? 'border-ssf-navy bg-ssf-mist' : 'border-slate-200 hover:bg-ssf-mist'}`
+}
 
 /**
  * Controles del Módulo 2, separados por pestaña.
@@ -170,12 +180,179 @@ export function LogoControls({ style, onChange, disabled = false }) {
   )
 }
 
-/** Composición de los tres bloques, para pantallas sin pestañas. */
+export function GradientControls({ style, onChange, disabled = false }) {
+  const gradient = style.gradient
+
+  function setPreset(preset) {
+    if (!preset) {
+      onChange({ ...style, gradient: null })
+      return
+    }
+    onChange({
+      ...style,
+      gradient: {
+        preset: preset.id,
+        from: preset.from,
+        to: preset.to,
+        type: gradient?.type || 'linear',
+        rotation: gradient?.rotation ?? 0,
+      },
+    })
+  }
+
+  return (
+    <div className="space-y-4">
+      <Field
+        label="Degradado"
+        hint="Solo combinaciones de la paleta institucional, y siempre entre tonos oscuros: aclarar los módulos reduce el contraste y el código deja de leerse sobre papel."
+      >
+        <div className="grid gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => setPreset(null)}
+            className={tileClass(!gradient)}
+          >
+            <span className="flex items-center gap-2">
+              <span className="size-8 shrink-0 rounded border border-slate-300 bg-white" />
+              <span className="font-medium text-ssf-charcoal">
+                Sin degradado
+              </span>
+            </span>
+          </button>
+          {GRADIENT_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              disabled={disabled}
+              onClick={() => setPreset(preset)}
+              className={tileClass(gradient?.preset === preset.id)}
+            >
+              <span className="flex items-center gap-2">
+                <span
+                  className="size-8 shrink-0 rounded border border-slate-300"
+                  style={{
+                    background: `linear-gradient(135deg, ${preset.from}, ${preset.to})`,
+                  }}
+                />
+                <span className="min-w-0 font-medium text-ssf-charcoal">
+                  {preset.label}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      {gradient ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Tipo">
+            <Select
+              value={gradient.type}
+              disabled={disabled}
+              onChange={(event) =>
+                onChange({
+                  ...style,
+                  gradient: { ...gradient, type: event.target.value },
+                })
+              }
+            >
+              {GRADIENT_TYPES.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          {gradient.type === 'linear' ? (
+            <Field
+              label={`Ángulo (${Math.round(((gradient.rotation ?? 0) * 180) / Math.PI)}°)`}
+            >
+              <input
+                type="range"
+                min="0"
+                max="6.28"
+                step="0.05"
+                value={gradient.rotation ?? 0}
+                disabled={disabled}
+                onChange={(event) =>
+                  onChange({
+                    ...style,
+                    gradient: {
+                      ...gradient,
+                      rotation: Number(event.target.value),
+                    },
+                  })
+                }
+                className="w-full accent-ssf-navy"
+              />
+            </Field>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+export function FrameControls({ style, onChange, disabled = false }) {
+  const withLabel = FRAMES.find((frame) => frame.id === style.frame)?.hasLabel
+
+  return (
+    <div className="space-y-4">
+      <Field label="Estilo de marco">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {FRAMES.map((frame) => (
+            <button
+              key={frame.id}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange({ ...style, frame: frame.id })}
+              className={tileClass(style.frame === frame.id)}
+            >
+              <span
+                className="mx-auto block w-full [&>svg]:h-16 [&>svg]:w-full"
+                dangerouslySetInnerHTML={{
+                  __html: frameThumbnail(frame.id, {
+                    dark: style.dark,
+                    light: style.light,
+                  }),
+                }}
+              />
+              <span className="mt-1.5 block text-center text-ssf-charcoal">
+                {frame.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </Field>
+
+      {withLabel ? (
+        <Field
+          label="Texto del marco"
+          hint="Llamada a la acción impresa junto al código."
+        >
+          <Input
+            value={style.frameLabel}
+            disabled={disabled}
+            maxLength={24}
+            onChange={(event) =>
+              onChange({ ...style, frameLabel: event.target.value })
+            }
+          />
+        </Field>
+      ) : null}
+    </div>
+  )
+}
+
+/** Composición de los bloques, para pantallas sin pestañas. */
 export function StyleControls({ style, onChange, disabled = false }) {
   return (
     <div className="space-y-5">
       <ColorControls style={style} onChange={onChange} disabled={disabled} />
+      <GradientControls style={style} onChange={onChange} disabled={disabled} />
       <ShapeControls style={style} onChange={onChange} disabled={disabled} />
+      <FrameControls style={style} onChange={onChange} disabled={disabled} />
       <LogoControls style={style} onChange={onChange} disabled={disabled} />
     </div>
   )

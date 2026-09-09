@@ -49,7 +49,9 @@ export function ExportPanel({ data, style, title, disabled = false }) {
       </div>
 
       <p className="text-xs text-slate-500">
-        Rasterizado a {mmToPx(sizeMm, dpi)} × {mmToPx(sizeMm, dpi)} px.
+        El código se rasteriza a {mmToPx(sizeMm, dpi)} px de lado. Si lleva
+        marco, el archivo resultante es mayor: la medida se refiere al código en
+        sí, que es lo que determina si se lee.
       </p>
 
       <div className="flex flex-wrap gap-2">
