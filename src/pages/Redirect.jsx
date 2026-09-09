@@ -39,18 +39,18 @@ export function Redirect() {
   }, [target, shortCode, recordScan])
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 text-center">
+    <div className="flex min-h-dvh items-center justify-center bg-ssf-mist px-4 text-center">
       <div className="max-w-sm space-y-2">
         <p className="font-mono text-sm text-slate-500">/{shortCode}</p>
         {error ? (
           <>
-            <h1 className="text-lg font-semibold text-slate-900">
+            <h1 className="text-lg font-semibold text-ssf-charcoal">
               No se pudo redirigir
             </h1>
             <p className="text-sm text-slate-600">{error}</p>
           </>
         ) : (
-          <h1 className="text-lg font-semibold text-slate-900">
+          <h1 className="text-lg font-semibold text-ssf-charcoal">
             Redirigiendo…
           </h1>
         )}

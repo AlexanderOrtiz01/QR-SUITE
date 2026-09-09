@@ -1,19 +1,21 @@
 /**
  * Configuración de marca institucional.
  *
- * PENDIENTE: sustituir por los colores oficiales de la organización.
- * Estos valores son marcadores de posición hasta recibir el manual de marca.
+ * Colores tomados del tema oficial que usa ssf.gob.sv: el charcoal #303845 de
+ * su hoja de estilo y el azul #094680 de su kit. Todas las combinaciones
+ * mantienen contraste alto entre módulo y fondo, que es lo que necesita un
+ * lector de QR sobre papel impreso.
  */
 export const BRAND_PRESETS = [
+  { id: 'institucional', label: 'Charcoal', dark: '#303845', light: '#FFFFFF' },
+  { id: 'azul-ssf', label: 'Azul SSF', dark: '#094680', light: '#FFFFFF' },
   {
-    id: 'institucional',
-    label: 'Institucional',
-    dark: '#1B3A6B',
-    light: '#FFFFFF',
+    id: 'sobre-claro',
+    label: 'Sobre fondo claro',
+    dark: '#303845',
+    light: '#F5F7FE',
   },
-  { id: 'acento', label: 'Acento', dark: '#0F766E', light: '#FFFFFF' },
-  { id: 'neutro', label: 'Neutro', dark: '#111827', light: '#FFFFFF' },
-  { id: 'invertido', label: 'Invertido', dark: '#FFFFFF', light: '#1B3A6B' },
+  { id: 'invertido', label: 'Invertido', dark: '#FFFFFF', light: '#303845' },
 ]
 
 export const DOT_STYLES = [
@@ -38,7 +40,7 @@ export const LOGO_MARGIN_RATIO = 0.08
 
 export const DEFAULT_STYLE = {
   preset: 'institucional',
-  dark: '#1B3A6B',
+  dark: '#303845',
   light: '#FFFFFF',
   dotStyle: 'rounded',
   cornerSquareStyle: 'extra-rounded',

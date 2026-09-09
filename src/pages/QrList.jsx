@@ -100,7 +100,7 @@ export function QrList() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((qr) => (
-                <tr key={qr.short_code} className="hover:bg-slate-50">
+                <tr key={qr.short_code} className="hover:bg-ssf-mist">
                   <td className="px-4 py-3">
                     <Link
                       to={`/codigos/${qr.short_code}`}

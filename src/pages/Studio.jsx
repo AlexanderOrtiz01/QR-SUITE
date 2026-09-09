@@ -13,12 +13,18 @@ import {
   Field,
   Input,
   Select,
+  StepCard,
 } from '../components/ui.jsx'
 import { StyleControls } from '../components/StyleControls.jsx'
 import { QrPreview } from '../components/QrPreview.jsx'
 import { ExportPanel } from '../components/ExportPanel.jsx'
 import { TagPicker } from '../components/TagPicker.jsx'
 
+/**
+ * Estudio de diseño, organizado como el asistente por pasos numerados de
+ * QRStuff: el trabajo baja por la columna izquierda mientras la vista previa y
+ * la descarga permanecen fijas a la derecha.
+ */
 export function Studio() {
   const navigate = useNavigate()
   const { projects, qrs, addQr, session } = useApp()
@@ -63,7 +69,7 @@ export function Studio() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Estudio de diseño</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Crear código QR</h1>
         <p className="text-sm text-slate-500">
           El QR codifica la URL corta, no el destino: por eso el destino se
           puede cambiar después sin reimprimir el libro.
@@ -79,11 +85,14 @@ export function Studio() {
 
       <form
         onSubmit={handleSubmit}
-        className="grid gap-6 lg:grid-cols-[1fr_320px]"
+        className="grid gap-6 lg:grid-cols-[1fr_340px]"
       >
-        <div className="space-y-6">
-          <Card className="space-y-4">
-            <h2 className="font-semibold">Contenido</h2>
+        <div className="space-y-5">
+          <StepCard
+            step="1"
+            title="Contenido"
+            hint="Qué recurso representa este código"
+          >
             <Field label="Título">
               <Input
                 value={title}
@@ -116,10 +125,13 @@ export function Studio() {
               value={tags}
               onChange={setTags}
             />
-          </Card>
+          </StepCard>
 
-          <Card className="space-y-4">
-            <h2 className="font-semibold">Destinos y estado</h2>
+          <StepCard
+            step="2"
+            title="Destino"
+            hint="A dónde lleva el código al escanearlo"
+          >
             <Field label="Estado" hint={QR_STATUS[status]?.hint}>
               <Select
                 value={status}
@@ -155,22 +167,27 @@ export function Studio() {
                 placeholder="https://drive.google.com/…"
               />
             </Field>
-          </Card>
+          </StepCard>
 
-          <Card className="space-y-4">
-            <h2 className="font-semibold">Estilo institucional</h2>
+          <StepCard
+            step="3"
+            title="Personalización"
+            hint="Dentro de los límites del manual de marca"
+          >
             <StyleControls style={style} onChange={setStyle} />
-          </Card>
+          </StepCard>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5 lg:sticky lg:top-6 lg:self-start">
           <Card className="space-y-4">
             <h2 className="font-semibold">Vista previa</h2>
-            <div className="flex justify-center rounded-lg bg-slate-50 p-4">
+            <div className="flex justify-center rounded-lg bg-ssf-mist p-4">
               <QrPreview data={shortUrl} style={style} size={220} />
             </div>
             <div>
-              <p className="text-xs font-medium text-slate-700">URL impresa</p>
+              <p className="text-xs font-medium text-ssf-charcoal">
+                URL impresa
+              </p>
               <p className="mt-0.5 break-all font-mono text-xs text-slate-500">
                 {shortUrl}
               </p>
@@ -180,15 +197,18 @@ export function Studio() {
             </Button>
           </Card>
 
-          <Card className="space-y-4">
-            <h2 className="font-semibold">Exportar</h2>
+          <StepCard
+            step="4"
+            title="Descargar"
+            hint="Formatos para imprenta y digital"
+          >
             <ExportPanel
               data={shortUrl}
               style={style}
               title={title || shortCode}
               disabled={!can(session?.role, 'qr:export')}
             />
-          </Card>
+          </StepCard>
         </div>
       </form>
     </div>

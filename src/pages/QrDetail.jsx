@@ -174,7 +174,7 @@ function QrEditor({ qr }) {
               onChange={(tags) => patch({ tags })}
             />
 
-            <div className="rounded-lg bg-slate-50 p-3">
+            <div className="rounded-lg bg-ssf-mist p-3">
               <p className="text-xs font-medium text-slate-700">
                 Destino activo ahora
               </p>
@@ -233,7 +233,7 @@ function QrEditor({ qr }) {
         <div className="space-y-6">
           <Card className="space-y-4">
             <h2 className="font-semibold">Código impreso</h2>
-            <div className="flex justify-center rounded-lg bg-slate-50 p-4">
+            <div className="flex justify-center rounded-lg bg-ssf-mist p-4">
               <QrPreview data={shortUrl} style={draft.style} size={220} />
             </div>
             <p className="break-all font-mono text-xs text-slate-500">

@@ -39,52 +39,51 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md space-y-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            QR Suite
-          </h1>
-          <p className="text-sm text-slate-500">
-            Generador y gestor de códigos QR dinámicos
-          </p>
+    <div className="flex min-h-dvh flex-col bg-ssf-mist">
+      <div className="bg-ssf-charcoal px-4 py-4 text-center text-white">
+        <p className="text-lg font-bold tracking-tight">QR Suite</p>
+        <p className="text-xs text-ssf-line">
+          Generador y gestor de códigos QR dinámicos
+        </p>
+      </div>
+      <div className="flex flex-1 items-center justify-center px-4 py-8">
+        <div className="w-full max-w-md space-y-4">
+          <Banner tone="warning">
+            Acceso simulado. Firebase Auth con Google Provider aún no está
+            configurado, así que esto no protege nada: solo comprueba el dominio
+            del correo.
+          </Banner>
+
+          <Card>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Field label="Correo institucional">
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder={`usuario@${settings.allowedDomain}`}
+                  required
+                />
+              </Field>
+              <Field label="Rol" hint={ROLES[role]?.hint}>
+                <Select
+                  value={role}
+                  onChange={(event) => setRole(event.target.value)}
+                >
+                  {Object.values(ROLES).map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              {error ? <p className="text-sm text-red-600">{error}</p> : null}
+              <Button type="submit" className="w-full">
+                Entrar
+              </Button>
+            </form>
+          </Card>
         </div>
-
-        <Banner tone="warning">
-          Acceso simulado. Firebase Auth con Google Provider aún no está
-          configurado, así que esto no protege nada: solo comprueba el dominio
-          del correo.
-        </Banner>
-
-        <Card>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Field label="Correo institucional">
-              <Input
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder={`usuario@${settings.allowedDomain}`}
-                required
-              />
-            </Field>
-            <Field label="Rol" hint={ROLES[role]?.hint}>
-              <Select
-                value={role}
-                onChange={(event) => setRole(event.target.value)}
-              >
-                {Object.values(ROLES).map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            {error ? <p className="text-sm text-red-600">{error}</p> : null}
-            <Button type="submit" className="w-full">
-              Entrar
-            </Button>
-          </form>
-        </Card>
       </div>
     </div>
   )

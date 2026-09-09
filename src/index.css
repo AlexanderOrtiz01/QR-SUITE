@@ -1,1 +1,18 @@
 @import 'tailwindcss';
+
+/**
+ * Paleta institucional.
+ *
+ * Los valores provienen del CSS del tema «Gobierno de El Salvador» que publica
+ * ssf.gob.sv: las variables :root de su hoja de estilo (--charcoal,
+ * --bgc-footer, --bgc-servicios, --font-color-footer) y el azul del kit de la
+ * propia SSF.
+ */
+@theme {
+  --color-ssf-charcoal: #303845;
+  --color-ssf-slate: #3c4557;
+  --color-ssf-navy: #094680;
+  --color-ssf-blue: #4375d9;
+  --color-ssf-mist: #f5f7fe;
+  --color-ssf-line: #c5c8cf;
+}

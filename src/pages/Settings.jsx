@@ -84,11 +84,11 @@ export function Settings() {
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-slate-600">Almacenamiento</dt>
-            <dd className="text-slate-900">{storage.label}</dd>
+            <dd className="text-ssf-charcoal">{storage.label}</dd>
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-slate-600">Dominio corto</dt>
-            <dd className="text-slate-900">
+            <dd className="text-ssf-charcoal">
               {usingFallbackDomain
                 ? 'Ruta /r/ de esta app'
                 : import.meta.env.VITE_SHORT_DOMAIN}

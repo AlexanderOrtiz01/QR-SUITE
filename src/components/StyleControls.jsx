@@ -42,8 +42,8 @@ export function StyleControls({ style, onChange, disabled = false }) {
               }
               className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors disabled:opacity-50 ${
                 style.preset === preset.id
-                  ? 'border-slate-900 bg-slate-50'
-                  : 'border-slate-200 hover:bg-slate-50'
+                  ? 'border-ssf-navy bg-ssf-mist'
+                  : 'border-slate-200 hover:bg-ssf-mist'
               }`}
             >
               <span
@@ -96,7 +96,7 @@ export function StyleControls({ style, onChange, disabled = false }) {
           accept="image/png,image/jpeg,image/svg+xml"
           disabled={disabled}
           onChange={handleLogo}
-          className="w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white"
+          className="w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-ssf-navy file:px-3 file:py-2 file:text-sm file:font-medium file:text-white"
         />
       </Field>
 

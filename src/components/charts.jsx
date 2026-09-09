@@ -5,7 +5,7 @@
  * único color: las categorías ya quedan identificadas por sus etiquetas de eje
  * y colorear cada barra distinta sería ruido, no información.
  */
-const SERIES = '#2a78d6'
+const SERIES = '#4375d9'
 
 /** Barras horizontales para categorías con etiqueta larga (SO, navegador). */
 export function BarList({ data, emptyLabel = 'Sin datos' }) {
