@@ -57,11 +57,17 @@ const FIXED = {
   Edge: 3,
 }
 
-function hueFor(label, fallbackIndex) {
+function hueFor(label) {
   if (label === 'Otros' || label === 'Desconocido') return OTHER
   const slot = FIXED[label]
   if (slot !== undefined) return CATEGORICAL[slot]
-  return CATEGORICAL[fallbackIndex % CATEGORICAL.length]
+  // Un valor no previsto se reparte por el nombre, no por su posición: si sube
+  // o baja en el ranking al filtrar, conserva su color.
+  let hash = 0
+  for (let i = 0; i < label.length; i += 1) {
+    hash = (hash * 31 + label.charCodeAt(i)) % 997
+  }
+  return CATEGORICAL[hash % CATEGORICAL.length]
 }
 
 function ChartTooltip({ active, payload, label, unit = 'escaneos' }) {
@@ -121,8 +127,8 @@ export function BarList({ data, emptyLabel = 'Sin datos' }) {
           animationDuration={120}
         />
         <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={20}>
-          {rows.map((item, index) => (
-            <Cell key={item.label} fill={hueFor(item.label, index)} />
+          {rows.map((item) => (
+            <Cell key={item.label} fill={hueFor(item.label)} />
           ))}
           <LabelList
             dataKey="value"
@@ -179,13 +185,13 @@ export function ColumnChart({ data, emptyLabel = 'Sin datos' }) {
           animationDuration={120}
         />
         <Area
-          type="monotone"
+          type="linear"
           dataKey="value"
           stroke={SERIES}
           strokeWidth={2}
           fill="url(#scanFill)"
-          dot={false}
-          activeDot={{ r: 4, strokeWidth: 2, stroke: '#ffffff' }}
+          dot={{ r: 2.5, fill: SERIES, strokeWidth: 0 }}
+          activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff' }}
         />
       </AreaChart>
     </ResponsiveContainer>

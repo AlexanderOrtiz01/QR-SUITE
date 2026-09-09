@@ -80,7 +80,12 @@ export function Dashboard() {
 
       <Card className="space-y-3">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="font-semibold">Escaneos de los últimos 14 días</h2>
+          <h2 className="font-semibold">
+            Escaneos de los últimos 14 días{' '}
+            <span className="ml-1 tabular-nums text-slate-500">
+              {periodScans}
+            </span>
+          </h2>
           <Link
             to="/analitica"
             className="text-sm text-ssf-blue hover:underline"
@@ -94,7 +99,7 @@ export function Dashboard() {
             registrar el primero.
           </p>
         ) : (
-          <Suspense fallback={<div className="h-14" />}>
+          <Suspense fallback={<div className="h-[90px]" />}>
             <Sparkline data={trend} />
           </Suspense>
         )}

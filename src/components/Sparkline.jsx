@@ -22,7 +22,7 @@ function ChartTooltip({ active, payload, label }) {
 
 export function Sparkline({ data }) {
   return (
-    <ResponsiveContainer width="100%" height={56}>
+    <ResponsiveContainer width="100%" height={90}>
       <AreaChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
         <defs>
           <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
@@ -36,13 +36,13 @@ export function Sparkline({ data }) {
           animationDuration={120}
         />
         <Area
-          type="monotone"
+          type="linear"
           dataKey="value"
           stroke={SERIES}
           strokeWidth={2}
           fill="url(#sparkFill)"
-          dot={false}
-          activeDot={{ r: 3, strokeWidth: 2, stroke: '#ffffff' }}
+          dot={{ r: 2, fill: SERIES, strokeWidth: 0 }}
+          activeDot={{ r: 4, strokeWidth: 2, stroke: '#ffffff' }}
         />
       </AreaChart>
     </ResponsiveContainer>

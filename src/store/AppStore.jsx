@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AppContext } from './context.js'
 import { storage } from '../lib/storage/index.js'
 import { createScan } from '../lib/schema.js'
+import { buildDemoData } from '../lib/demoData.js'
 import { detectBrowser, detectOs } from '../lib/userAgent.js'
 
 const DEFAULT_SETTINGS = {
@@ -120,6 +121,18 @@ export function AppProvider({ children }) {
     return scan
   }, [])
 
+  /**
+   * Carga un juego de datos de ejemplo para poder evaluar la analítica sin
+   * escanear códigos a mano. Se añade a lo que ya haya, no lo reemplaza.
+   */
+  const loadDemoData = useCallback(() => {
+    const demo = buildDemoData({ createdBy: session?.email })
+    setProjects((current) => [demo.project, ...current])
+    setQrs((current) => [...demo.qrs, ...current])
+    setScans((current) => [...demo.scans, ...current])
+    return demo
+  }, [session])
+
   const value = useMemo(
     () => ({
       ready,
@@ -136,6 +149,7 @@ export function AppProvider({ children }) {
       removeQr,
       recordScan,
       saveSettings,
+      loadDemoData,
       setSession,
     }),
     [
@@ -153,6 +167,7 @@ export function AppProvider({ children }) {
       removeQr,
       recordScan,
       saveSettings,
+      loadDemoData,
     ],
   )
 

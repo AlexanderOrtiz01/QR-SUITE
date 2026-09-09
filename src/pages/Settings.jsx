@@ -6,10 +6,11 @@ import { usingFallbackDomain } from '../lib/shortUrl.js'
 import { Banner, Button, Card, Field, Input } from '../components/ui.jsx'
 
 export function Settings() {
-  const { settings, saveSettings, session } = useApp()
+  const { settings, saveSettings, session, loadDemoData, scans } = useApp()
   const allowed = can(session?.role, 'settings:write')
   const [draft, setDraft] = useState(settings)
   const [saved, setSaved] = useState(false)
+  const [seeded, setSeeded] = useState(0)
 
   function patch(next) {
     setDraft((current) => ({ ...current, ...next }))
@@ -104,6 +105,31 @@ export function Settings() {
           <code>.env.example</code>.
         </p>
       </Card>
+
+      {allowed ? (
+        <Card className="space-y-3">
+          <h2 className="font-semibold">Datos de demostración</h2>
+          <p className="text-sm text-slate-600">
+            Genera un proyecto con cinco recursos y treinta días de escaneos
+            simulados, para revisar la analítica sin tener que escanear códigos
+            uno a uno. Se guarda solo en este navegador y se elimina con el
+            botón de borrado de abajo.
+          </p>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => setSeeded(loadDemoData().scans.length)}
+            >
+              Generar datos de ejemplo
+            </Button>
+            {seeded ? (
+              <span className="text-sm text-emerald-600">
+                {seeded} escaneos añadidos ({scans.length} en total)
+              </span>
+            ) : null}
+          </div>
+        </Card>
+      ) : null}
 
       {allowed ? (
         <Card className="space-y-3">
