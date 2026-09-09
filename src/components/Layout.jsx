@@ -73,15 +73,38 @@ export function Layout() {
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
-        <div className="flex items-center gap-2 px-4 py-4">
-          {!collapsed ? (
-            <div className="min-w-0 flex-1">
+        <div
+          className={`flex gap-2 px-3 py-4 ${
+            collapsed
+              ? 'items-start lg:flex-col lg:items-center'
+              : 'items-start'
+          }`}
+        >
+          <div className="min-w-0 flex-1">
+            {/* El emblema es de un solo azul (#001860) sobre transparencia: la
+                placa blanca es lo que le da contraste sobre el sidebar oscuro
+                sin recolorear un logotipo oficial. */}
+            <div className="rounded-lg bg-white p-2">
+              <img
+                src="/mined-logo.png"
+                alt="Ministerio de Educación de El Salvador"
+                className={`h-10 w-auto ${collapsed ? 'lg:hidden' : ''}`}
+              />
+              {collapsed ? (
+                <img
+                  src="/mined-escudo.png"
+                  alt="Ministerio de Educación de El Salvador"
+                  className="mx-auto hidden h-8 w-auto lg:block"
+                />
+              ) : null}
+            </div>
+            <div className={`mt-3 ${collapsed ? 'lg:hidden' : ''}`}>
               <p className="text-lg font-bold tracking-tight">QR Suite</p>
               <p className="truncate text-xs text-ssf-line">
                 {settings.orgName}
               </p>
             </div>
-          ) : null}
+          </div>
           <button
             type="button"
             onClick={toggleCollapsed}
@@ -160,6 +183,13 @@ export function Layout() {
           >
             <IconMenu className="size-5" />
           </button>
+          <div className="rounded bg-white p-1">
+            <img
+              src="/mined-escudo.png"
+              alt="Ministerio de Educación de El Salvador"
+              className="h-7 w-auto"
+            />
+          </div>
           <div className="min-w-0">
             <p className="font-bold tracking-tight">QR Suite</p>
             <p className="truncate text-xs text-ssf-line">{settings.orgName}</p>
