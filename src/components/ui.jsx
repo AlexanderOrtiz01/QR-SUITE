@@ -24,28 +24,6 @@ export function Card({ className = '', ...props }) {
   )
 }
 
-/**
- * Panel numerado. Es el patrón de QRStuff: cada tramo del trabajo va rotulado
- * con su número de paso, de modo que la pantalla se lee como una secuencia y
- * no como un formulario largo.
- */
-export function StepCard({ step, title, hint, className = '', children }) {
-  return (
-    <Card className={`space-y-4 ${className}`}>
-      <div className="flex items-start gap-3">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ssf-navy text-sm font-bold text-white">
-          {step}
-        </span>
-        <div className="min-w-0">
-          <h2 className="font-semibold text-ssf-charcoal">{title}</h2>
-          {hint ? <p className="text-sm text-slate-500">{hint}</p> : null}
-        </div>
-      </div>
-      <div className="space-y-4">{children}</div>
-    </Card>
-  )
-}
-
 export function Field({ label, hint, children }) {
   return (
     <label className="block">
