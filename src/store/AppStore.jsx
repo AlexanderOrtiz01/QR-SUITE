@@ -6,7 +6,7 @@ import { detectBrowser, detectOs } from '../lib/userAgent.js'
 
 const DEFAULT_SETTINGS = {
   orgName: 'Organización',
-  allowedDomain: import.meta.env.VITE_ALLOWED_EMAIL_DOMAIN || 'clases.edu',
+  allowedDomain: import.meta.env.VITE_ALLOWED_EMAIL_DOMAIN || 'clases.edu.sv',
   deprecatedUrl: '',
 }
 
@@ -47,10 +47,6 @@ export function AppProvider({ children }) {
   useEffect(() => {
     if (ready) storage.saveScans(scans)
   }, [ready, scans])
-
-  useEffect(() => {
-    if (ready) storage.saveSettings(settings)
-  }, [ready, settings])
 
   useEffect(() => {
     if (ready) storage.saveSession(session)
@@ -94,6 +90,17 @@ export function AppProvider({ children }) {
     )
   }, [])
 
+  /**
+   * Guarda los ajustes. A diferencia del resto de colecciones, solo se
+   * persisten cuando alguien los edita: así los valores por defecto de un
+   * despliegue nuevo llegan a quienes nunca los tocaron, en lugar de quedar
+   * pisados por un volcado antiguo del navegador.
+   */
+  const saveSettings = useCallback((next) => {
+    setSettings(next)
+    storage.saveSettings(next)
+  }, [])
+
   /** Registra un escaneo. Lo llamará la Cloud Function cuando exista Fase 2. */
   const recordScan = useCallback((shortCode) => {
     const scan = createScan({
@@ -128,7 +135,7 @@ export function AppProvider({ children }) {
       updateQr,
       removeQr,
       recordScan,
-      setSettings,
+      saveSettings,
       setSession,
     }),
     [
@@ -145,6 +152,7 @@ export function AppProvider({ children }) {
       updateQr,
       removeQr,
       recordScan,
+      saveSettings,
     ],
   )
 

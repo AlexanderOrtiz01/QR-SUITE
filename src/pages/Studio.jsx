@@ -221,7 +221,7 @@ export function Studio() {
                   type="url"
                   value={targetUrl}
                   onChange={(event) => setTargetUrl(event.target.value)}
-                  placeholder="https://recursos.clases.edu/videos/eq-cuad.mp4"
+                  placeholder="https://recursos.clases.edu.sv/videos/eq-cuad.mp4"
                 />
               </Field>
               <Field

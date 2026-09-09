@@ -6,7 +6,7 @@ import { usingFallbackDomain } from '../lib/shortUrl.js'
 import { Banner, Button, Card, Field, Input } from '../components/ui.jsx'
 
 export function Settings() {
-  const { settings, setSettings, session } = useApp()
+  const { settings, saveSettings, session } = useApp()
   const allowed = can(session?.role, 'settings:write')
   const [draft, setDraft] = useState(settings)
   const [saved, setSaved] = useState(false)
@@ -18,7 +18,7 @@ export function Settings() {
 
   function handleSave(event) {
     event.preventDefault()
-    setSettings(draft)
+    saveSettings(draft)
     setSaved(true)
   }
 
@@ -65,7 +65,7 @@ export function Settings() {
               value={draft.deprecatedUrl}
               disabled={!allowed}
               onChange={(event) => patch({ deprecatedUrl: event.target.value })}
-              placeholder="https://clases.edu/edicion-actualizada"
+              placeholder="https://clases.edu.sv/edicion-actualizada"
             />
           </Field>
           {allowed ? (
