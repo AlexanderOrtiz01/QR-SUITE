@@ -20,6 +20,11 @@
   --color-brand-ink: #1b2a5b;
   --color-brand-flag: #0f47af;
 
+  /* Pie institucional: charcoal del tema de gobierno y el gris del emblema. */
+  --color-footer: #2f3745;
+  --color-footer-deep: #202630;
+  --color-footer-ink: #c3cbdc;
+
   --shadow-soft: 0 8px 24px rgb(15 31 99 / 0.2);
   --shadow-soft-sm: 0 4px 14px rgb(15 31 99 / 0.12);
 }

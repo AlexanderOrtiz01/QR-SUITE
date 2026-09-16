@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
+import { Footer } from './Footer.jsx'
 import { ROLES } from '../lib/roles.js'
 import { isPersistenceShared } from '../lib/storage/index.js'
 import {
@@ -170,7 +171,9 @@ export function Layout() {
         ) : null}
       </aside>
 
-      <div className={`transition-[padding] duration-200 ${contentOffset}`}>
+      <div
+        className={`flex min-h-dvh flex-col transition-[padding] duration-200 ${contentOffset}`}
+      >
         <header className="flex items-center gap-3 bg-linear-to-r from-brand-deep to-brand-hero-light px-4 py-3 text-white shadow-soft lg:hidden">
           <button
             type="button"
@@ -201,9 +204,10 @@ export function Layout() {
           </div>
         ) : null}
 
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
           <Outlet />
         </main>
+        <Footer />
       </div>
     </div>
   )
