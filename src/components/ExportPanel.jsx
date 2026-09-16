@@ -48,7 +48,7 @@ export function ExportPanel({ data, style, title, disabled = false }) {
         </Field>
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-brand-ink/65">
         El código se rasteriza a {mmToPx(sizeMm, dpi)} px de lado. Si lleva
         marco, el archivo resultante es mayor: la medida se refiere al código en
         sí, que es lo que determina si se lee.
@@ -74,7 +74,7 @@ export function ExportPanel({ data, style, title, disabled = false }) {
         </Button>
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-brand-ink/65">
         EPS no se genera desde el navegador. El SVG se abre en Illustrator y se
         guarda como EPS en un paso, o se automatiza en servidor con Inkscape.
       </p>

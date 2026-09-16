@@ -28,8 +28,8 @@ export function Projects() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Proyectos</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-extrabold tracking-tight">Proyectos</h1>
+        <p className="text-sm text-brand-ink/65">
           Un proyecto agrupa los códigos de un libro o asignatura.
         </p>
       </header>
@@ -78,10 +78,10 @@ export function Projects() {
               >
                 <div>
                   <p className="font-medium">{project.name}</p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-brand-ink/65">
                     {project.department || 'Sin departamento'}
                   </p>
-                  <p className="mt-2 text-xs text-slate-500">
+                  <p className="mt-2 text-xs text-brand-ink/65">
                     {count} {count === 1 ? 'código' : 'códigos'} · creado por{' '}
                     {project.created_by}
                   </p>

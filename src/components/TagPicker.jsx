@@ -17,10 +17,10 @@ export function TagPicker({ options, value, onChange, label = 'Etiquetas' }) {
             key={tag}
             type="button"
             onClick={() => toggle(tag)}
-            className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+            className={`rounded-full border px-3 py-1 text-sm font-semibold transition-colors ${
               value.includes(tag)
-                ? 'border-ssf-navy bg-ssf-navy text-white'
-                : 'border-ssf-line text-slate-600 hover:bg-ssf-mist'
+                ? 'border-brand-primary bg-brand-primary text-white'
+                : 'border-brand-soft text-brand-ink/80 hover:bg-brand-soft'
             }`}
           >
             {tag}

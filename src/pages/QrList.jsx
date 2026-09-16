@@ -41,8 +41,8 @@ export function QrList() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Códigos QR</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-extrabold tracking-tight">Códigos QR</h1>
+          <p className="text-sm text-brand-ink/65">
             {filtered.length} de {qrs.length} códigos
           </p>
         </div>
@@ -89,7 +89,7 @@ export function QrList() {
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="w-full min-w-[640px] text-sm">
-            <thead className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+            <thead className="border-b border-brand-soft text-left text-xs font-bold uppercase tracking-[0.12em] text-brand-ink/65">
               <tr>
                 <th className="px-4 py-3 font-medium">Título</th>
                 <th className="px-4 py-3 font-medium">Código</th>
@@ -98,9 +98,12 @@ export function QrList() {
                 <th className="px-4 py-3 text-right font-medium">Escaneos</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-brand-page">
               {filtered.map((qr) => (
-                <tr key={qr.short_code} className="hover:bg-ssf-mist">
+                <tr
+                  key={qr.short_code}
+                  className="transition-colors hover:bg-brand-soft/40"
+                >
                   <td className="px-4 py-3">
                     <Link
                       to={`/codigos/${qr.short_code}`}
@@ -109,7 +112,7 @@ export function QrList() {
                       {qr.title}
                     </Link>
                     {qr.tags.length > 0 ? (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-brand-ink/65">
                         {qr.tags.join(' · ')}
                       </p>
                     ) : null}
@@ -117,7 +120,7 @@ export function QrList() {
                   <td className="px-4 py-3 font-mono text-xs">
                     {qr.short_code}
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-brand-ink/80">
                     {projectName(qr.project_id)}
                   </td>
                   <td className="px-4 py-3">

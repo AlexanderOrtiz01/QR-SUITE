@@ -79,12 +79,12 @@ function QrEditor({ qr }) {
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="truncate text-2xl font-bold tracking-tight">
+            <h1 className="truncate text-2xl font-extrabold tracking-tight">
               {qr.title}
             </h1>
             <StatusBadge status={qr.status} />
           </div>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-brand-ink/65">
             <code className="font-mono">{qr.short_code}</code>
             {project ? ` · ${project.name}` : null} · {qr.total_scans || 0}{' '}
             escaneos
@@ -174,15 +174,15 @@ function QrEditor({ qr }) {
               onChange={(tags) => patch({ tags })}
             />
 
-            <div className="rounded-lg bg-ssf-mist p-3">
-              <p className="text-xs font-medium text-slate-700">
+            <div className="rounded-xl bg-brand-page p-3">
+              <p className="text-xs font-medium text-brand-ink">
                 Destino activo ahora
               </p>
-              <p className="mt-0.5 break-all font-mono text-xs text-slate-600">
+              <p className="mt-0.5 break-all font-mono text-xs text-brand-ink/80">
                 {activeTarget || 'Sin destino configurado para este estado'}
               </p>
               {draft.status === 'deprecated' && !settings.deprecatedUrl ? (
-                <p className="mt-1 text-xs text-amber-700">
+                <p className="mt-1 text-xs text-brand-primary-deep">
                   Falta definir la página institucional de aviso en Ajustes.
                 </p>
               ) : null}
@@ -192,7 +192,7 @@ function QrEditor({ qr }) {
               <div className="flex items-center gap-3">
                 <Button onClick={handleSave}>Guardar cambios</Button>
                 {saved ? (
-                  <span className="text-sm text-emerald-600">Guardado</span>
+                  <span className="text-sm text-brand-primary">Guardado</span>
                 ) : null}
               </div>
             ) : null}
@@ -210,17 +210,17 @@ function QrEditor({ qr }) {
           <Card className="space-y-3">
             <h2 className="font-semibold">Escaneos registrados</h2>
             {qrScans.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-brand-ink/65">
                 Todavía no hay escaneos con detalle técnico para este código.
               </p>
             ) : (
-              <ul className="divide-y divide-slate-100 text-sm">
+              <ul className="divide-y divide-brand-page text-sm">
                 {qrScans.slice(0, 10).map((scan) => (
                   <li key={scan.id} className="flex justify-between gap-3 py-2">
-                    <span className="text-slate-600">
+                    <span className="text-brand-ink/80">
                       {new Date(scan.timestamp).toLocaleString('es')}
                     </span>
-                    <span className="text-slate-500">
+                    <span className="text-brand-ink/65">
                       {scan.device_os} · {scan.browser}
                     </span>
                   </li>
@@ -233,10 +233,10 @@ function QrEditor({ qr }) {
         <div className="space-y-6">
           <Card className="space-y-4">
             <h2 className="font-semibold">Código impreso</h2>
-            <div className="flex justify-center rounded-lg bg-ssf-mist p-4">
+            <div className="flex justify-center rounded-xl bg-brand-page p-4">
               <QrPreview data={shortUrl} style={draft.style} size={220} />
             </div>
-            <p className="break-all font-mono text-xs text-slate-500">
+            <p className="break-all font-mono text-xs text-brand-ink/65">
               {shortUrl}
             </p>
           </Card>

@@ -39,10 +39,10 @@ export function Login() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-ssf-mist">
-      <div className="bg-ssf-charcoal px-4 py-4 text-center text-white">
-        <p className="text-lg font-bold tracking-tight">QR Suite</p>
-        <p className="text-xs text-ssf-line">
+    <div className="flex min-h-dvh flex-col bg-brand-page">
+      <div className="bg-linear-to-r from-brand-deep to-brand-hero-light px-4 py-5 text-center text-white shadow-soft">
+        <p className="text-xl font-extrabold tracking-tight">QR Suite</p>
+        <p className="text-xs text-brand-accent">
           Generador y gestor de códigos QR dinámicos
         </p>
       </div>
