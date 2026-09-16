@@ -6,7 +6,7 @@
  */
 import { Area, AreaChart, ResponsiveContainer, Tooltip } from 'recharts'
 
-const SERIES = '#2456d6'
+const SERIES = '#1a48e6'
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
