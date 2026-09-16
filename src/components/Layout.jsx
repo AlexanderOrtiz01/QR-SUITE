@@ -102,21 +102,7 @@ export function Layout() {
           </div>
 
           <div className="flex flex-col items-center text-center">
-            {/* Versión monocroma clara del emblema, pensada para fondos
-                oscuros: va directamente sobre el charcoal, sin placa. */}
-            <img
-              src="/mined-logo.png"
-              alt="Ministerio de Educación de El Salvador"
-              className={`h-14 w-auto ${collapsed ? 'lg:hidden' : ''}`}
-            />
-            {collapsed ? (
-              <img
-                src="/mined-escudo.png"
-                alt="Ministerio de Educación de El Salvador"
-                className="hidden h-11 w-auto lg:block"
-              />
-            ) : null}
-            <div className={`mt-3 w-full ${collapsed ? 'lg:hidden' : ''}`}>
+            <div className={`w-full ${collapsed ? 'lg:hidden' : ''}`}>
               <p className="text-lg font-extrabold tracking-tight">QR Suite</p>
               <p className="truncate text-xs text-brand-accent">
                 {settings.orgName}
