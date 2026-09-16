@@ -63,14 +63,14 @@ const STYLE_TABS = [
 
 function Summary({ rows }) {
   return (
-    <dl className="divide-y divide-slate-100 text-sm">
+    <dl className="divide-y divide-brand-page text-sm">
       {rows.map((row) => (
         <div
           key={row.label}
           className="grid gap-1 py-2.5 sm:grid-cols-[10rem_1fr]"
         >
-          <dt className="text-slate-500">{row.label}</dt>
-          <dd className="break-all text-ssf-charcoal">{row.value || '—'}</dd>
+          <dt className="text-brand-ink/65">{row.label}</dt>
+          <dd className="break-all text-brand-ink">{row.value || '—'}</dd>
         </div>
       ))}
     </dl>
@@ -143,8 +143,10 @@ export function Studio() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Crear código QR</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          Crear código QR
+        </h1>
+        <p className="text-sm text-brand-ink/65">
           El QR codifica la URL corta, no el destino: por eso el destino se
           puede cambiar después sin reimprimir el libro.
         </p>
@@ -191,7 +193,7 @@ export function Studio() {
                 </Select>
               </Field>
               {projects.length === 0 ? (
-                <p className="text-xs text-amber-700">
+                <p className="text-xs font-semibold text-brand-primary-deep">
                   No hay proyectos todavía. Crea uno en la sección Proyectos.
                 </p>
               ) : null}
@@ -280,8 +282,8 @@ export function Studio() {
                   { label: 'URL impresa', value: shortUrl },
                 ]}
               />
-              <div className="border-t border-slate-200 pt-5">
-                <h3 className="mb-3 font-semibold text-ssf-charcoal">
+              <div className="border-t border-brand-soft pt-5">
+                <h3 className="mb-3 font-semibold text-brand-ink">
                   Descargar para imprenta
                 </h3>
                 <ExportPanel
@@ -297,12 +299,12 @@ export function Studio() {
 
         <Card className="space-y-4 lg:sticky lg:top-6 lg:self-start">
           <h2 className="font-semibold">Vista previa</h2>
-          <div className="flex justify-center rounded-lg bg-ssf-mist p-4">
+          <div className="flex justify-center rounded-xl bg-brand-page p-4">
             <QrPreview data={shortUrl} style={style} size={200} />
           </div>
           <div>
-            <p className="text-xs font-medium text-ssf-charcoal">URL impresa</p>
-            <p className="mt-0.5 break-all font-mono text-xs text-slate-500">
+            <p className="text-xs font-medium text-brand-ink">URL impresa</p>
+            <p className="mt-0.5 break-all font-mono text-xs text-brand-ink/65">
               {shortUrl}
             </p>
           </div>

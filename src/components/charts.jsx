@@ -23,23 +23,23 @@ import {
   YAxis,
 } from 'recharts'
 
-const SERIES = '#4375d9'
-const CATEGORICAL = ['#4375d9', '#eb6834', '#1baf7a', '#4a3aa7']
-const OTHER = '#94a3b8'
+const SERIES = '#2456d6'
+const CATEGORICAL = ['#2456d6', '#eb6834', '#1baf7a', '#4a3aa7']
+const OTHER = '#9aa5c4'
 
 /** Rampa secuencial de un solo hue para magnitudes continuas (heatmap). */
 const RAMP = [
-  '#cde2fb',
-  '#9ec5f4',
-  '#6da7ec',
-  '#3987e5',
-  '#256abf',
-  '#184f95',
-  '#0d366b',
+  '#dce8ff',
+  '#b3ccfb',
+  '#7fb3ff',
+  '#4f86ec',
+  '#2456d6',
+  '#1e3a8a',
+  '#14276b',
 ]
 
-const AXIS = { fontSize: 11, fill: '#64748b' }
-const GRID = '#e2e8f0'
+const AXIS = { fontSize: 11, fill: '#6b7699' }
+const GRID = '#dce8ff'
 
 /**
  * Asigna un color estable a cada etiqueta. Los valores frecuentes tienen slot
@@ -73,9 +73,9 @@ function hueFor(label) {
 function ChartTooltip({ active, payload, label, unit = 'escaneos' }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg">
-      <p className="font-medium text-ssf-charcoal">{label}</p>
-      <p className="mt-0.5 tabular-nums text-slate-600">
+    <div className="rounded-xl bg-white px-3 py-2 text-xs shadow-soft">
+      <p className="font-bold text-brand-ink">{label}</p>
+      <p className="mt-0.5 tabular-nums text-brand-ink/80">
         {payload[0].value} {unit}
       </p>
     </div>
@@ -89,7 +89,7 @@ function ChartTooltip({ active, payload, label, unit = 'escaneos' }) {
  */
 export function BarList({ data, emptyLabel = 'Sin datos' }) {
   if (data.length === 0) {
-    return <p className="text-sm text-slate-500">{emptyLabel}</p>
+    return <p className="text-sm text-brand-ink/65">{emptyLabel}</p>
   }
 
   // Más de cuatro categorías dejan de distinguirse: la cola se agrupa.
@@ -123,7 +123,7 @@ export function BarList({ data, emptyLabel = 'Sin datos' }) {
         />
         <Tooltip
           content={<ChartTooltip />}
-          cursor={{ fill: '#f1f5f9' }}
+          cursor={{ fill: '#f3f5f9' }}
           animationDuration={120}
         />
         <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={20}>
@@ -133,7 +133,7 @@ export function BarList({ data, emptyLabel = 'Sin datos' }) {
           <LabelList
             dataKey="value"
             position="right"
-            style={{ fontSize: 11, fill: '#475569' }}
+            style={{ fontSize: 11, fill: '#1b2a5b' }}
           />
         </Bar>
       </BarChart>
@@ -147,7 +147,7 @@ export function BarList({ data, emptyLabel = 'Sin datos' }) {
  */
 export function ColumnChart({ data, emptyLabel = 'Sin datos' }) {
   if (data.length === 0) {
-    return <p className="text-sm text-slate-500">{emptyLabel}</p>
+    return <p className="text-sm text-brand-ink/65">{emptyLabel}</p>
   }
   // Con muchos días se etiqueta uno de cada tres para que no se solapen.
   const interval = data.length > 20 ? 2 : data.length > 10 ? 1 : 0
@@ -221,14 +221,14 @@ export function HourHeatmap({ data }) {
           return (
             <div
               key={item.hour}
-              className="h-8 flex-1 rounded-sm border border-slate-200 transition-transform hover:scale-y-110"
-              style={{ background: step ?? '#f8fafc' }}
+              className="h-8 flex-1 rounded-sm transition-transform hover:scale-y-110"
+              style={{ background: step ?? '#f3f5f9' }}
               title={`${String(item.hour).padStart(2, '0')}:00 — ${item.value} escaneos`}
             />
           )
         })}
       </div>
-      <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+      <div className="mt-2 flex items-center justify-between text-xs text-brand-ink/65">
         <span>00 h</span>
         <span className="flex items-center gap-1">
           <span>0</span>

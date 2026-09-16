@@ -36,7 +36,7 @@ function Panel() {
           element={
             <Suspense
               fallback={
-                <p className="text-sm text-slate-500">Cargando analítica…</p>
+                <p className="text-sm text-brand-ink/65">Cargando analítica…</p>
               }
             >
               <Analytics />

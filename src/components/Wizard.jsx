@@ -10,9 +10,9 @@ export function StepProgress({ steps, current, onSelect }) {
 
   return (
     <div className="space-y-3">
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+      <div className="h-1.5 overflow-hidden rounded-full bg-brand-soft">
         <div
-          className="h-full rounded-full bg-ssf-navy transition-[width] duration-300"
+          className="h-full rounded-full bg-brand-primary transition-[width] duration-300"
           style={{ width: `${percent}%` }}
           role="progressbar"
           aria-valuenow={current + 1}
@@ -31,12 +31,12 @@ export function StepProgress({ steps, current, onSelect }) {
                 // Solo se puede retroceder: avanzar exige validar el paso.
                 disabled={index > current}
                 onClick={() => onSelect(index)}
-                className={`text-xs font-semibold tracking-wide uppercase transition-colors disabled:cursor-not-allowed ${
+                className={`text-xs font-bold tracking-[0.12em] uppercase transition-colors disabled:cursor-not-allowed ${
                   index === current
-                    ? 'text-ssf-navy'
+                    ? 'text-brand-primary-deep'
                     : done
-                      ? 'text-slate-500 hover:text-ssf-navy'
-                      : 'text-slate-400'
+                      ? 'text-brand-ink/65 hover:text-brand-primary-deep'
+                      : 'text-brand-ink/45'
                 }`}
               >
                 {index + 1}. {step.label}
@@ -58,16 +58,16 @@ export function StepHeader({ title, hint, onBack, action }) {
             type="button"
             onClick={onBack}
             aria-label="Paso anterior"
-            className="mt-0.5 rounded-lg p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-ssf-navy"
+            className="mt-0.5 rounded-full p-1 text-brand-ink/65 transition-colors hover:bg-brand-soft hover:text-brand-primary-deep"
           >
             <IconChevronLeft className="size-5" />
           </button>
         ) : null}
         <div className="min-w-0">
-          <h2 className="text-xl font-bold tracking-tight text-ssf-charcoal">
+          <h2 className="text-xl font-extrabold tracking-tight text-brand-ink">
             {title}
           </h2>
-          {hint ? <p className="text-sm text-slate-500">{hint}</p> : null}
+          {hint ? <p className="text-sm text-brand-ink/65">{hint}</p> : null}
         </div>
       </div>
       {action}
@@ -77,17 +77,17 @@ export function StepHeader({ title, hint, onBack, action }) {
 
 export function TabBar({ tabs, value, onChange }) {
   return (
-    <div className="flex gap-6 overflow-x-auto border-b border-slate-200">
+    <div className="flex gap-6 overflow-x-auto border-b border-brand-soft">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           type="button"
           onClick={() => onChange(tab.id)}
           aria-current={value === tab.id}
-          className={`shrink-0 border-b-2 px-1 pb-2.5 text-sm font-medium transition-colors ${
+          className={`shrink-0 border-b-2 px-1 pb-2.5 text-sm font-bold transition-colors ${
             value === tab.id
-              ? 'border-ssf-navy text-ssf-navy'
-              : 'border-transparent text-slate-500 hover:text-ssf-charcoal'
+              ? 'border-brand-primary text-brand-primary-deep'
+              : 'border-transparent text-brand-ink/65 hover:text-brand-ink'
           }`}
         >
           {tab.label}

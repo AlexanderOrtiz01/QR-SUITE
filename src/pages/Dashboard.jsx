@@ -18,9 +18,9 @@ function dayKey(date) {
 function Stat({ label, value, hint }) {
   return (
     <Card>
-      <p className="text-sm text-slate-500">{label}</p>
+      <p className="text-sm text-brand-ink/65">{label}</p>
       <p className="mt-1 text-3xl font-semibold tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-brand-ink/65">{hint}</p> : null}
     </Card>
   )
 }
@@ -57,8 +57,8 @@ export function Dashboard() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-extrabold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-brand-ink/65">
             Estado general de la plataforma
           </p>
         </div>
@@ -82,19 +82,19 @@ export function Dashboard() {
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-semibold">
             Escaneos de los últimos 14 días{' '}
-            <span className="ml-1 tabular-nums text-slate-500">
+            <span className="ml-1 tabular-nums text-brand-ink/65">
               {periodScans}
             </span>
           </h2>
           <Link
             to="/analitica"
-            className="text-sm text-ssf-blue hover:underline"
+            className="text-sm text-brand-primary hover:underline"
           >
             Ver analítica
           </Link>
         </div>
         {periodScans === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-brand-ink/65">
             Sin escaneos en el periodo. Abre la URL corta de un código para
             registrar el primero.
           </p>
@@ -119,7 +119,7 @@ export function Dashboard() {
           />
         ) : (
           <Card className="p-0">
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-brand-page">
               {recent.map((qr) => (
                 <li
                   key={qr.short_code}
@@ -132,7 +132,7 @@ export function Dashboard() {
                     >
                       {qr.title}
                     </Link>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-brand-ink/65">
                       <code>{qr.short_code}</code> · {qr.total_scans || 0}{' '}
                       escaneos
                     </p>

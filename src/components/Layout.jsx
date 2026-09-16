@@ -58,18 +58,18 @@ export function Layout() {
   const contentOffset = collapsed ? 'lg:pl-18' : 'lg:pl-60'
 
   return (
-    <div className="min-h-dvh bg-ssf-mist text-ssf-charcoal">
+    <div className="min-h-dvh bg-brand-page text-brand-ink">
       {mobileOpen ? (
         <button
           type="button"
           aria-label="Cerrar menú"
           onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 z-30 bg-ssf-charcoal/50 lg:hidden"
+          className="fixed inset-0 z-30 bg-brand-deep/60 backdrop-blur-[2px] lg:hidden"
         />
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r-4 border-ssf-slate bg-ssf-charcoal text-white transition-[width,transform] duration-200 ${asideWidth} ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-linear-to-b from-brand-deep via-brand-hero to-brand-hero-light text-white shadow-soft transition-[width,transform] duration-200 ${asideWidth} ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
@@ -84,7 +84,7 @@ export function Layout() {
               onClick={toggleCollapsed}
               aria-label={collapsed ? 'Expandir menú' : 'Plegar menú'}
               aria-expanded={!collapsed}
-              className="hidden rounded-lg p-2 transition-colors hover:bg-white/10 lg:block"
+              className="hidden rounded-full p-2 transition-colors hover:bg-white/15 lg:block"
             >
               <IconChevronLeft
                 className={`size-5 transition-transform ${collapsed ? 'rotate-180' : ''}`}
@@ -94,7 +94,7 @@ export function Layout() {
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Cerrar menú"
-              className="rounded-lg p-2 transition-colors hover:bg-white/10 lg:hidden"
+              className="rounded-full p-2 transition-colors hover:bg-white/15 lg:hidden"
             >
               <IconClose className="size-5" />
             </button>
@@ -116,8 +116,8 @@ export function Layout() {
               />
             ) : null}
             <div className={`mt-3 w-full ${collapsed ? 'lg:hidden' : ''}`}>
-              <p className="text-lg font-bold tracking-tight">QR Suite</p>
-              <p className="truncate text-xs text-ssf-line">
+              <p className="text-lg font-extrabold tracking-tight">QR Suite</p>
+              <p className="truncate text-xs text-brand-accent">
                 {settings.orgName}
               </p>
             </div>
@@ -133,10 +133,10 @@ export function Layout() {
               onClick={() => setMobileOpen(false)}
               title={collapsed ? item.label : undefined}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                `flex items-center gap-3 rounded-full px-3.5 py-2.5 text-sm font-bold transition-colors ${
                   isActive
-                    ? 'bg-ssf-navy text-white'
-                    : 'text-ssf-line hover:bg-white/10'
+                    ? 'bg-white text-brand-primary-deep shadow-soft-sm'
+                    : 'text-brand-soft hover:bg-white/15 hover:text-white'
                 } ${collapsed ? 'lg:justify-center lg:px-0' : ''}`
               }
             >
@@ -151,7 +151,7 @@ export function Layout() {
             {!collapsed ? (
               <div className="mb-2 px-1">
                 <p className="truncate text-xs font-medium">{session.email}</p>
-                <p className="text-xs text-ssf-line">
+                <p className="text-xs text-brand-accent">
                   {ROLES[session.role]?.label}
                 </p>
               </div>
@@ -160,7 +160,7 @@ export function Layout() {
               type="button"
               onClick={() => setSession(null)}
               title={collapsed ? 'Cerrar sesión' : undefined}
-              className={`w-full rounded-lg border border-white/25 px-3 py-2 text-xs font-medium transition-colors hover:bg-white/10 ${
+              className={`w-full rounded-full border border-white/40 px-3 py-2 text-xs font-bold transition-colors hover:bg-white hover:text-brand-primary-deep ${
                 collapsed ? 'lg:px-0' : ''
               }`}
             >
@@ -171,13 +171,13 @@ export function Layout() {
       </aside>
 
       <div className={`transition-[padding] duration-200 ${contentOffset}`}>
-        <header className="flex items-center gap-3 border-b-4 border-ssf-slate bg-ssf-charcoal px-4 py-3 text-white lg:hidden">
+        <header className="flex items-center gap-3 bg-linear-to-r from-brand-deep to-brand-hero-light px-4 py-3 text-white shadow-soft lg:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label="Abrir menú"
             aria-expanded={mobileOpen}
-            className="rounded-lg p-2 transition-colors hover:bg-white/10"
+            className="rounded-full p-2 transition-colors hover:bg-white/15"
           >
             <IconMenu className="size-5" />
           </button>
@@ -187,13 +187,15 @@ export function Layout() {
             className="h-8 w-auto"
           />
           <div className="min-w-0">
-            <p className="font-bold tracking-tight">QR Suite</p>
-            <p className="truncate text-xs text-ssf-line">{settings.orgName}</p>
+            <p className="font-extrabold tracking-tight">QR Suite</p>
+            <p className="truncate text-xs text-brand-accent">
+              {settings.orgName}
+            </p>
           </div>
         </header>
 
         {!isPersistenceShared ? (
-          <div className="bg-amber-100 px-4 py-2 text-center text-xs text-amber-900">
+          <div className="bg-brand-soft px-4 py-2 text-center text-xs font-semibold text-brand-ink">
             Modo local: los datos se guardan solo en este navegador. Conecta
             Firestore para compartirlos entre usuarios y dispositivos.
           </div>

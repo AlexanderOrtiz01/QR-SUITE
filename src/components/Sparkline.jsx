@@ -6,14 +6,14 @@
  */
 import { Area, AreaChart, ResponsiveContainer, Tooltip } from 'recharts'
 
-const SERIES = '#4375d9'
+const SERIES = '#2456d6'
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg">
-      <p className="font-medium text-ssf-charcoal">{label}</p>
-      <p className="mt-0.5 tabular-nums text-slate-600">
+    <div className="rounded-xl bg-white px-3 py-2 text-xs shadow-soft">
+      <p className="font-bold text-brand-ink">{label}</p>
+      <p className="mt-0.5 tabular-nums text-brand-ink/80">
         {payload[0].value} escaneos
       </p>
     </div>

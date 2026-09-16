@@ -10,10 +10,10 @@ import { FRAMES, frameThumbnail } from '../lib/frames.js'
 import { Field, Input, Select } from './ui.jsx'
 
 const TILE =
-  'rounded-lg border p-2 text-left text-xs transition-colors disabled:opacity-50'
+  'rounded-xl border p-2 text-left text-xs transition-colors disabled:opacity-50'
 
 function tileClass(active) {
-  return `${TILE} ${active ? 'border-ssf-navy bg-ssf-mist' : 'border-slate-200 hover:bg-ssf-mist'}`
+  return `${TILE} ${active ? 'border-brand-primary bg-brand-soft' : 'border-brand-soft hover:bg-brand-page'}`
 }
 
 /**
@@ -39,14 +39,14 @@ export function ColorControls({ style, onChange, disabled = false }) {
                 light: preset.light,
               })
             }
-            className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 ${
+            className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 ${
               style.preset === preset.id
-                ? 'border-ssf-navy bg-ssf-mist'
-                : 'border-slate-200 hover:bg-ssf-mist'
+                ? 'border-brand-primary bg-brand-soft'
+                : 'border-brand-soft hover:bg-brand-page'
             }`}
           >
             <span
-              className="flex size-8 shrink-0 items-center justify-center rounded border border-slate-300"
+              className="flex size-8 shrink-0 items-center justify-center rounded-md border border-brand-soft"
               style={{ background: preset.light }}
             >
               <span
@@ -55,10 +55,10 @@ export function ColorControls({ style, onChange, disabled = false }) {
               />
             </span>
             <span className="min-w-0">
-              <span className="block truncate font-medium text-ssf-charcoal">
+              <span className="block truncate font-bold text-brand-ink">
                 {preset.label}
               </span>
-              <span className="block font-mono text-xs text-slate-500">
+              <span className="block font-mono text-xs text-brand-ink/65">
                 {preset.dark}
               </span>
             </span>
@@ -141,7 +141,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
           accept="image/png,image/jpeg,image/svg+xml"
           disabled={disabled}
           onChange={handleLogo}
-          className="w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-ssf-navy file:px-3 file:py-2 file:text-sm file:font-medium file:text-white"
+          className="w-full text-sm text-brand-ink/80 file:mr-3 file:rounded-full file:border-0 file:bg-brand-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
         />
       </Field>
 
@@ -158,7 +158,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
               onChange={(event) =>
                 onChange({ ...style, logoSize: Number(event.target.value) })
               }
-              className="w-full accent-ssf-navy"
+              className="w-full accent-brand-primary"
             />
             <button
               type="button"
@@ -171,7 +171,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
           </div>
         </Field>
       ) : (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-brand-ink/65">
           Sin logotipo. El código se genera igualmente con corrección de errores
           alta.
         </p>
@@ -213,8 +213,8 @@ export function GradientControls({ style, onChange, disabled = false }) {
             onClick={() => setPreset(null)}
             className={tileClass(!gradient)}
           >
-            <span className="block h-9 w-full rounded border border-slate-300 bg-white" />
-            <span className="mt-1.5 block truncate text-ssf-charcoal">
+            <span className="block h-9 w-full rounded-md border border-brand-soft bg-white" />
+            <span className="mt-1.5 block truncate text-brand-ink">
               Sin degradado
             </span>
           </button>
@@ -230,7 +230,7 @@ export function GradientControls({ style, onChange, disabled = false }) {
               {/* La muestra refleja el tipo elegido, para que no prometa un
                   degradado lineal cuando el código va a salir radial. */}
               <span
-                className="block h-9 w-full rounded border border-slate-300"
+                className="block h-9 w-full rounded-md border border-brand-soft"
                 style={{
                   background:
                     gradient?.type === 'radial'
@@ -238,7 +238,7 @@ export function GradientControls({ style, onChange, disabled = false }) {
                       : `linear-gradient(135deg, ${preset.from}, ${preset.to})`,
                 }}
               />
-              <span className="mt-1.5 block truncate text-ssf-charcoal">
+              <span className="mt-1.5 block truncate text-brand-ink">
                 {preset.label}
               </span>
             </button>
@@ -286,7 +286,7 @@ export function GradientControls({ style, onChange, disabled = false }) {
                     },
                   })
                 }
-                className="w-full accent-ssf-navy"
+                className="w-full accent-brand-primary"
               />
             </Field>
           ) : null}
@@ -320,7 +320,7 @@ export function FrameControls({ style, onChange, disabled = false }) {
                   }),
                 }}
               />
-              <span className="mt-1.5 block text-center text-ssf-charcoal">
+              <span className="mt-1.5 block text-center text-brand-ink">
                 {frame.label}
               </span>
             </button>

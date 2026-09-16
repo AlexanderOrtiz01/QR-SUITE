@@ -28,9 +28,9 @@ function dayKey(date) {
 function Stat({ label, value, hint }) {
   return (
     <Card>
-      <p className="text-sm text-slate-500">{label}</p>
+      <p className="text-sm text-brand-ink/65">{label}</p>
       <p className="mt-1 text-3xl font-semibold tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-brand-ink/65">{hint}</p> : null}
     </Card>
   )
 }
@@ -114,8 +114,8 @@ export function Analytics() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Analítica</h1>
-          <p className="text-sm text-slate-500">
+          <h1 className="text-2xl font-extrabold tracking-tight">Analítica</h1>
+          <p className="text-sm text-brand-ink/65">
             Escaneos registrados por el motor de redirección
           </p>
         </div>

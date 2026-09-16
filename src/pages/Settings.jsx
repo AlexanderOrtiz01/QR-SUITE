@@ -26,8 +26,8 @@ export function Settings() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">Ajustes</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-extrabold tracking-tight">Ajustes</h1>
+        <p className="text-sm text-brand-ink/65">
           Configuración institucional de la plataforma
         </p>
       </header>
@@ -73,7 +73,7 @@ export function Settings() {
             <div className="flex items-center gap-3">
               <Button type="submit">Guardar</Button>
               {saved ? (
-                <span className="text-sm text-emerald-600">Guardado</span>
+                <span className="text-sm text-brand-primary">Guardado</span>
               ) : null}
             </div>
           ) : null}
@@ -84,23 +84,25 @@ export function Settings() {
         <h2 className="font-semibold">Estado de la integración</h2>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between gap-4">
-            <dt className="text-slate-600">Almacenamiento</dt>
-            <dd className="text-ssf-charcoal">{storage.label}</dd>
+            <dt className="text-brand-ink/80">Almacenamiento</dt>
+            <dd className="text-brand-ink">{storage.label}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-slate-600">Dominio corto</dt>
-            <dd className="text-ssf-charcoal">
+            <dt className="text-brand-ink/80">Dominio corto</dt>
+            <dd className="text-brand-ink">
               {usingFallbackDomain
                 ? 'Ruta /r/ de esta app'
                 : import.meta.env.VITE_SHORT_DOMAIN}
             </dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-slate-600">Autenticación</dt>
-            <dd className="text-amber-700">Simulada (falta Firebase Auth)</dd>
+            <dt className="text-brand-ink/80">Autenticación</dt>
+            <dd className="text-brand-primary-deep">
+              Simulada (falta Firebase Auth)
+            </dd>
           </div>
         </dl>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-brand-ink/65">
           Configura estas piezas en <code>.env.local</code> a partir de{' '}
           <code>.env.example</code>.
         </p>
@@ -109,7 +111,7 @@ export function Settings() {
       {allowed ? (
         <Card className="space-y-3">
           <h2 className="font-semibold">Datos de demostración</h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-brand-ink/80">
             Genera un proyecto con cinco recursos y treinta días de escaneos
             simulados, para revisar la analítica sin tener que escanear códigos
             uno a uno. Se guarda solo en este navegador y se elimina con el
@@ -123,7 +125,7 @@ export function Settings() {
               Generar datos de ejemplo
             </Button>
             {seeded ? (
-              <span className="text-sm text-emerald-600">
+              <span className="text-sm text-brand-primary">
                 {seeded} escaneos añadidos ({scans.length} en total)
               </span>
             ) : null}
@@ -134,7 +136,7 @@ export function Settings() {
       {allowed ? (
         <Card className="space-y-3">
           <h2 className="font-semibold text-red-700">Zona de riesgo</h2>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-brand-ink/80">
             Borra proyectos, códigos y escaneos guardados en este navegador. No
             se puede deshacer.
           </p>
