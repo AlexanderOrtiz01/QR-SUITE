@@ -9,19 +9,19 @@
   --font-sans:
     'Nunito', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  --color-brand-hero: #1e3a8a;
-  --color-brand-hero-light: #2d4fb8;
-  --color-brand-deep: #14276b;
-  --color-brand-primary: #2456d6;
-  --color-brand-primary-deep: #1e40af;
+  --color-brand-hero: #182f8a;
+  --color-brand-hero-light: #2646c4;
+  --color-brand-deep: #0f1f63;
+  --color-brand-primary: #1a48e6;
+  --color-brand-primary-deep: #1535b0;
   --color-brand-soft: #dce8ff;
   --color-brand-accent: #7fb3ff;
   --color-brand-page: #f3f5f9;
   --color-brand-ink: #1b2a5b;
   --color-brand-flag: #0f47af;
 
-  --shadow-soft: 0 8px 24px rgb(20 39 107 / 0.18);
-  --shadow-soft-sm: 0 4px 14px rgb(20 39 107 / 0.1);
+  --shadow-soft: 0 8px 24px rgb(15 31 99 / 0.2);
+  --shadow-soft-sm: 0 4px 14px rgb(15 31 99 / 0.12);
 }
 
 @layer base {

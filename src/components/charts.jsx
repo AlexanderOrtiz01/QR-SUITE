@@ -23,8 +23,8 @@ import {
   YAxis,
 } from 'recharts'
 
-const SERIES = '#2456d6'
-const CATEGORICAL = ['#2456d6', '#eb6834', '#1baf7a', '#4a3aa7']
+const SERIES = '#1a48e6'
+const CATEGORICAL = ['#1a48e6', '#eb6834', '#1baf7a', '#4a3aa7']
 const OTHER = '#9aa5c4'
 
 /** Rampa secuencial de un solo hue para magnitudes continuas (heatmap). */
@@ -32,10 +32,10 @@ const RAMP = [
   '#dce8ff',
   '#b3ccfb',
   '#7fb3ff',
-  '#4f86ec',
-  '#2456d6',
-  '#1e3a8a',
-  '#14276b',
+  '#4a7cf0',
+  '#1a48e6',
+  '#182f8a',
+  '#0f1f63',
 ]
 
 const AXIS = { fontSize: 11, fill: '#6b7699' }
