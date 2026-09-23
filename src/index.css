@@ -25,6 +25,17 @@
   --color-footer-deep: #202630;
   --color-footer-ink: #c3cbdc;
 
+  /* Superficie del menú: diagonal que arranca en un índigo casi negro y se
+     abre hacia el azul encendido al final del recorrido. Los dos últimos
+     puntos caen fuera del 100 %, así que el azul vivo solo se insinúa. */
+  --background-image-panel: linear-gradient(
+    105.41deg,
+    rgb(28 30 77 / 0.95) 41.87%,
+    rgb(72 127 255 / 0.95) 103.65%,
+    rgb(28 83 192 / 0.95) 106.42%
+  );
+  --color-panel-ink: #e0e6f0;
+
   --shadow-soft: 0 8px 24px rgb(15 31 99 / 0.2);
   --shadow-soft-sm: 0 4px 14px rgb(15 31 99 / 0.12);
 }
