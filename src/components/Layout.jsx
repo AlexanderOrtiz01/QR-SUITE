@@ -146,10 +146,11 @@ export function Layout() {
           <div className="border-t border-white/15 p-3">
             {!collapsed ? (
               <div className="mb-2 px-1">
-                <p className="truncate text-xs font-medium">{session.email}</p>
-                <p className="text-xs text-brand-accent">
-                  {ROLES[session.role]?.label}
-                </p>
+                {/* La jerarquía va por peso y no por color: en el tramo
+                    inferior del degradado, el azul claro del acento cae a
+                    3,2:1 y deja de leerse. */}
+                <p className="truncate text-xs font-bold">{session.email}</p>
+                <p className="text-xs">{ROLES[session.role]?.label}</p>
               </div>
             ) : null}
             <button
