@@ -25,14 +25,16 @@
   --color-footer-deep: #202630;
   --color-footer-ink: #c3cbdc;
 
-  /* Superficie del menú: diagonal que arranca en un índigo casi negro y se
-     abre hacia el azul encendido al final del recorrido. Los dos últimos
-     puntos caen fuera del 100 %, así que el azul vivo solo se insinúa. */
+  /* Superficie del menú: vertical, para que a cualquier altura el color sea
+     el mismo de lado a lado. Arranca en un índigo casi negro y baja hacia el
+     azul. El segundo punto se aleja hasta el 150 % a propósito: en diagonal
+     el extremo claro caía en una esquina sin texto, pero en vertical cruza
+     todo el pie, y al 103 % el correo y el rol bajaban de 3:1. */
   --background-image-panel: linear-gradient(
-    105.41deg,
+    180deg,
     rgb(28 30 77 / 0.95) 41.87%,
-    rgb(72 127 255 / 0.95) 103.65%,
-    rgb(28 83 192 / 0.95) 106.42%
+    rgb(72 127 255 / 0.95) 150%,
+    rgb(28 83 192 / 0.95) 152.77%
   );
   --color-panel-ink: #e0e6f0;
 
