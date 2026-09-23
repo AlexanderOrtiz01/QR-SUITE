@@ -63,6 +63,23 @@
     outline-offset: 2px;
   }
 
+  /* Una sola entrada autorada, para la tarjeta de acceso. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   h1,
   h2,
   h3 {
