@@ -25,6 +25,19 @@
   --color-footer-deep: #202630;
   --color-footer-ink: #c3cbdc;
 
+  /* Superficie del menú: vertical, para que a cualquier altura el color sea
+     el mismo de lado a lado. Arranca en un índigo casi negro y baja hacia el
+     azul. El segundo punto se aleja hasta el 150 % a propósito: en diagonal
+     el extremo claro caía en una esquina sin texto, pero en vertical cruza
+     todo el pie, y al 103 % el correo y el rol bajaban de 3:1. */
+  --background-image-panel: linear-gradient(
+    180deg,
+    rgb(28 30 77 / 0.95) 41.87%,
+    rgb(72 127 255 / 0.95) 150%,
+    rgb(28 83 192 / 0.95) 152.77%
+  );
+  --color-panel-ink: #e0e6f0;
+
   --shadow-soft: 0 8px 24px rgb(15 31 99 / 0.2);
   --shadow-soft-sm: 0 4px 14px rgb(15 31 99 / 0.12);
 }

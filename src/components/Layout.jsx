@@ -70,7 +70,7 @@ export function Layout() {
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-linear-to-b from-brand-deep via-brand-hero to-brand-hero-light text-white shadow-soft transition-[width,transform] duration-200 ${asideWidth} ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-panel text-panel-ink shadow-soft transition-[width,transform] duration-200 ${asideWidth} ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
@@ -146,10 +146,11 @@ export function Layout() {
           <div className="border-t border-white/15 p-3">
             {!collapsed ? (
               <div className="mb-2 px-1">
-                <p className="truncate text-xs font-medium">{session.email}</p>
-                <p className="text-xs text-brand-accent">
-                  {ROLES[session.role]?.label}
-                </p>
+                {/* La jerarquía va por peso y no por color: en el tramo
+                    inferior del degradado, el azul claro del acento cae a
+                    3,2:1 y deja de leerse. */}
+                <p className="truncate text-xs font-bold">{session.email}</p>
+                <p className="text-xs">{ROLES[session.role]?.label}</p>
               </div>
             ) : null}
             <button
@@ -169,7 +170,7 @@ export function Layout() {
       <div
         className={`flex min-h-dvh flex-col transition-[padding] duration-200 ${contentOffset}`}
       >
-        <header className="flex items-center gap-3 bg-linear-to-r from-brand-deep to-brand-hero-light px-4 py-3 text-white shadow-soft lg:hidden">
+        <header className="flex items-center gap-3 bg-panel px-4 py-3 text-panel-ink shadow-soft lg:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
