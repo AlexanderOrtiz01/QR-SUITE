@@ -1,42 +1,73 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useApp } from '../store/useApp.js'
-import { resolveTarget } from '../lib/schema.js'
+import { storage } from '../lib/storage/index.js'
+import { createScan, resolveTarget } from '../lib/schema.js'
+import { detectBrowser, detectOs } from '../lib/userAgent.js'
 
 /**
  * Motor de redirección — VERSIÓN DE CLIENTE (Fase 2 pendiente).
  *
  * El plan sitúa esta lógica en una Cloud Function que responde un 302 en menos
  * de 200 ms. Esta ruta hace lo mismo dentro del navegador para que el MVP sea
- * demostrable, con dos límites que conviene tener presentes:
+ * demostrable, con un límite que conviene tener presente: la latencia incluye
+ * descargar la aplicación, así que no cumple el objetivo de 200 ms.
  *
- *   - La latencia incluye descargar la aplicación, así que no cumple el
- *     objetivo de 200 ms.
- *   - El escaneo se registra en el almacenamiento del propio navegador, no en
- *     una base compartida.
+ * No usa el store: quien escanea un código impreso no ha iniciado sesión y no
+ * puede leer las colecciones del panel. Solo pide el documento del código y
+ * los ajustes, que es exactamente lo que hará la Cloud Function.
  */
 export function Redirect() {
   const { shortCode } = useParams()
-  const { ready, qrs, settings, recordScan } = useApp()
+  const [error, setError] = useState('')
   const handled = useRef(false)
 
-  // El estado se deriva en el render: no hace falta guardarlo con setState.
-  const qr = ready ? qrs.find((item) => item.short_code === shortCode) : null
-  const target = qr ? resolveTarget(qr, settings) : null
-
-  let error = ''
-  if (ready && !qr) error = `El código ${shortCode} no existe.`
-  else if (ready && !target) {
-    error = `El código ${shortCode} no tiene destino configurado para su estado actual.`
-  }
-
   useEffect(() => {
-    if (!target || handled.current) return
+    if (handled.current) return
     handled.current = true
-    recordScan(shortCode)
-    // replace() evita que el botón Atrás devuelva al usuario a esta pantalla.
-    window.location.replace(target)
-  }, [target, shortCode, recordScan])
+
+    async function run() {
+      const [qr, settings] = await Promise.all([
+        storage.getQr(shortCode),
+        storage.getSettings(),
+      ])
+
+      if (!qr) {
+        setError(`El código ${shortCode} no existe.`)
+        return
+      }
+
+      const target = resolveTarget(qr, settings)
+      if (!target) {
+        setError(
+          `El código ${shortCode} no tiene destino configurado para su estado actual.`,
+        )
+        return
+      }
+
+      // El escaneo se registra antes de saltar, pero no se espera: un fallo al
+      // contabilizar no debe impedir que el lector llegue al recurso.
+      storage
+        .addScan(
+          createScan({
+            shortCode,
+            deviceOs: detectOs(),
+            browser: detectBrowser(),
+            userAgent: navigator.userAgent,
+          }),
+        )
+        .catch((issue) => {
+          console.error('[qrsuite] no se pudo registrar el escaneo', issue)
+        })
+
+      // replace() evita que el botón Atrás devuelva al usuario a esta pantalla.
+      window.location.replace(target)
+    }
+
+    run().catch((issue) => {
+      console.error('[qrsuite] fallo al resolver la redirección', issue)
+      setError('No se pudo resolver el destino. Inténtalo de nuevo.')
+    })
+  }, [shortCode])
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-brand-page px-4 text-center">
@@ -44,15 +75,13 @@ export function Redirect() {
         <p className="font-mono text-sm text-brand-ink/65">/{shortCode}</p>
         {error ? (
           <>
-            <h1 className="text-lg font-semibold text-brand-ink">
+            <h1 className="text-lg font-bold text-brand-ink">
               No se pudo redirigir
             </h1>
             <p className="text-sm text-brand-ink/80">{error}</p>
           </>
         ) : (
-          <h1 className="text-lg font-semibold text-brand-ink">
-            Redirigiendo…
-          </h1>
+          <h1 className="text-lg font-bold text-brand-ink">Redirigiendo…</h1>
         )}
       </div>
     </div>
