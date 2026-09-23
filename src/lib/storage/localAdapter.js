@@ -1,3 +1,5 @@
+import { REVOKED } from '../roles.js'
+
 /**
  * Adaptador de almacenamiento sobre localStorage.
  *
@@ -66,10 +68,11 @@ export const localAdapter = {
   },
 
   async removeRole(email) {
-    write(
-      KEYS.roles,
-      read(KEYS.roles, []).filter((item) => item.email !== email),
-    )
+    const others = read(KEYS.roles, []).filter((item) => item.email !== email)
+    write(KEYS.roles, [
+      { email, role: REVOKED, updated_at: new Date().toISOString() },
+      ...others,
+    ])
   },
 
   async addProject(project) {

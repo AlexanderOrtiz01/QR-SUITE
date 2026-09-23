@@ -22,6 +22,7 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import { db } from '../firebase.js'
+import { REVOKED } from '../roles.js'
 
 /**
  * Techo de escaneos que se traen al arrancar. La analítica cubre como mucho
@@ -116,8 +117,16 @@ export const firestoreAdapter = {
     })
   },
 
+  /**
+   * Retirar el acceso marca el documento, no lo borra: con autorregistro,
+   * borrarlo dejaría que la persona volviera a entrar y se registrara de nuevo
+   * en el siguiente inicio de sesión.
+   */
   async removeRole(email) {
-    await deleteDoc(doc(db, 'roles', email))
+    await setDoc(doc(db, 'roles', email), {
+      role: REVOKED,
+      updated_at: new Date().toISOString(),
+    })
   },
 
   async addProject(project) {

@@ -4,9 +4,10 @@ rules_version = '2';
  * Reglas de seguridad de Firestore (Módulo 1 del plan).
  *
  * Replican `src/lib/roles.js`, que es solo la comprobación de la interfaz:
- * esta es la frontera real. El acceso no se concede por tener una cuenta de
- * Google, sino por existir un documento en `roles` con el correo de quien
- * llama; ese documento lo crea un administrador.
+ * esta es la frontera real. El acceso se concede a quien tenga un documento en
+ * `roles` con su correo; con el autorregistro activo ese documento lo crea la
+ * propia persona la primera vez que entra, y por eso `domainAllowed()` es lo
+ * único que separa al personal del resto de internet.
  *
  * Dos rutas quedan abiertas sin sesión, y solo esas: leer un código suelto y
  * leer los ajustes. Las necesita el motor de redirección, que lo usa alguien
@@ -46,6 +47,30 @@ service cloud.firestore {
     }
 
     /**
+     * Dominio institucional permitido. Con autorregistro esta es la frontera
+     * real del sistema: quien tenga una cuenta de este dominio entra sin que
+     * nadie lo apruebe. Debe coincidir con VITE_ALLOWED_EMAIL_DOMAIN, y al
+     * pasar al proyecto institucional hay que cambiarlo y volver a desplegar.
+     */
+    function domainAllowed() {
+      return callerEmail().matches('^[^@]+@gmail[.]com$');
+    }
+
+    /**
+     * Autorregistro: solo el propio documento, solo si no existía, solo con el
+     * rol por defecto y sin campos de más. Un documento ya presente —incluido
+     * uno con el acceso retirado— no se puede recrear desde el cliente.
+     */
+    function selfRegisters(email) {
+      return signedIn()
+        && callerEmail() == email
+        && domainAllowed()
+        && request.resource.data.role == 'admin'
+        && request.resource.data.keys().hasOnly(['role', 'created_at', 'self_registered'])
+        && request.resource.data.self_registered == true;
+    }
+
+    /**
      * Un visitante sin sesión solo puede sumar uno al contador de escaneos, y
      * nada más del documento. Cualquier otro campo tocado invalida la escritura.
      */
@@ -71,7 +96,9 @@ service cloud.firestore {
     match /roles/{email} {
       allow get: if signedIn() && callerEmail() == email;
       allow list: if isAdmin();
-      allow write: if isAdmin();
+      allow create: if isAdmin() || selfRegisters(email);
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /projects/{projectId} {
