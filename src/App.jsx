@@ -11,6 +11,7 @@ import { QrList } from './pages/QrList.jsx'
 import { QrDetail } from './pages/QrDetail.jsx'
 import { Settings } from './pages/Settings.jsx'
 import { Redirect } from './pages/Redirect.jsx'
+import { Privacy } from './pages/Privacy.jsx'
 
 // Analítica es la única pantalla que carga Recharts (~144 KB gzip). Se separa
 // en su propio chunk para que no lo pague quien solo entra a crear un código.
@@ -58,6 +59,9 @@ export default function App() {
             escaneada desde un libro no debe pedir inicio de sesión, y sin
             sesión tampoco puede leer las colecciones del panel. */}
         <Route path="/r/:shortCode" element={<Redirect />} />
+        {/* El aviso de privacidad también es público: Google lo consulta para
+            aprobar la pantalla de consentimiento. */}
+        <Route path="/privacidad" element={<Privacy />} />
         <Route
           path="/*"
           element={
