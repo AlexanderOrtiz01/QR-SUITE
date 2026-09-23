@@ -36,7 +36,7 @@ function readCollapsed() {
 }
 
 export function Layout() {
-  const { session, setSession, settings } = useApp()
+  const { session, signOut, settings } = useApp()
   // Plegado en escritorio; el cajón móvil es un estado aparte porque se
   // comporta distinto: allí el menú se superpone en vez de estrechar.
   const [collapsed, setCollapsed] = useState(readCollapsed)
@@ -145,7 +145,7 @@ export function Layout() {
             ) : null}
             <button
               type="button"
-              onClick={() => setSession(null)}
+              onClick={signOut}
               title={collapsed ? 'Cerrar sesión' : undefined}
               className={`w-full rounded-full border border-white/40 px-3 py-2 text-xs font-bold transition-colors hover:bg-white hover:text-brand-primary-deep ${
                 collapsed ? 'lg:px-0' : ''

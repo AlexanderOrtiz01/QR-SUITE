@@ -1,10 +1,12 @@
+import { isFirebaseConfigured } from '../firebase.js'
+import { firestoreAdapter } from './firestoreAdapter.js'
 import { localAdapter } from './localAdapter.js'
 
 /**
- * Selector de adaptador. Hoy siempre devuelve el adaptador local: el de
- * Firestore se activará aquí cuando esté implementado y haya configuración
- * en las variables de entorno.
+ * Selector de adaptador. Con credenciales de Firebase en el entorno se usa
+ * Firestore; sin ellas la aplicación sigue funcionando contra el navegador,
+ * que es lo que permite clonar el repo y arrancar sin configurar nada.
  */
-export const storage = localAdapter
+export const storage = isFirebaseConfigured ? firestoreAdapter : localAdapter
 
-export const isPersistenceShared = storage.id !== 'local'
+export const isPersistenceShared = storage.isShared

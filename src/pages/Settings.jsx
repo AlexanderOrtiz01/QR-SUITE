@@ -3,7 +3,10 @@ import { useApp } from '../store/useApp.js'
 import { can } from '../lib/roles.js'
 import { storage } from '../lib/storage/index.js'
 import { usingFallbackDomain } from '../lib/shortUrl.js'
+import { isAuthEnabled } from '../lib/auth.js'
+import { ALLOWED_DOMAIN } from '../lib/config.js'
 import { Banner, Button, Card, Field, Input } from '../components/ui.jsx'
+import { RoleManager } from '../components/RoleManager.jsx'
 
 export function Settings() {
   const { settings, saveSettings, session, loadDemoData, scans } = useApp()
@@ -48,16 +51,6 @@ export function Settings() {
             />
           </Field>
           <Field
-            label="Dominio de correo permitido"
-            hint="Restringe el acceso al panel. La comprobación real la hará Firebase Auth."
-          >
-            <Input
-              value={draft.allowedDomain}
-              disabled={!allowed}
-              onChange={(event) => patch({ allowedDomain: event.target.value })}
-            />
-          </Field>
-          <Field
             label="Página de aviso para códigos deprecados"
             hint="Destino de los QR cuyo estado es Deprecado."
           >
@@ -97,16 +90,25 @@ export function Settings() {
           </div>
           <div className="flex justify-between gap-4">
             <dt className="text-brand-ink/80">Autenticación</dt>
-            <dd className="text-brand-primary-deep">
-              Simulada (falta Firebase Auth)
+            <dd className={isAuthEnabled ? 'text-brand-ink' : 'text-red-700'}>
+              {isAuthEnabled
+                ? 'Firebase Auth (Google)'
+                : 'Simulada: no protege nada'}
             </dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-brand-ink/80">Dominio permitido</dt>
+            <dd className="text-brand-ink">@{ALLOWED_DOMAIN}</dd>
           </div>
         </dl>
         <p className="text-xs text-brand-ink/65">
-          Configura estas piezas en <code>.env.local</code> a partir de{' '}
-          <code>.env.example</code>.
+          El dominio permitido y las credenciales se configuran en{' '}
+          <code>.env.local</code> a partir de <code>.env.example</code>: no se
+          editan desde aquí porque deciden quién entra.
         </p>
       </Card>
+
+      {allowed ? <RoleManager currentEmail={session?.email} /> : null}
 
       {allowed ? (
         <Card className="space-y-3">

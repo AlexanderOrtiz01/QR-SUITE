@@ -12,6 +12,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "firebase": "^12.19.0",
     "qr-code-styling": "^1.9.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

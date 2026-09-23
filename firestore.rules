@@ -1,0 +1,108 @@
+rules_version = '2';
+
+/**
+ * Reglas de seguridad de Firestore (Módulo 1 del plan).
+ *
+ * Replican `src/lib/roles.js`, que es solo la comprobación de la interfaz:
+ * esta es la frontera real. El acceso no se concede por tener una cuenta de
+ * Google, sino por existir un documento en `roles` con el correo de quien
+ * llama; ese documento lo crea un administrador.
+ *
+ * Dos rutas quedan abiertas sin sesión, y solo esas: leer un código suelto y
+ * leer los ajustes. Las necesita el motor de redirección, que lo usa alguien
+ * que acaba de escanear un libro y no ha iniciado sesión. Cuando la Fase 2
+ * mueva esa lógica a una Cloud Function con el SDK de administrador, ambas
+ * podrán cerrarse.
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+
+    function callerEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    function hasRole() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/roles/$(callerEmail()));
+    }
+
+    function roleIs(names) {
+      return hasRole()
+        && get(/databases/$(database)/documents/roles/$(callerEmail())).data.role in names;
+    }
+
+    function isAdmin() {
+      return roleIs(['admin']);
+    }
+
+    function isEditor() {
+      return roleIs(['admin', 'editor']);
+    }
+
+    /**
+     * Un visitante sin sesión solo puede sumar uno al contador de escaneos, y
+     * nada más del documento. Cualquier otro campo tocado invalida la escritura.
+     */
+    function onlyScanCounter() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['total_scans'])
+        && request.resource.data.total_scans == resource.data.total_scans + 1;
+    }
+
+    /** Un escaneo trae exactamente los campos del esquema y apunta a un código real. */
+    function validScan() {
+      return request.resource.data.keys().hasOnly(
+          ['id', 'short_code', 'timestamp', 'device_os', 'browser', 'user_agent', 'ip_hash'])
+        && request.resource.data.keys().hasAll(['id', 'short_code', 'timestamp'])
+        && request.resource.data.short_code is string
+        && request.resource.data.short_code.size() <= 16
+        && request.resource.data.user_agent is string
+        && request.resource.data.user_agent.size() <= 512
+        && exists(/databases/$(database)/documents/qrs/$(request.resource.data.short_code));
+    }
+
+    // Quién es quién. Cada persona lee su propio rol al entrar; solo un
+    // administrador puede listarlos o concederlos.
+    match /roles/{email} {
+      allow get: if signedIn() && callerEmail() == email;
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /projects/{projectId} {
+      allow read: if hasRole();
+      allow write: if isAdmin();
+    }
+
+    match /qrs/{shortCode} {
+      allow get: if true;
+      allow list: if hasRole();
+      allow create: if isEditor();
+      allow delete: if isEditor();
+      allow update: if isEditor() || onlyScanCounter();
+    }
+
+    match /scans/{scanId} {
+      allow read: if hasRole();
+      allow create: if validScan();
+      allow update: if false;
+      allow delete: if isEditor();
+    }
+
+    match /settings/{document} {
+      allow get: if true;
+      allow list: if hasRole();
+      allow write: if isAdmin();
+    }
+
+    // Nada más existe.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

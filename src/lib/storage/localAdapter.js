@@ -11,7 +11,7 @@ const KEYS = {
   qrs: 'qrsuite:qrs',
   scans: 'qrsuite:scans',
   settings: 'qrsuite:settings',
-  session: 'qrsuite:session',
+  roles: 'qrsuite:roles',
 }
 
 function read(key, fallback) {
@@ -34,6 +34,7 @@ function write(key, value) {
 export const localAdapter = {
   id: 'local',
   label: 'Local (navegador)',
+  isShared: false,
 
   async loadAll() {
     return {
@@ -41,31 +42,111 @@ export const localAdapter = {
       qrs: read(KEYS.qrs, []),
       scans: read(KEYS.scans, []),
       settings: read(KEYS.settings, null),
-      session: read(KEYS.session, null),
     }
   },
 
-  async saveProjects(projects) {
-    write(KEYS.projects, projects)
+  async getQr(shortCode) {
+    return read(KEYS.qrs, []).find((qr) => qr.short_code === shortCode) || null
   },
 
-  async saveQrs(qrs) {
-    write(KEYS.qrs, qrs)
+  async getSettings() {
+    return read(KEYS.settings, null)
   },
 
-  async saveScans(scans) {
-    write(KEYS.scans, scans)
+  async listRoles() {
+    return read(KEYS.roles, [])
+  },
+
+  async setRole(email, role) {
+    const others = read(KEYS.roles, []).filter((item) => item.email !== email)
+    write(KEYS.roles, [
+      { email, role, updated_at: new Date().toISOString() },
+      ...others,
+    ])
+  },
+
+  async removeRole(email) {
+    write(
+      KEYS.roles,
+      read(KEYS.roles, []).filter((item) => item.email !== email),
+    )
+  },
+
+  async addProject(project) {
+    write(KEYS.projects, [project, ...read(KEYS.projects, [])])
+  },
+
+  async removeProject(projectId) {
+    write(
+      KEYS.projects,
+      read(KEYS.projects, []).filter((project) => project.id !== projectId),
+    )
+    const qrs = read(KEYS.qrs, [])
+    const orphaned = new Set(
+      qrs
+        .filter((qr) => qr.project_id === projectId)
+        .map((qr) => qr.short_code),
+    )
+    write(
+      KEYS.qrs,
+      qrs.filter((qr) => qr.project_id !== projectId),
+    )
+    write(
+      KEYS.scans,
+      read(KEYS.scans, []).filter((scan) => !orphaned.has(scan.short_code)),
+    )
+  },
+
+  async addQr(qr) {
+    write(KEYS.qrs, [qr, ...read(KEYS.qrs, [])])
+  },
+
+  async updateQr(shortCode, patch) {
+    write(
+      KEYS.qrs,
+      read(KEYS.qrs, []).map((qr) =>
+        qr.short_code === shortCode ? { ...qr, ...patch } : qr,
+      ),
+    )
+  },
+
+  async removeQr(shortCode) {
+    write(
+      KEYS.qrs,
+      read(KEYS.qrs, []).filter((qr) => qr.short_code !== shortCode),
+    )
+    write(
+      KEYS.scans,
+      read(KEYS.scans, []).filter((scan) => scan.short_code !== shortCode),
+    )
+  },
+
+  async addScan(scan) {
+    write(KEYS.scans, [scan, ...read(KEYS.scans, [])])
+    write(
+      KEYS.qrs,
+      read(KEYS.qrs, []).map((qr) =>
+        qr.short_code === scan.short_code
+          ? { ...qr, total_scans: (qr.total_scans || 0) + 1 }
+          : qr,
+      ),
+    )
   },
 
   async saveSettings(settings) {
     write(KEYS.settings, settings)
   },
 
-  async saveSession(session) {
-    write(KEYS.session, session)
+  async seed({ projects = [], qrs = [], scans = [] }) {
+    write(KEYS.projects, [...projects, ...read(KEYS.projects, [])])
+    write(KEYS.qrs, [...qrs, ...read(KEYS.qrs, [])])
+    write(KEYS.scans, [...scans, ...read(KEYS.scans, [])])
   },
 
   async clear() {
-    Object.values(KEYS).forEach((key) => localStorage.removeItem(key))
+    // Los ajustes y la sesión no son datos de trabajo: se conservan.
+    ;[KEYS.projects, KEYS.qrs, KEYS.scans].forEach((key) =>
+      localStorage.removeItem(key),
+    )
   },
 }

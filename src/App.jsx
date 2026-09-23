@@ -52,15 +52,21 @@ function Panel() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* El motor de redirección va antes que el panel: una URL corta
-              escaneada desde un libro no debe pedir inicio de sesión. */}
-          <Route path="/r/:shortCode" element={<Redirect />} />
-          <Route path="/*" element={<Panel />} />
-        </Routes>
-      </BrowserRouter>
-    </AppProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* El motor de redirección va fuera del proveedor: una URL corta
+            escaneada desde un libro no debe pedir inicio de sesión, y sin
+            sesión tampoco puede leer las colecciones del panel. */}
+        <Route path="/r/:shortCode" element={<Redirect />} />
+        <Route
+          path="/*"
+          element={
+            <AppProvider>
+              <Panel />
+            </AppProvider>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   )
 }
