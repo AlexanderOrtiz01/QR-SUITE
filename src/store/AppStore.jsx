@@ -18,7 +18,11 @@ const DEFAULT_SETTINGS = {
 }
 
 export function AppProvider({ children }) {
-  const [ready, setReady] = useState(false)
+  // Dos esperas distintas: los datos y la sesión. El panel no puede decidir si
+  // mostrar el login hasta que Firebase haya terminado de restaurar la sesión,
+  // o parpadearía en cada recarga.
+  const [dataReady, setDataReady] = useState(false)
+  const [authReady, setAuthReady] = useState(false)
   const [projects, setProjects] = useState([])
   const [qrs, setQrs] = useState([])
   const [scans, setScans] = useState([])
@@ -63,7 +67,7 @@ export function AppProvider({ children }) {
         console.error('[qrsuite] fallo al cargar los datos', error)
       })
       .finally(() => {
-        if (!cancelled) setReady(true)
+        if (!cancelled) setDataReady(true)
       })
     return () => {
       cancelled = true
@@ -94,6 +98,7 @@ export function AppProvider({ children }) {
     return observeSession(ALLOWED_DOMAIN, ({ session: next, error }) => {
       setSession(next)
       setAuthError(error)
+      setAuthReady(true)
     })
   }, [])
 
@@ -227,6 +232,8 @@ export function AppProvider({ children }) {
     await authSignOut()
     setSession(null)
   }, [])
+
+  const ready = dataReady && authReady
 
   const value = useMemo(
     () => ({
