@@ -25,6 +25,7 @@ import {
 import { QrPreview } from '../components/QrPreview.jsx'
 import { ExportPanel } from '../components/ExportPanel.jsx'
 import { TagPicker } from '../components/TagPicker.jsx'
+import { SaveReveal } from '../components/SaveReveal.jsx'
 
 const STEPS = [
   {
@@ -83,6 +84,7 @@ export function Studio() {
   const allowed = can(session?.role, 'qr:write')
 
   const [step, setStep] = useState(0)
+  const [guardado, setGuardado] = useState(false)
   const [styleTab, setStyleTab] = useState('colores')
   const [title, setTitle] = useState('')
   const [projectId, setProjectId] = useState('')
@@ -126,7 +128,8 @@ export function Studio() {
         createdBy: session?.email,
       }),
     )
-    navigate(`/codigos/${shortCode}`)
+    // El código ya está guardado: la escena solo cubre el salto a su ficha.
+    setGuardado(true)
   }
 
   const isLast = step === STEPS.length - 1
@@ -142,6 +145,15 @@ export function Studio() {
 
   return (
     <div className="space-y-6">
+      {guardado ? (
+        <SaveReveal
+          data={shortUrl}
+          style={style}
+          title={title.trim() || shortCode}
+          onDone={() => navigate(`/codigos/${shortCode}`)}
+        />
+      ) : null}
+
       <header>
         <h1 className="text-2xl font-extrabold tracking-tight">
           Crear código QR
