@@ -27,6 +27,14 @@ updates:
       dev-tooling:
         dependency-type: development
         update-types: [minor, patch]
+      # react y react-dom tienen que viajar en la misma versión: si una sube
+      # sin la otra, React aborta el arranque y la pantalla queda en blanco.
+      react:
+        patterns:
+          - react
+          - react-dom
+          - '@types/react'
+          - '@types/react-dom'
 
   # Las propias actions del workflow también envejecen.
   - package-ecosystem: github-actions
