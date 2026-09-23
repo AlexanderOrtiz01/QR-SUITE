@@ -102,7 +102,16 @@ export function Layout() {
           </div>
 
           <div className="flex flex-col items-center text-center">
-            <div className={`w-full ${collapsed ? 'lg:hidden' : ''}`}>
+            {/* La versión blanca de la marca, que es la que contrasta sobre el
+                azul del menú. Plegado queda solo el símbolo. */}
+            <img
+              src="/logo-blanco.png"
+              alt=""
+              width="512"
+              height="512"
+              className={`w-auto ${collapsed ? 'lg:size-9' : 'size-14'}`}
+            />
+            <div className={`mt-2 w-full ${collapsed ? 'lg:hidden' : ''}`}>
               <p className="text-lg font-extrabold tracking-tight">QR Suite</p>
               <p className="truncate text-xs text-brand-accent">
                 {settings.orgName}
@@ -171,9 +180,11 @@ export function Layout() {
             <IconMenu className="size-5" />
           </button>
           <img
-            src="/mined-escudo.png"
-            alt="Ministerio de Educación de El Salvador"
-            className="h-8 w-auto"
+            src="/logo-blanco.png"
+            alt=""
+            width="512"
+            height="512"
+            className="size-8"
           />
           <div className="min-w-0">
             <p className="font-extrabold tracking-tight">QR Suite</p>

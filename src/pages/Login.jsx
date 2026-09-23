@@ -71,27 +71,6 @@ function Backdrop() {
   )
 }
 
-/** Marca de posición de un QR, el motivo de la identidad del producto. */
-function FinderMark() {
-  return (
-    <span className="grid size-12 place-items-center rounded-2xl bg-brand-primary text-white shadow-soft-sm">
-      <svg viewBox="0 0 24 24" className="size-7" aria-hidden="true">
-        <rect
-          x="2.5"
-          y="2.5"
-          width="19"
-          height="19"
-          rx="5.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-        />
-        <rect x="8" y="8" width="8" height="8" rx="2" fill="currentColor" />
-      </svg>
-    </span>
-  )
-}
-
 function GoogleAccess() {
   const { authError, setAuthError } = useApp()
   const [busy, setBusy] = useState(false)
@@ -205,7 +184,13 @@ export function Login() {
           style={{ animationDelay: '60ms' }}
         >
           <div className="rounded-3xl bg-white p-8 shadow-soft">
-            <FinderMark />
+            <img
+              src="/logo-azul.png"
+              alt=""
+              width="512"
+              height="512"
+              className="size-14"
+            />
             <h1 className="mt-5 text-2xl font-extrabold tracking-tight text-brand-ink">
               QR Suite
             </h1>
