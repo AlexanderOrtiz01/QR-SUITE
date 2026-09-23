@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AppContext } from './context.js'
 import { storage } from '../lib/storage/index.js'
-import { observeSession, signOut as authSignOut } from '../lib/auth.js'
+import {
+  hasActiveUser,
+  observeSession,
+  signOut as authSignOut,
+} from '../lib/auth.js'
 import { createScan } from '../lib/schema.js'
 import { buildDemoData } from '../lib/demoData.js'
 import { detectBrowser, detectOs } from '../lib/userAgent.js'
@@ -23,6 +27,11 @@ export function AppProvider({ children }) {
   const [authError, setAuthError] = useState('')
 
   const fetchAll = useCallback(async () => {
+    // Sin sesión, las colecciones del panel no son legibles. Preguntar de
+    // todos modos solo produciría un rechazo de Firestore en la consola.
+    if (!hasActiveUser()) {
+      return { projects: [], qrs: [], scans: [], settings: DEFAULT_SETTINGS }
+    }
     const data = await storage.loadAll()
     return {
       projects: data.projects || [],
@@ -60,6 +69,24 @@ export function AppProvider({ children }) {
       cancelled = true
     }
   }, [fetchAll, applyAll])
+
+  // Al entrar hay que releer: la primera carga ocurrió sin sesión y, con las
+  // reglas puestas, no devolvió nada.
+  const sessionEmail = session?.email || ''
+  useEffect(() => {
+    if (!sessionEmail) return
+    let cancelled = false
+    fetchAll()
+      .then((data) => {
+        if (!cancelled) applyAll(data)
+      })
+      .catch((error) => {
+        console.error('[qrsuite] fallo al recargar tras entrar', error)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [sessionEmail, fetchAll, applyAll])
 
   // La sesión la gobierna Firebase Auth: el observador la restaura al recargar
   // y la limpia cuando caduca el token.

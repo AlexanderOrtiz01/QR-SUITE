@@ -138,6 +138,14 @@ export function signInLocal(session) {
   }
 }
 
+/**
+ * ¿Hay alguien autenticado en este instante? Sin Firebase se da por cierto,
+ * porque el almacenamiento local no comprueba permisos.
+ */
+export function hasActiveUser() {
+  return !isAuthEnabled || Boolean(auth.currentUser)
+}
+
 export async function signOut() {
   if (isAuthEnabled) {
     await firebaseSignOut(auth)
