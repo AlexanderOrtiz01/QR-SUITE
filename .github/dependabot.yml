@@ -1,0 +1,28 @@
+version: 2
+
+updates:
+  # Dependencias de npm. Antes de producción es cuando sale más barato absorber
+  # una versión mayor, así que se revisan cada semana y no una vez al año.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    target-branch: dev
+    commit-message:
+      prefix: 'deps'
+    groups:
+      # Un solo PR para las herramientas de desarrollo; las de producción
+      # (react, recharts, qr-code-styling) se revisan una por una.
+      dev-tooling:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  # Las propias actions del workflow también envejecen.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: 'ci'

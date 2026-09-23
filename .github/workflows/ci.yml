@@ -6,6 +6,16 @@ on:
   pull_request:
     branches: [main, dev]
 
+# Un push nuevo sobre la misma rama cancela la ejecución anterior: no tiene
+# sentido gastar minutos validando un commit que ya quedó atrás.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# El workflow solo lee el repositorio; nada de escribir.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
