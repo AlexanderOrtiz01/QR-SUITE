@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { storage } from '../lib/storage/index.js'
-import { ROLES } from '../lib/roles.js'
+import { REVOKED, ROLES, SELF_REGISTER_ROLE } from '../lib/roles.js'
 import { ALLOWED_DOMAIN } from '../lib/config.js'
 import { Button, Card, Field, Input, Select } from './ui.jsx'
 
@@ -92,7 +92,9 @@ export function RoleManager({ currentEmail }) {
       <div>
         <h2 className="font-semibold">Personas con acceso</h2>
         <p className="mt-1 text-sm text-brand-ink/65">
-          Sin un rol asignado, una cuenta válida de Google tampoco puede entrar.
+          Quien entra con una cuenta @{ALLOWED_DOMAIN} se registra solo como{' '}
+          {ROLES[SELF_REGISTER_ROLE]?.label}. Aquí cambias su rol o le retiras
+          el acceso.
         </p>
       </div>
 
@@ -124,7 +126,7 @@ export function RoleManager({ currentEmail }) {
           </Select>
         </Field>
         <Button type="submit" disabled={busy}>
-          Dar acceso
+          Asignar rol
         </Button>
       </form>
 
@@ -138,7 +140,7 @@ export function RoleManager({ currentEmail }) {
         <p className="text-sm text-brand-ink/65">Cargando…</p>
       ) : people.length === 0 ? (
         <p className="text-sm text-brand-ink/65">
-          Todavía no hay nadie dado de alta desde aquí.
+          Todavía no ha entrado nadie.
         </p>
       ) : (
         <ul className="divide-y divide-brand-page">
@@ -151,22 +153,30 @@ export function RoleManager({ currentEmail }) {
                 <p className="truncate text-sm font-semibold text-brand-ink">
                   {person.email}
                 </p>
-                <p className="text-xs text-brand-ink/65">
-                  {ROLES[person.role]?.label || person.role}
+                <p
+                  className={`text-xs ${
+                    person.role === REVOKED
+                      ? 'font-semibold text-red-600'
+                      : 'text-brand-ink/65'
+                  }`}
+                >
+                  {person.role === REVOKED
+                    ? 'Acceso retirado'
+                    : ROLES[person.role]?.label || person.role}
                 </p>
               </div>
               {person.email === currentEmail ? (
                 <span className="text-xs font-semibold text-brand-ink/65">
                   Tu cuenta
                 </span>
-              ) : (
+              ) : person.role === REVOKED ? null : (
                 <button
                   type="button"
                   disabled={busy}
                   onClick={() => handleRemove(person.email)}
                   className="rounded-full px-3 py-1 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
                 >
-                  Quitar acceso
+                  Retirar acceso
                 </button>
               )}
             </li>

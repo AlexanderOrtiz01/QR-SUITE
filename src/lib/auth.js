@@ -12,8 +12,9 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
 } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, db, isFirebaseConfigured } from './firebase.js'
+import { REVOKED, SELF_REGISTER_ROLE } from './roles.js'
 
 export const isAuthEnabled = isFirebaseConfigured
 
@@ -55,18 +56,30 @@ async function buildSession(user, allowedDomain) {
     return { error: `Solo se permiten cuentas @${allowedDomain}.` }
   }
 
-  const snapshot = await getDoc(doc(db, 'roles', email))
-  if (!snapshot.exists()) {
-    return {
-      error:
-        'Tu cuenta no tiene un rol asignado. Pide a un administrador que te dé acceso.',
+  // Autorregistro: la primera vez que entra alguien del dominio permitido se
+  // le crea su documento. Las reglas solo dejan crear el propio y con el rol
+  // por defecto, así que nadie puede asignarse uno distinto desde el cliente.
+  const reference = doc(db, 'roles', email)
+  const snapshot = await getDoc(reference)
+  let role = SELF_REGISTER_ROLE
+
+  if (snapshot.exists()) {
+    role = snapshot.data().role
+    if (role === REVOKED) {
+      return { error: 'Un administrador retiró el acceso de esta cuenta.' }
     }
+  } else {
+    await setDoc(reference, {
+      role,
+      created_at: new Date().toISOString(),
+      self_registered: true,
+    })
   }
 
   return {
     session: {
       email,
-      role: snapshot.data().role,
+      role,
       name: user.displayName || '',
       uid: user.uid,
       signed_in_at: new Date().toISOString(),
