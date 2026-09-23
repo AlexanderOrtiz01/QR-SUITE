@@ -1,0 +1,16 @@
+# El repositorio guarda LF y el árbol de trabajo también usa LF en Windows.
+# Sin esto, Git entrega CRLF en Windows, Prettier (que espera LF) marca todos
+# los archivos como mal formateados en local mientras el CI de Ubuntu pasa en
+# verde: el mismo commit da dos resultados según quién lo revise.
+* text=auto eol=lf
+
+# Binarios: que Git no intente normalizar nada dentro.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

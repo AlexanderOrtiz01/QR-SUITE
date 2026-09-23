@@ -30,7 +30,14 @@ export function Privacy() {
   return (
     <div className="min-h-dvh bg-brand-page">
       <header className="bg-linear-to-r from-brand-deep to-brand-hero-light px-4 py-6 text-white shadow-soft sm:px-6">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto flex max-w-2xl items-center gap-3">
+          <img
+            src="/logo-blanco.png"
+            alt=""
+            width="512"
+            height="512"
+            className="size-9"
+          />
           <p className="text-lg font-extrabold tracking-tight">QR Suite</p>
         </div>
       </header>
