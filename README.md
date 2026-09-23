@@ -5,7 +5,8 @@ Proyecto React + Vite.
 ## Stack
 
 - React 19
-- Vite 6 (fijado por compatibilidad con Node 20.18)
+- Vite 6 (fijado por compatibilidad con Node 20.18; la 7 en adelante exige
+  Node ^20.19 o >=22.12)
 - Tailwind CSS 4 (vía `@tailwindcss/vite`)
 - ESLint 9 + Prettier
 

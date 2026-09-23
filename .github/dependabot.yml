@@ -12,6 +12,15 @@ updates:
     target-branch: dev
     commit-message:
       prefix: 'deps'
+    # Vite queda fijado en la 6 a propósito: la 7 y la 8 exigen Node ^20.19 o
+    # >=22.12, y el entorno de desarrollo corre sobre Node 20.18. La 8 además
+    # rompe los peers de @vitejs/plugin-react y @tailwindcss/vite, así que no
+    # es un salto de dependencia sino una migración. Se desbloquea el día que
+    # el proyecto suba a Node 22 LTS.
+    ignore:
+      - dependency-name: vite
+        update-types: [version-update:semver-major]
+
     groups:
       # Un solo PR para las herramientas de desarrollo; las de producción
       # (react, recharts, qr-code-styling) se revisan una por una.
