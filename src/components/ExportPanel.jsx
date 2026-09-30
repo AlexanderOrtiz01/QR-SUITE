@@ -11,16 +11,17 @@ import { Button, Field, Input, Select } from './ui.jsx'
 export function ExportPanel({ data, style, title, disabled = false }) {
   const [sizeMm, setSizeMm] = useState(30)
   const [dpi, setDpi] = useState(300)
-  const [busy, setBusy] = useState(false)
+  // El formato en curso, para que solo su botón muestre la actividad.
+  const [busy, setBusy] = useState('')
 
   async function handleExport(format) {
-    setBusy(true)
+    setBusy(format)
     try {
       await exportQr({ data, style, title, format, sizeMm, dpi })
     } catch (error) {
       console.error('[qrsuite] fallo al exportar', error)
     } finally {
-      setBusy(false)
+      setBusy('')
     }
   }
 
@@ -55,19 +56,25 @@ export function ExportPanel({ data, style, title, disabled = false }) {
       </p>
 
       <div className="flex flex-wrap gap-2">
-        <Button disabled={disabled || busy} onClick={() => handleExport('svg')}>
+        <Button
+          disabled={disabled || (busy && busy !== 'svg')}
+          loading={busy === 'svg'}
+          onClick={() => handleExport('svg')}
+        >
           Descargar SVG
         </Button>
         <Button
           variant="secondary"
-          disabled={disabled || busy}
+          disabled={disabled || (busy && busy !== 'png')}
+          loading={busy === 'png'}
           onClick={() => handleExport('png')}
         >
           Descargar PNG
         </Button>
         <Button
           variant="secondary"
-          disabled={disabled || busy}
+          disabled={disabled || (busy && busy !== 'webp')}
+          loading={busy === 'webp'}
           onClick={() => handleExport('webp')}
         >
           Descargar WebP

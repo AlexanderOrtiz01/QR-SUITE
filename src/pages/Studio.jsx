@@ -64,7 +64,7 @@ const STYLE_TABS = [
 
 function Summary({ rows }) {
   return (
-    <dl className="divide-y divide-brand-page text-sm">
+    <dl className="divide-y divide-brand-ink/8 text-sm">
       {rows.map((row) => (
         <div
           key={row.label}
@@ -155,9 +155,7 @@ export function Studio() {
       ) : null}
 
       <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">
-          Crear código QR
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight">Crear código QR</h1>
         <p className="text-sm text-brand-ink/65">
           El QR codifica la URL corta, no el destino: por eso el destino se
           puede cambiar después sin reimprimir el libro.
@@ -294,7 +292,7 @@ export function Studio() {
                   { label: 'URL impresa', value: shortUrl },
                 ]}
               />
-              <div className="border-t border-brand-soft pt-5">
+              <div className="border-t border-brand-ink/10 pt-5">
                 <h3 className="mb-3 font-semibold text-brand-ink">
                   Descargar para imprenta
                 </h3>
@@ -311,7 +309,7 @@ export function Studio() {
 
         <Card className="space-y-4 lg:sticky lg:top-6 lg:self-start">
           <h2 className="font-semibold">Vista previa</h2>
-          <div className="flex justify-center rounded-xl bg-brand-page p-4">
+          <div className="glass-well flex justify-center rounded-2xl p-4">
             <QrPreview data={shortUrl} style={style} size={200} />
           </div>
           <div>

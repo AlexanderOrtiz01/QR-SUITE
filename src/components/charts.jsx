@@ -73,7 +73,7 @@ function hueFor(label) {
 function ChartTooltip({ active, payload, label, unit = 'escaneos' }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl bg-white px-3 py-2 text-xs shadow-soft">
+    <div className="glass-thick rounded-xl px-3 py-2 text-xs">
       <p className="font-bold text-brand-ink">{label}</p>
       <p className="mt-0.5 tabular-nums text-brand-ink/80">
         {payload[0].value} {unit}

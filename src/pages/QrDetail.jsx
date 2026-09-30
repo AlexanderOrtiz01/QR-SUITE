@@ -79,7 +79,7 @@ function QrEditor({ qr }) {
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="truncate text-2xl font-extrabold tracking-tight">
+            <h1 className="truncate text-2xl font-bold tracking-tight">
               {qr.title}
             </h1>
             <StatusBadge status={qr.status} />
@@ -174,7 +174,7 @@ function QrEditor({ qr }) {
               onChange={(tags) => patch({ tags })}
             />
 
-            <div className="rounded-xl bg-brand-page p-3">
+            <div className="glass-well rounded-2xl p-3">
               <p className="text-xs font-medium text-brand-ink">
                 Destino activo ahora
               </p>
@@ -214,7 +214,7 @@ function QrEditor({ qr }) {
                 Todavía no hay escaneos con detalle técnico para este código.
               </p>
             ) : (
-              <ul className="divide-y divide-brand-page text-sm">
+              <ul className="divide-y divide-brand-ink/8 text-sm">
                 {qrScans.slice(0, 10).map((scan) => (
                   <li key={scan.id} className="flex justify-between gap-3 py-2">
                     <span className="text-brand-ink/80">
@@ -233,7 +233,7 @@ function QrEditor({ qr }) {
         <div className="space-y-6">
           <Card className="space-y-4">
             <h2 className="font-semibold">Código impreso</h2>
-            <div className="flex justify-center rounded-xl bg-brand-page p-4">
+            <div className="glass-well flex justify-center rounded-2xl p-4">
               <QrPreview data={shortUrl} style={draft.style} size={220} />
             </div>
             <p className="break-all font-mono text-xs text-brand-ink/65">

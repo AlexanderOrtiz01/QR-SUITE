@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { IconChevronUp } from './icons.jsx'
+import { Picture } from './ui.jsx'
 
 /**
- * Pie institucional: emblema centrado sobre el charcoal del tema oficial y un
- * botón de subida anclado a la esquina. El charcoal no es el azul del panel:
- * marca dónde termina la herramienta y empieza la institución.
+ * Pie institucional: emblema centrado sobre vidrio charcoal, el tono del tema
+ * oficial, y un botón de subida anclado a la esquina. Es la única lámina
+ * oscura: marca dónde termina la herramienta y empieza la institución.
  */
 const SHOW_TOP_AFTER = 120
 
@@ -31,7 +32,7 @@ function BackToTop() {
       onClick={scrollToTop}
       aria-label="Volver arriba"
       tabIndex={visible ? 0 : -1}
-      className={`fixed right-4 bottom-4 z-20 flex size-11 items-center justify-center rounded-md bg-footer-deep text-footer-ink shadow-soft transition-[opacity,transform,background-color] duration-300 ease-out hover:bg-footer-ink hover:text-footer-deep focus-visible:outline-footer-ink ${
+      className={`glass-thick fixed right-4 bottom-4 z-20 flex size-11 items-center justify-center rounded-full text-brand-ink transition-[opacity,transform,background-color] duration-300 ease-ios hover:bg-white active:scale-95 ${
         visible
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-3 opacity-0'
@@ -44,9 +45,9 @@ function BackToTop() {
 
 export function Footer() {
   return (
-    <footer className="mt-auto bg-footer text-footer-ink">
+    <footer className="glass-dark mt-auto text-footer-ink lg:mr-3 lg:mb-3 lg:rounded-[1.75rem]">
       <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-6 sm:px-6 lg:py-7">
-        <img
+        <Picture
           src="/footer-logo.svg"
           alt="Gobierno de El Salvador"
           width="409"

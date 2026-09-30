@@ -13,7 +13,7 @@ const TILE =
   'rounded-xl border p-2 text-left text-xs transition-colors disabled:opacity-50'
 
 function tileClass(active) {
-  return `${TILE} ${active ? 'border-brand-primary bg-brand-soft' : 'border-brand-soft hover:bg-brand-page'}`
+  return `${TILE} ${active ? 'border-brand-primary/70 bg-white/90 ring-2 ring-brand-primary/20' : 'border-white/80 bg-white/45 hover:bg-white/75'}`
 }
 
 /**
@@ -41,12 +41,12 @@ export function ColorControls({ style, onChange, disabled = false }) {
             }
             className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 ${
               style.preset === preset.id
-                ? 'border-brand-primary bg-brand-soft'
-                : 'border-brand-soft hover:bg-brand-page'
+                ? 'border-brand-primary/70 bg-white/90 ring-2 ring-brand-primary/20'
+                : 'border-white/80 bg-white/45 hover:bg-white/75'
             }`}
           >
             <span
-              className="flex size-8 shrink-0 items-center justify-center rounded-md border border-brand-soft"
+              className="flex size-8 shrink-0 items-center justify-center rounded-md border border-brand-ink/10 bg-white"
               style={{ background: preset.light }}
             >
               <span
@@ -141,7 +141,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
           accept="image/png,image/jpeg,image/svg+xml"
           disabled={disabled}
           onChange={handleLogo}
-          className="w-full text-sm text-brand-ink/80 file:mr-3 file:rounded-full file:border-0 file:bg-brand-primary file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
+          className="w-full text-sm text-brand-ink/80 file:mr-3 file:rounded-full file:border-0 file:bg-brand-primary file:shadow-soft-sm file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
         />
       </Field>
 
@@ -213,7 +213,7 @@ export function GradientControls({ style, onChange, disabled = false }) {
             onClick={() => setPreset(null)}
             className={tileClass(!gradient)}
           >
-            <span className="block h-9 w-full rounded-md border border-brand-soft bg-white" />
+            <span className="block h-9 w-full rounded-md border border-brand-ink/10 bg-white" />
             <span className="mt-1.5 block truncate text-brand-ink">
               Sin degradado
             </span>
@@ -230,7 +230,7 @@ export function GradientControls({ style, onChange, disabled = false }) {
               {/* La muestra refleja el tipo elegido, para que no prometa un
                   degradado lineal cuando el código va a salir radial. */}
               <span
-                className="block h-9 w-full rounded-md border border-brand-soft"
+                className="block h-9 w-full rounded-md border border-brand-ink/10 bg-white"
                 style={{
                   background:
                     gradient?.type === 'radial'

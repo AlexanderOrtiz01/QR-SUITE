@@ -1,13 +1,18 @@
 @import 'tailwindcss';
 
 /**
- * Dirección visual: azul institucional profundo (simple.sv) con la jerarquía
- * de alto contraste de una landing oscura. Solo azules, blanco y un gris muy
- * claro; los acentos de estado se resuelven con tintes del mismo azul.
+ * Dirección visual: vidrio al estilo de iOS sobre el azul institucional.
+ *
+ * Todas las superficies (menú, tarjetas, controles) son láminas de vidrio que
+ * flotan sobre un campo de azules de la marca. El vidrio solo tiene sentido si
+ * hay color detrás que desenfocar: por eso el campo es parte del sistema y no
+ * un adorno, y está fijo para que al desplazar las láminas pasen por encima.
  */
 @theme {
+  /* La tipografía del sistema: SF Pro en los equipos de Apple. */
   --font-sans:
-    'Nunito', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'Segoe UI Variable', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 
   --color-brand-hero: #182f8a;
   --color-brand-hero-light: #2646c4;
@@ -16,8 +21,8 @@
   --color-brand-primary-deep: #1535b0;
   --color-brand-soft: #dce8ff;
   --color-brand-accent: #7fb3ff;
-  --color-brand-page: #f3f5f9;
-  --color-brand-ink: #1b2a5b;
+  --color-brand-page: #eaf0fb;
+  --color-brand-ink: #14224f;
   --color-brand-flag: #0f47af;
 
   /* Pie institucional: charcoal del tema de gobierno y el gris del emblema. */
@@ -25,39 +30,163 @@
   --color-footer-deep: #202630;
   --color-footer-ink: #c3cbdc;
 
-  /* Superficie del menú: vertical, para que a cualquier altura el color sea
-     el mismo de lado a lado. Arranca en un índigo casi negro y baja hacia el
-     azul. El segundo punto se aleja hasta el 150 % a propósito: en diagonal
-     el extremo claro caía en una esquina sin texto, pero en vertical cruza
-     todo el pie, y al 103 % el correo y el rol bajaban de 3:1. */
-  --background-image-panel: linear-gradient(
-    180deg,
-    rgb(28 30 77 / 0.95) 41.87%,
-    rgb(72 127 255 / 0.95) 150%,
-    rgb(28 83 192 / 0.95) 152.77%
-  );
-  --color-panel-ink: #e0e6f0;
+  --shadow-soft: 0 10px 30px -6px rgb(15 31 99 / 0.18);
+  --shadow-soft-sm: 0 4px 14px -2px rgb(15 31 99 / 0.14);
 
-  --shadow-soft: 0 8px 24px rgb(15 31 99 / 0.2);
-  --shadow-soft-sm: 0 4px 14px rgb(15 31 99 / 0.12);
+  /* Curva de iOS: sale rápido y se asienta sin rebotar. */
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/*
+ * Láminas de vidrio. El brillo superior (inset blanco de 1px) es lo que hace
+ * que una capa translúcida se lea como vidrio y no como un blanco apagado.
+ *
+ * Rendimiento: `backdrop-filter` obliga a volver a desenfocar lo que hay
+ * detrás en cada fotograma de scroll. Las láminas del contenido solo tienen
+ * detrás el campo de color, que ya es un degradado suave: desenfocado se ve
+ * igual, así que ahí el blur era coste sin efecto. Solo lo llevan las capas
+ * que sí pasan por encima de contenido (`glass-thick`).
+ */
+@utility glass {
+  background-color: rgb(255 255 255 / 0.58);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(15 31 99 / 0.04),
+    0 12px 32px -8px rgb(15 31 99 / 0.16),
+    0 2px 6px -2px rgb(15 31 99 / 0.08);
+}
+
+/*
+ * Más opaca y con desenfoque real: menú, cabecera fija, avisos y capas que se
+ * superponen a contenido. El radio se queda en 20px: el coste crece con él y a
+ * partir de ahí la diferencia ya no se aprecia con este fondo.
+ */
+@utility glass-thick {
+  background-color: rgb(255 255 255 / 0.72);
+  border: 1px solid rgb(255 255 255 / 0.8);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    0 20px 50px -12px rgb(15 31 99 / 0.28),
+    0 4px 12px -4px rgb(15 31 99 / 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Vidrio teñido de azul: la acción principal, como un botón destacado de iOS. */
+@utility glass-tint {
+  background-color: rgb(26 72 230 / 0.92);
+  border: 1px solid rgb(127 179 255 / 0.55);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    inset 0 -1px 0 rgb(15 31 99 / 0.25),
+    0 8px 20px -6px rgb(26 72 230 / 0.55);
+}
+
+/* Vidrio oscuro para el pie institucional: el emblema es gris claro. */
+@utility glass-dark {
+  background-color: rgb(32 38 48 / 0.82);
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+/* Pozo hundido dentro de una lámina: campos de texto y vistas previas. */
+@utility glass-well {
+  background-color: rgb(255 255 255 / 0.66);
+  border: 1px solid rgb(255 255 255 / 0.85);
+  box-shadow:
+    inset 0 1px 2px rgb(15 31 99 / 0.07),
+    0 1px 0 rgb(255 255 255 / 0.6);
+}
+
+/*
+ * Cargas. El indicador es un aro que gira de forma continua. El esqueleto es
+ * un pozo de vidrio que un reflejo recorre, para que el hueco se lea como
+ * "llegando" y no como vacío.
+ */
+@utility activity {
+  animation: activity 0.75s linear infinite;
+
+  /* Un giro en su sitio no desplaza nada en pantalla: se conserva, más lento,
+     porque detenerlo haría parecer que la carga se ha colgado. */
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 1.5s !important;
+  }
+}
+
+@utility skeleton {
+  background-color: rgb(20 34 79 / 0.07);
+  background-image: linear-gradient(
+    100deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.6) 50%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  animation: reflejo 1.5s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none !important;
+  }
 }
 
 @layer base {
   html {
     color-scheme: light;
-    scrollbar-color: var(--color-brand-accent) var(--color-brand-page);
+    scrollbar-color: rgb(20 34 79 / 0.28) transparent;
   }
 
   body {
-    background: var(--color-brand-page);
+    background-color: var(--color-brand-page);
     color: var(--color-brand-ink);
     font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.006em;
+  }
+
+  /*
+   * El campo de color detrás del vidrio. Va en un pseudoelemento fijo en vez
+   * de en `background-attachment: fixed`, que Safari para iOS ignora.
+   */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        42rem 34rem at 8% 6%,
+        rgb(127 179 255 / 0.85),
+        transparent 70%
+      ),
+      radial-gradient(
+        38rem 30rem at 92% 18%,
+        rgb(26 72 230 / 0.5),
+        transparent 70%
+      ),
+      radial-gradient(
+        46rem 36rem at 70% 96%,
+        rgb(38 70 196 / 0.46),
+        transparent 70%
+      ),
+      radial-gradient(
+        30rem 26rem at 18% 88%,
+        rgb(160 200 255 / 0.7),
+        transparent 70%
+      ),
+      linear-gradient(180deg, #eef3fd 0%, #dfe8fb 100%);
+  }
+
+  /* Durante el scroll el puntero no activa hovers: ver lib/scrollHover.js. */
+  html[data-scrolling] body {
+    pointer-events: none;
   }
 
   ::selection {
-    background: var(--color-brand-accent);
+    background: rgb(127 179 255 / 0.55);
     color: var(--color-brand-deep);
   }
 
@@ -68,7 +197,7 @@
 
   input::placeholder,
   textarea::placeholder {
-    color: color-mix(in srgb, var(--color-brand-ink) 50%, white);
+    color: rgb(20 34 79 / 0.5);
   }
 
   :focus-visible {
@@ -80,55 +209,64 @@
   @keyframes rise {
     from {
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(14px) scale(0.98);
     }
   }
 
-  /* Guardado de un código: la cámara sube por el maquilishuat. */
-  @keyframes camara-arriba {
+  /* Guardado de un código: el fondo se desenfoca y la lámina emerge. */
+  @keyframes velo-entra {
     from {
-      transform: translateY(-1020px);
-    }
-    to {
-      transform: translateY(-160px);
+      opacity: 0;
+      backdrop-filter: blur(0) saturate(100%);
+      -webkit-backdrop-filter: blur(0) saturate(100%);
     }
   }
 
-  @keyframes flor-abre {
+  @keyframes lamina-emerge {
     from {
       opacity: 0;
-      transform: scale(0.2);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
+      transform: translateY(18px) scale(0.9);
+      filter: blur(8px);
     }
   }
 
-  @keyframes petalo-cae {
-    from {
-      opacity: 0;
-      transform: translate3d(0, -40px, 0) rotate(0deg);
-    }
-    12% {
-      opacity: 0.9;
-    }
+  @keyframes lamina-sale {
     to {
       opacity: 0;
-      transform: translate3d(var(--deriva), 900px, 0) rotate(420deg);
+      transform: scale(1.04);
+      filter: blur(6px);
     }
   }
 
-  @keyframes codigo-aparece {
+  @keyframes activity {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes reflejo {
     from {
-      opacity: 0;
-      transform: translateY(26px) scale(0.86);
-      filter: blur(10px);
+      background-position: 120% 0;
     }
     to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      filter: blur(0);
+      background-position: -20% 0;
+    }
+  }
+
+  /* Aviso de guardado: solo aparece si la escritura tarda. */
+  @keyframes aviso-entra {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+    }
+  }
+
+  @keyframes check-traza {
+    from {
+      stroke-dashoffset: 24;
+    }
+    to {
+      stroke-dashoffset: 0;
     }
   }
 
@@ -145,6 +283,6 @@
   h2,
   h3 {
     text-wrap: balance;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.022em;
   }
 }

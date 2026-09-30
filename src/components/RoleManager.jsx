@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { storage } from '../lib/storage/index.js'
 import { REVOKED, ROLES, SELF_REGISTER_ROLE } from '../lib/roles.js'
 import { ALLOWED_DOMAIN } from '../lib/config.js'
-import { Button, Card, Field, Input, Select } from './ui.jsx'
+import { Button, Card, Field, Input, Select, Skeleton, Spinner } from './ui.jsx'
 
 /**
  * Módulo 1 — gestión de roles.
@@ -16,7 +16,8 @@ export function RoleManager({ currentEmail }) {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState('editor')
   const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
+  // Qué está en marcha: 'add', o el correo al que se le retira el acceso.
+  const [busy, setBusy] = useState('')
   const [loaded, setLoaded] = useState(false)
 
   const refresh = useCallback(async () => {
@@ -61,7 +62,7 @@ export function RoleManager({ currentEmail }) {
     }
 
     setError('')
-    setBusy(true)
+    setBusy('add')
     try {
       await storage.setRole(normalized, role)
       await refresh()
@@ -75,7 +76,7 @@ export function RoleManager({ currentEmail }) {
   }
 
   async function handleRemove(target) {
-    setBusy(true)
+    setBusy(target)
     try {
       await storage.removeRole(target)
       await refresh()
@@ -106,7 +107,7 @@ export function RoleManager({ currentEmail }) {
           <Input
             type="email"
             value={email}
-            disabled={busy}
+            disabled={Boolean(busy)}
             onChange={(event) => setEmail(event.target.value)}
             placeholder={`persona@${ALLOWED_DOMAIN}`}
             required
@@ -115,7 +116,7 @@ export function RoleManager({ currentEmail }) {
         <Field label="Rol">
           <Select
             value={role}
-            disabled={busy}
+            disabled={Boolean(busy)}
             onChange={(event) => setRole(event.target.value)}
           >
             {Object.values(ROLES).map((item) => (
@@ -125,7 +126,11 @@ export function RoleManager({ currentEmail }) {
             ))}
           </Select>
         </Field>
-        <Button type="submit" disabled={busy}>
+        <Button
+          type="submit"
+          disabled={Boolean(busy) && busy !== 'add'}
+          loading={busy === 'add'}
+        >
           Asignar rol
         </Button>
       </form>
@@ -137,13 +142,29 @@ export function RoleManager({ currentEmail }) {
       ) : null}
 
       {!loaded ? (
-        <p className="text-sm text-brand-ink/65">Cargando…</p>
+        <ul aria-busy="true" className="divide-y divide-brand-ink/8">
+          {[0, 1, 2].map((row) => (
+            <li
+              key={row}
+              className="flex items-center justify-between gap-3 py-3"
+            >
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-52 rounded-md" />
+                <Skeleton className="h-3 w-20 rounded-md" />
+              </div>
+              <Skeleton className="h-7 w-28 rounded-full" />
+            </li>
+          ))}
+          <li className="sr-only" role="status">
+            Cargando personas…
+          </li>
+        </ul>
       ) : people.length === 0 ? (
         <p className="text-sm text-brand-ink/65">
           Todavía no ha entrado nadie.
         </p>
       ) : (
-        <ul className="divide-y divide-brand-page">
+        <ul className="divide-y divide-brand-ink/8">
           {people.map((person) => (
             <li
               key={person.email}
@@ -172,10 +193,14 @@ export function RoleManager({ currentEmail }) {
               ) : person.role === REVOKED ? null : (
                 <button
                   type="button"
-                  disabled={busy}
+                  disabled={Boolean(busy)}
+                  aria-busy={busy === person.email || undefined}
                   onClick={() => handleRemove(person.email)}
-                  className="rounded-full px-3 py-1 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50/80 disabled:opacity-50"
                 >
+                  {busy === person.email ? (
+                    <Spinner className="size-4" />
+                  ) : null}
                   Retirar acceso
                 </button>
               )}

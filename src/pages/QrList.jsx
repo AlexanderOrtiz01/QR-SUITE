@@ -41,7 +41,7 @@ export function QrList() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Códigos QR</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Códigos QR</h1>
           <p className="text-sm text-brand-ink/65">
             {filtered.length} de {qrs.length} códigos
           </p>
@@ -89,7 +89,7 @@ export function QrList() {
       ) : (
         <Card className="overflow-x-auto p-0">
           <table className="w-full min-w-[640px] text-sm">
-            <thead className="border-b border-brand-soft text-left text-xs font-bold uppercase tracking-[0.12em] text-brand-ink/65">
+            <thead className="border-b border-brand-ink/10 text-left text-xs font-bold uppercase tracking-[0.12em] text-brand-ink/65">
               <tr>
                 <th className="px-4 py-3 font-medium">Título</th>
                 <th className="px-4 py-3 font-medium">Código</th>
@@ -98,11 +98,11 @@ export function QrList() {
                 <th className="px-4 py-3 text-right font-medium">Escaneos</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-page">
+            <tbody className="divide-y divide-brand-ink/8">
               {filtered.map((qr) => (
                 <tr
                   key={qr.short_code}
-                  className="transition-colors hover:bg-brand-soft/40"
+                  className="transition-colors hover:bg-white/55"
                 >
                   <td className="px-4 py-3">
                     <Link

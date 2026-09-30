@@ -29,6 +29,11 @@ export function AppProvider({ children }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [session, setSession] = useState(null)
   const [authError, setAuthError] = useState('')
+  // Correo cuyos datos ya están en pantalla. Mientras no coincida con la
+  // sesión, lo que se ve son las colecciones vacías de antes de entrar.
+  const [loadedEmail, setLoadedEmail] = useState('')
+  // Escrituras en curso: la interfaz es optimista, pero avisa si tardan.
+  const [pendingWrites, setPendingWrites] = useState(0)
 
   const fetchAll = useCallback(async () => {
     // Sin sesión, las colecciones del panel no son legibles. Preguntar de
@@ -87,6 +92,10 @@ export function AppProvider({ children }) {
       .catch((error) => {
         console.error('[qrsuite] fallo al recargar tras entrar', error)
       })
+      .finally(() => {
+        // También en el fallo: mejor un panel vacío que un cargador eterno.
+        if (!cancelled) setLoadedEmail(sessionEmail)
+      })
     return () => {
       cancelled = true
     }
@@ -109,11 +118,14 @@ export function AppProvider({ children }) {
    */
   const persist = useCallback(
     async (operation) => {
+      setPendingWrites((count) => count + 1)
       try {
         await operation()
       } catch (error) {
         console.error('[qrsuite] fallo al guardar', error)
         await reload().catch(() => {})
+      } finally {
+        setPendingWrites((count) => count - 1)
       }
     },
     [reload],
@@ -233,11 +245,14 @@ export function AppProvider({ children }) {
     setSession(null)
   }, [])
 
-  const ready = dataReady && authReady
+  const ready =
+    dataReady && authReady && (!sessionEmail || loadedEmail === sessionEmail)
+  const saving = pendingWrites > 0
 
   const value = useMemo(
     () => ({
       ready,
+      saving,
       projects,
       qrs,
       scans,
@@ -258,6 +273,7 @@ export function AppProvider({ children }) {
     }),
     [
       ready,
+      saving,
       projects,
       qrs,
       scans,

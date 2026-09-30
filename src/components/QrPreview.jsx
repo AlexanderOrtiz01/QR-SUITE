@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { renderFinalSvg } from '../lib/qr.js'
+import { Skeleton } from './ui.jsx'
 
 /**
  * Vista previa del código.
@@ -9,7 +10,9 @@ import { renderFinalSvg } from '../lib/qr.js'
  * incluidos— es lo que acaba en el archivo.
  *
  * La generación es asíncrona, así que se descarta el resultado si llega
- * después de que el estilo haya vuelto a cambiar.
+ * después de que el estilo haya vuelto a cambiar. Solo la primera vez hay
+ * esqueleto: después se conserva el código anterior hasta que llega el nuevo,
+ * que es menos brusco que parpadear en cada ajuste de color.
  */
 export function QrPreview({ data, style, size = 260, className = '' }) {
   const [svg, setSvg] = useState('')
@@ -31,9 +34,22 @@ export function QrPreview({ data, style, size = 260, className = '' }) {
     }
   }, [data, style, size])
 
+  if (!svg) {
+    return (
+      <div
+        role="status"
+        className={className}
+        style={{ width: size, maxWidth: '100%' }}
+      >
+        <span className="sr-only">Generando el código…</span>
+        <Skeleton className="aspect-square w-full rounded-2xl" />
+      </div>
+    )
+  }
+
   return (
     <div
-      className={`[&>svg]:block [&>svg]:h-auto [&>svg]:w-full ${className}`}
+      className={`[animation:velo-entra_.3s_ease-out_both] [&>svg]:block [&>svg]:h-auto [&>svg]:w-full ${className}`}
       style={{ width: size, maxWidth: '100%' }}
       // El SVG lo genera esta misma aplicación a partir de valores de un
       // conjunto cerrado; no hay contenido de terceros que inyectar.

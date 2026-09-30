@@ -99,6 +99,23 @@ export function IconChevronUp(props) {
   )
 }
 
+export function IconLogout(props) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M14 4h3.5A1.5 1.5 0 0 1 19 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14" />
+      <path d="M10 8l-4 4 4 4M6 12h9" />
+    </svg>
+  )
+}
+
+export function IconCheck(props) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  )
+}
+
 /** Logotipo de Google en sus cuatro colores, como exige su guía de marca. */
 export function IconGoogle(props) {
   return (

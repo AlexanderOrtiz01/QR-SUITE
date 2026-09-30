@@ -1,13 +1,9 @@
-import { Suspense, lazy, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { Button, Card, EmptyState } from '../components/ui.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
-
-// Recharts se carga aparte: el Dashboard debe pintar sus cifras sin esperarlo.
-const Sparkline = lazy(() =>
-  import('../components/Sparkline.jsx').then((m) => ({ default: m.Sparkline })),
-)
+import { Sparkline } from '../components/Sparkline.jsx'
 
 const DAYS = 14
 
@@ -57,7 +53,7 @@ export function Dashboard() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-brand-ink/65">
             Estado general de la plataforma
           </p>
@@ -99,9 +95,7 @@ export function Dashboard() {
             registrar el primero.
           </p>
         ) : (
-          <Suspense fallback={<div className="h-[90px]" />}>
-            <Sparkline data={trend} />
-          </Suspense>
+          <Sparkline data={trend} />
         )}
       </Card>
 
@@ -119,7 +113,7 @@ export function Dashboard() {
           />
         ) : (
           <Card className="p-0">
-            <ul className="divide-y divide-brand-page">
+            <ul className="divide-y divide-brand-ink/8">
               {recent.map((qr) => (
                 <li
                   key={qr.short_code}
