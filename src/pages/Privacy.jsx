@@ -1,4 +1,5 @@
 import { ALLOWED_DOMAIN } from '../lib/config.js'
+import { Picture } from '../components/ui.jsx'
 
 /**
  * Aviso de privacidad.
@@ -18,7 +19,7 @@ const UPDATED_AT = '23 de septiembre de 2026'
 function Section({ title, children }) {
   return (
     <section className="mt-10 first:mt-0">
-      <h2 className="text-lg font-extrabold tracking-tight text-brand-ink">
+      <h2 className="text-lg font-bold tracking-tight text-brand-ink">
         {title}
       </h2>
       <div className="mt-3 space-y-3 text-brand-ink/80">{children}</div>
@@ -28,22 +29,22 @@ function Section({ title, children }) {
 
 export function Privacy() {
   return (
-    <div className="min-h-dvh bg-brand-page">
-      <header className="bg-linear-to-r from-brand-deep to-brand-hero-light px-4 py-6 text-white shadow-soft sm:px-6">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
-          <img
-            src="/logo-blanco.png"
+    <div className="min-h-dvh">
+      <header className="sticky top-3 z-10 px-3">
+        <div className="glass-thick mx-auto flex max-w-2xl items-center gap-3 rounded-full py-2 pr-5 pl-3">
+          <Picture
+            src="/logo-azul-192.webp"
             alt=""
-            width="512"
-            height="512"
-            className="size-9"
+            width="192"
+            height="192"
+            className="size-8"
           />
-          <p className="text-lg font-extrabold tracking-tight">QR Suite</p>
+          <p className="font-bold tracking-tight">QR Suite</p>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-brand-ink">
+      <main className="glass mx-3 my-8 rounded-[2rem] px-6 py-10 sm:mx-auto sm:max-w-2xl sm:px-10">
+        <h1 className="text-3xl font-bold tracking-tight text-brand-ink">
           Aviso de privacidad
         </h1>
         <p className="mt-2 text-sm text-brand-ink/65">

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { storage } from '../lib/storage/index.js'
 import { createScan, resolveTarget } from '../lib/schema.js'
 import { detectBrowser, detectOs } from '../lib/userAgent.js'
+import { Spinner } from '../components/ui.jsx'
 
 /**
  * Motor de redirección — VERSIÓN DE CLIENTE (Fase 2 pendiente).
@@ -70,8 +71,8 @@ export function Redirect() {
   }, [shortCode])
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-brand-page px-4 text-center">
-      <div className="max-w-sm space-y-2">
+    <div className="flex min-h-dvh items-center justify-center px-4 text-center">
+      <div className="glass w-full max-w-sm space-y-2 rounded-[1.75rem] px-6 py-8">
         <p className="font-mono text-sm text-brand-ink/65">/{shortCode}</p>
         {error ? (
           <>
@@ -81,7 +82,10 @@ export function Redirect() {
             <p className="text-sm text-brand-ink/80">{error}</p>
           </>
         ) : (
-          <h1 className="text-lg font-bold text-brand-ink">Redirigiendo…</h1>
+          <div role="status" className="flex flex-col items-center gap-3">
+            <Spinner className="size-7 text-brand-ink/70" />
+            <h1 className="text-lg font-bold text-brand-ink">Redirigiendo…</h1>
+          </div>
         )}
       </div>
     </div>

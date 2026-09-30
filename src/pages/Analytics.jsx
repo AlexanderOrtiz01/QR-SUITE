@@ -114,7 +114,7 @@ export function Analytics() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Analítica</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Analítica</h1>
           <p className="text-sm text-brand-ink/65">
             Escaneos registrados por el motor de redirección
           </p>

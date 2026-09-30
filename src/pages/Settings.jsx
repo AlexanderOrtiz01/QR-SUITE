@@ -14,6 +14,7 @@ export function Settings() {
   const [draft, setDraft] = useState(settings)
   const [saved, setSaved] = useState(false)
   const [seeded, setSeeded] = useState(0)
+  const [clearing, setClearing] = useState(false)
 
   function patch(next) {
     setDraft((current) => ({ ...current, ...next }))
@@ -29,7 +30,7 @@ export function Settings() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">Ajustes</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Ajustes</h1>
         <p className="text-sm text-brand-ink/65">
           Configuración institucional de la plataforma
         </p>
@@ -144,12 +145,14 @@ export function Settings() {
           </p>
           <Button
             variant="danger"
+            loading={clearing}
             onClick={async () => {
+              setClearing(true)
               await storage.clear()
               window.location.reload()
             }}
           >
-            Borrar todos los datos locales
+            {clearing ? 'Borrando…' : 'Borrar todos los datos locales'}
           </Button>
         </Card>
       ) : null}

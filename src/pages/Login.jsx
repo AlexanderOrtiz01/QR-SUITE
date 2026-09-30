@@ -8,7 +8,14 @@ import {
   signInLocal,
   signInWithGoogle,
 } from '../lib/auth.js'
-import { Banner, Button, Field, Input, Select } from '../components/ui.jsx'
+import {
+  Banner,
+  Button,
+  Field,
+  Input,
+  Picture,
+  Select,
+} from '../components/ui.jsx'
 import { IconGoogle } from '../components/icons.jsx'
 
 /**
@@ -90,10 +97,13 @@ function GoogleAccess() {
 
   return (
     <div className="space-y-4">
-      <Button className="w-full py-3" onClick={handleSignIn} disabled={busy}>
-        <span className="grid size-6 place-items-center rounded-full bg-white">
-          <IconGoogle className="size-4" />
-        </span>
+      <Button className="w-full py-3" onClick={handleSignIn} loading={busy}>
+        {/* Mientras se abre Google, el indicador ocupa el sitio del logotipo. */}
+        {busy ? null : (
+          <span className="grid size-6 place-items-center rounded-full bg-white">
+            <IconGoogle className="size-4" />
+          </span>
+        )}
         {busy ? 'Abriendo Google…' : 'Continuar con Google'}
       </Button>
 
@@ -110,6 +120,7 @@ function SimulatedAccess() {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState('admin')
   const [error, setError] = useState('')
+  const [entering, setEntering] = useState(false)
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -123,6 +134,7 @@ function SimulatedAccess() {
       return
     }
     setError('')
+    setEntering(true)
     signInLocal({ email, role, signed_in_at: new Date().toISOString() })
     // El observador local solo lee al montar, así que la recarga es lo que
     // publica la sesión recién guardada.
@@ -157,8 +169,8 @@ function SimulatedAccess() {
           {error}
         </p>
       ) : null}
-      <Button type="submit" className="w-full py-3">
-        Entrar
+      <Button type="submit" className="w-full py-3" loading={entering}>
+        {entering ? 'Entrando…' : 'Entrar'}
       </Button>
     </form>
   )
@@ -183,15 +195,15 @@ export function Login() {
           className="w-full max-w-sm [animation:rise_.55s_cubic-bezier(.16,1,.3,1)]"
           style={{ animationDelay: '60ms' }}
         >
-          <div className="rounded-3xl bg-white p-8 shadow-soft">
-            <img
-              src="/logo-azul.png"
+          <div className="glass-thick rounded-[2.25rem] p-8">
+            <Picture
+              src="/logo-azul-192.webp"
               alt=""
-              width="512"
-              height="512"
+              width="192"
+              height="192"
               className="size-14"
             />
-            <h1 className="mt-5 text-2xl font-extrabold tracking-tight text-brand-ink">
+            <h1 className="mt-5 text-2xl font-bold tracking-tight text-brand-ink">
               QR Suite
             </h1>
             <p className="mt-1 mb-7 text-sm text-brand-ink/65">

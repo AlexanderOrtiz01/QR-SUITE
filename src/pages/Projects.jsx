@@ -28,7 +28,7 @@ export function Projects() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">Proyectos</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Proyectos</h1>
         <p className="text-sm text-brand-ink/65">
           Un proyecto agrupa los códigos de un libro o asignatura.
         </p>

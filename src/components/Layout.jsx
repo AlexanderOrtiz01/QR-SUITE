@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { Footer } from './Footer.jsx'
+import { PageSkeleton, Picture, Spinner } from './ui.jsx'
+import { preloadPanelPages } from '../pages/routes.js'
 import { ROLES } from '../lib/roles.js'
 import { isPersistenceShared } from '../lib/storage/index.js'
 import {
@@ -11,6 +13,7 @@ import {
   IconDashboard,
   IconFolder,
   IconList,
+  IconLogout,
   IconMenu,
   IconQrPlus,
   IconSettings,
@@ -36,7 +39,10 @@ function readCollapsed() {
 }
 
 export function Layout() {
-  const { session, signOut, settings } = useApp()
+  const { session, signOut, settings, saving } = useApp()
+  const [signingOut, setSigningOut] = useState(false)
+
+  useEffect(() => preloadPanelPages(), [])
   // Plegado en escritorio; el cajón móvil es un estado aparte porque se
   // comporta distinto: allí el menú se superpone en vez de estrechar.
   const [collapsed, setCollapsed] = useState(readCollapsed)
@@ -55,23 +61,34 @@ export function Layout() {
     })
   }
 
+  // El menú flota separado de los bordes, así que el contenido se aparta su
+  // ancho más el margen de ambos lados.
+  async function handleSignOut() {
+    setSigningOut(true)
+    try {
+      await signOut()
+    } finally {
+      setSigningOut(false)
+    }
+  }
+
   const asideWidth = collapsed ? 'lg:w-18' : 'lg:w-60'
-  const contentOffset = collapsed ? 'lg:pl-18' : 'lg:pl-60'
+  const contentOffset = collapsed ? 'lg:pl-24' : 'lg:pl-66'
 
   return (
-    <div className="min-h-dvh bg-brand-page text-brand-ink">
+    <div className="min-h-dvh text-brand-ink">
       {mobileOpen ? (
         <button
           type="button"
           aria-label="Cerrar menú"
           onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 z-30 bg-brand-deep/60 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-30 bg-brand-deep/25 backdrop-blur-sm lg:hidden"
         />
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-panel text-panel-ink shadow-soft transition-[width,transform] duration-200 ${asideWidth} ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`glass-thick fixed top-3 bottom-3 left-3 z-40 flex w-60 flex-col overflow-hidden rounded-[1.75rem] text-brand-ink transition-[width,transform] duration-300 ease-ios ${asideWidth} ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)]'
         } lg:translate-x-0`}
       >
         <div className="px-3 py-4">
@@ -85,7 +102,7 @@ export function Layout() {
               onClick={toggleCollapsed}
               aria-label={collapsed ? 'Expandir menú' : 'Plegar menú'}
               aria-expanded={!collapsed}
-              className="hidden rounded-full p-2 transition-colors hover:bg-white/15 lg:block"
+              className="hidden rounded-full p-2 text-brand-ink/70 transition-colors hover:bg-white/70 hover:text-brand-ink lg:block"
             >
               <IconChevronLeft
                 className={`size-5 transition-transform ${collapsed ? 'rotate-180' : ''}`}
@@ -95,25 +112,25 @@ export function Layout() {
               type="button"
               onClick={() => setMobileOpen(false)}
               aria-label="Cerrar menú"
-              className="rounded-full p-2 transition-colors hover:bg-white/15 lg:hidden"
+              className="rounded-full p-2 text-brand-ink/70 transition-colors hover:bg-white/70 hover:text-brand-ink lg:hidden"
             >
               <IconClose className="size-5" />
             </button>
           </div>
 
           <div className="flex flex-col items-center text-center">
-            {/* La versión blanca de la marca, que es la que contrasta sobre el
-                azul del menú. Plegado queda solo el símbolo. */}
-            <img
-              src="/logo-blanco.png"
+            {/* Sobre el vidrio claro contrasta la versión azul de la marca.
+                Plegado queda solo el símbolo. */}
+            <Picture
+              src="/logo-azul-192.webp"
               alt=""
-              width="512"
-              height="512"
+              width="192"
+              height="192"
               className={`w-auto ${collapsed ? 'lg:size-9' : 'size-14'}`}
             />
             <div className={`mt-2 w-full ${collapsed ? 'lg:hidden' : ''}`}>
-              <p className="text-lg font-extrabold tracking-tight">QR Suite</p>
-              <p className="truncate text-xs text-brand-accent">
+              <p className="text-lg font-bold tracking-tight">QR Suite</p>
+              <p className="truncate text-xs text-brand-ink/60">
                 {settings.orgName}
               </p>
             </div>
@@ -129,10 +146,10 @@ export function Layout() {
               onClick={() => setMobileOpen(false)}
               title={collapsed ? item.label : undefined}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-full px-3.5 py-2.5 text-sm font-bold transition-colors ${
+                `flex items-center gap-3 rounded-full px-3.5 py-2.5 text-sm font-semibold transition-[background-color,color,transform] duration-200 ease-ios active:scale-[0.97] ${
                   isActive
-                    ? 'bg-white text-brand-primary-deep shadow-soft-sm'
-                    : 'text-brand-soft hover:bg-white/15 hover:text-white'
+                    ? 'glass-tint text-white'
+                    : 'border border-transparent text-brand-ink/75 hover:bg-white/70 hover:text-brand-ink'
                 } ${collapsed ? 'lg:justify-center lg:px-0' : ''}`
               }
             >
@@ -143,70 +160,101 @@ export function Layout() {
         </nav>
 
         {session ? (
-          <div className="border-t border-white/15 p-3">
+          <div className="border-t border-brand-ink/10 p-3">
             {!collapsed ? (
               <div className="mb-2 px-1">
-                {/* La jerarquía va por peso y no por color: en el tramo
-                    inferior del degradado, el azul claro del acento cae a
-                    3,2:1 y deja de leerse. */}
-                <p className="truncate text-xs font-bold">{session.email}</p>
-                <p className="text-xs">{ROLES[session.role]?.label}</p>
+                <p className="truncate text-xs font-semibold">
+                  {session.email}
+                </p>
+                <p className="text-xs text-brand-ink/65">
+                  {ROLES[session.role]?.label}
+                </p>
               </div>
             ) : null}
             <button
               type="button"
-              onClick={signOut}
+              onClick={handleSignOut}
+              disabled={signingOut}
+              aria-busy={signingOut || undefined}
               title={collapsed ? 'Cerrar sesión' : undefined}
-              className={`w-full rounded-full border border-white/40 px-3 py-2 text-xs font-bold transition-colors hover:bg-white hover:text-brand-primary-deep ${
+              aria-label={collapsed ? 'Cerrar sesión' : undefined}
+              className={`glass-well flex w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition-[background-color,transform] duration-200 ease-ios hover:bg-white active:scale-[0.97] disabled:cursor-progress ${
                 collapsed ? 'lg:px-0' : ''
               }`}
             >
-              {collapsed ? '⏻' : 'Cerrar sesión'}
+              {signingOut ? (
+                <Spinner className="size-4 shrink-0" />
+              ) : (
+                <IconLogout className="size-4 shrink-0" />
+              )}
+              <span className={collapsed ? 'lg:hidden' : ''}>
+                {signingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}
+              </span>
             </button>
           </div>
         ) : null}
       </aside>
 
       <div
-        className={`flex min-h-dvh flex-col transition-[padding] duration-200 ${contentOffset}`}
+        className={`flex min-h-dvh flex-col transition-[padding] duration-300 ease-ios ${contentOffset}`}
       >
-        <header className="flex items-center gap-3 bg-panel px-4 py-3 text-panel-ink shadow-soft lg:hidden">
+        <header className="glass-thick sticky top-3 z-20 mx-3 mt-3 flex items-center gap-3 rounded-full py-2 pr-5 pl-2 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
             aria-label="Abrir menú"
             aria-expanded={mobileOpen}
-            className="rounded-full p-2 transition-colors hover:bg-white/15"
+            className="rounded-full p-2.5 transition-colors hover:bg-white/70"
           >
             <IconMenu className="size-5" />
           </button>
-          <img
-            src="/logo-blanco.png"
+          <Picture
+            src="/logo-azul-192.webp"
             alt=""
-            width="512"
-            height="512"
+            width="192"
+            height="192"
             className="size-8"
           />
           <div className="min-w-0">
-            <p className="font-extrabold tracking-tight">QR Suite</p>
-            <p className="truncate text-xs text-brand-accent">
+            <p className="leading-tight font-bold tracking-tight">QR Suite</p>
+            <p className="truncate text-xs text-brand-ink/60">
               {settings.orgName}
             </p>
           </div>
         </header>
 
         {!isPersistenceShared ? (
-          <div className="bg-brand-soft px-4 py-2 text-center text-xs font-semibold text-brand-ink">
-            Modo local: los datos se guardan solo en este navegador. Conecta
-            Firestore para compartirlos entre usuarios y dispositivos.
+          <div className="mx-auto w-full max-w-7xl px-4 pt-4 sm:px-6">
+            <p className="glass rounded-2xl px-4 py-2 text-center text-xs font-medium text-brand-ink/80">
+              Modo local: los datos se guardan solo en este navegador. Conecta
+              Firestore para compartirlos entre usuarios y dispositivos.
+            </p>
           </div>
         ) : null}
 
         <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
-          <Outlet />
+          {/* Solo cambia el contenido: menú y pie se quedan mientras llega la
+              página, que es lo que hace que la navegación no parpadee. */}
+          <Suspense fallback={<PageSkeleton />}>
+            <Outlet />
+          </Suspense>
         </main>
         <Footer />
       </div>
+
+      {/* La interfaz guarda de forma optimista, así que casi nunca se ve: el
+          aviso entra con retraso y solo aparece si la escritura tarda. */}
+      {saving ? (
+        <div
+          role="status"
+          className="glass-thick fixed bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full [animation:aviso-entra_.3s_var(--ease-ios)_.4s_both]"
+        >
+          <p className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-brand-ink/80">
+            <Spinner className="size-4" />
+            Guardando cambios…
+          </p>
+        </div>
+      ) : null}
     </div>
   )
 }

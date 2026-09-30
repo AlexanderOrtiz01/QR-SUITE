@@ -12,7 +12,7 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
 } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore/lite'
 import { auth, db, isFirebaseConfigured } from './firebase.js'
 import { REVOKED, SELF_REGISTER_ROLE } from './roles.js'
 

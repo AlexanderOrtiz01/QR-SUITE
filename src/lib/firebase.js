@@ -5,10 +5,15 @@
  * `isFirebaseConfigured` queda en false y el resto del código cae al
  * almacenamiento local y al login simulado. Eso permite clonar el repo y
  * trabajar sin tocar la consola de Firebase.
+ *
+ * Firestore va en su versión lite: la app solo lee y escribe documentos
+ * sueltos, sin escuchas en tiempo real ni caché sin conexión. Así pesa una
+ * fracción del SDK completo y no mantiene abierto el canal de streaming, que
+ * impedía al navegador guardar la página en la caché de atrás/adelante.
  */
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore/lite'
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,

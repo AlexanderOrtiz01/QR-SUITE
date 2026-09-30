@@ -20,13 +20,15 @@ updates:
     ignore:
       - dependency-name: vite
         update-types: [version-update:semver-major]
+      # Sus versiones mayores piden un Vite más nuevo (la 6 no instala sobre
+      # Vite 6), así que se mueve junto con Vite, no por su cuenta.
+      - dependency-name: '@vitejs/plugin-react'
+        update-types: [version-update:semver-major]
 
+    # Dependabot mete cada dependencia en el PRIMER grupo que la acepta, así
+    # que los grupos que obligan a viajar juntos van antes que dev-tooling: si
+    # no, @types/react* (que son de desarrollo) se irían a dev-tooling.
     groups:
-      # Un solo PR para las herramientas de desarrollo; las de producción
-      # (react, recharts, qr-code-styling) se revisan una por una.
-      dev-tooling:
-        dependency-type: development
-        update-types: [minor, patch]
       # react y react-dom tienen que viajar en la misma versión: si una sube
       # sin la otra, React aborta el arranque y la pantalla queda en blanco.
       react:
@@ -35,11 +37,24 @@ updates:
           - react-dom
           - '@types/react'
           - '@types/react-dom'
+      # eslint y @eslint/js también van en pareja: por separado, npm ci falla
+      # por dependencias cruzadas.
+      eslint:
+        patterns:
+          - eslint
+          - '@eslint/js'
+      # Un solo PR para las herramientas de desarrollo; las de producción
+      # (recharts, qr-code-styling) se revisan una por una.
+      dev-tooling:
+        dependency-type: development
+        update-types: [minor, patch]
 
   # Las propias actions del workflow también envejecen.
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    # Igual que npm: todo entra por dev y llega a main con el siguiente PR.
+    target-branch: dev
     commit-message:
       prefix: 'ci'
