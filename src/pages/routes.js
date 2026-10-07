@@ -13,6 +13,7 @@ const PANEL = {
   Projects: () => import('./Projects.jsx'),
   QrList: () => import('./QrList.jsx'),
   QrDetail: () => import('./QrDetail.jsx'),
+  Import: () => import('./Import.jsx'),
   Analytics: () => import('./Analytics.jsx'),
   Settings: () => import('./Settings.jsx'),
 }
@@ -33,6 +34,7 @@ export const Studio = page(PANEL, 'Studio')
 export const Projects = page(PANEL, 'Projects')
 export const QrList = page(PANEL, 'QrList')
 export const QrDetail = page(PANEL, 'QrDetail')
+export const Import = page(PANEL, 'Import')
 export const Analytics = page(PANEL, 'Analytics')
 export const Settings = page(PANEL, 'Settings')
 export const Login = page(PUBLIC, 'Login')

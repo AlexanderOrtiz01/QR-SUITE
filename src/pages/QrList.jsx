@@ -11,6 +11,19 @@ import {
   Select,
 } from '../components/ui.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
+import { Tooltip } from '../components/Tooltip.jsx'
+
+/** Marca de los códigos que vienen de otra plataforma. */
+function ImportedMark({ qr }) {
+  if (qr.origin !== 'importado') return null
+  return (
+    <Tooltip content={`Importado de ${qr.legacy_source || 'otra plataforma'}`}>
+      <span className="ml-2 inline-flex rounded-full bg-brand-ink/6 px-2 py-0.5 align-middle text-[11px] font-bold text-brand-ink/65">
+        Importado
+      </span>
+    </Tooltip>
+  )
+}
 
 export function QrList() {
   const { qrs, projects } = useApp()
@@ -50,6 +63,9 @@ export function QrList() {
         title="Códigos QR"
         meta={`${filtered.length} de ${qrs.length}`}
       >
+        <Link to="/importar">
+          <Button variant="secondary">Importar</Button>
+        </Link>
         <Link to="/estudio">
           <Button>Crear código QR</Button>
         </Link>
@@ -102,7 +118,10 @@ export function QrList() {
                   className="flex items-start justify-between gap-3 p-4 transition-colors hover:bg-white/55"
                 >
                   <div className="min-w-0 text-sm">
-                    <p className="font-medium break-words">{qr.title}</p>
+                    <p className="font-medium break-words">
+                      {qr.title}
+                      <ImportedMark qr={qr} />
+                    </p>
                     <p className="mt-0.5 text-xs text-brand-ink/65">
                       <code className="font-mono">{qr.short_code}</code> ·{' '}
                       {projectName(qr.project_id)} · {qr.total_scans || 0}{' '}
@@ -143,6 +162,7 @@ export function QrList() {
                     >
                       {qr.title}
                     </Link>
+                    <ImportedMark qr={qr} />
                     {qr.tags.length > 0 ? (
                       <p className="text-xs text-brand-ink/65">
                         {qr.tags.join(' · ')}

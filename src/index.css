@@ -83,6 +83,21 @@
     0 8px 20px -6px rgb(26 72 230 / 0.55);
 }
 
+/*
+ * Fondo desenfocado mientras se muestra una confirmación (`SaveReveal`). Es un
+ * `filter` fijo sobre cada pieza del panel y no un `backdrop-filter` en el
+ * velo: con la lámina moviéndose encima, este se recalculaba en cada
+ * fotograma. Va pieza a pieza y no sobre la raíz porque un `filter` en un
+ * contenedor descoloca a sus descendientes con `position: fixed`.
+ */
+[data-velo] {
+  transition: filter 0.2s ease-out;
+}
+
+.velo-activo [data-velo] {
+  filter: blur(10px);
+}
+
 /* Vidrio oscuro para el pie institucional: el emblema es gris claro. */
 @utility glass-dark {
   background-color: rgb(32 38 48 / 0.82);
@@ -222,11 +237,12 @@
     }
   }
 
+  /* Solo opacidad y transformación: un `filter: blur` aquí se recalculaba en
+     cada fotograma sobre el código que está brotando dentro. */
   @keyframes lamina-emerge {
     from {
       opacity: 0;
       transform: translateY(18px) scale(0.9);
-      filter: blur(8px);
     }
   }
 
@@ -234,7 +250,18 @@
     to {
       opacity: 0;
       transform: scale(1.04);
-      filter: blur(6px);
+    }
+  }
+
+  @keyframes fundido-entra {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fundido-sale {
+    to {
+      opacity: 0;
     }
   }
 

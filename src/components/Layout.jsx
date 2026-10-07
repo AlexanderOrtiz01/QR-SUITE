@@ -13,6 +13,7 @@ import {
   IconClose,
   IconDashboard,
   IconFolder,
+  IconImport,
   IconList,
   IconLogout,
   IconMenu,
@@ -25,6 +26,7 @@ const NAV = [
   { to: '/estudio', label: 'Crear QR', Icon: IconQrPlus },
   { to: '/proyectos', label: 'Proyectos', Icon: IconFolder },
   { to: '/codigos', label: 'Códigos QR', Icon: IconList },
+  { to: '/importar', label: 'Importar', Icon: IconImport },
   { to: '/analitica', label: 'Analítica', Icon: IconChart },
   { to: '/ajustes', label: 'Ajustes', Icon: IconSettings },
 ]
@@ -88,6 +90,7 @@ export function Layout() {
       ) : null}
 
       <aside
+        data-velo
         className={`glass-thick fixed top-3 bottom-3 left-3 z-40 flex w-60 flex-col overflow-hidden rounded-[1.75rem] text-brand-ink transition-[width,transform] duration-300 ease-ios ${asideWidth} ${
           mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)]'
         } lg:translate-x-0`}
@@ -212,7 +215,10 @@ export function Layout() {
       <div
         className={`flex min-h-dvh flex-col transition-[padding] duration-300 ease-ios ${contentOffset}`}
       >
-        <header className="glass-thick sticky top-3 z-20 mx-3 mt-3 flex items-center gap-3 rounded-full py-2 pr-5 pl-2 lg:hidden">
+        <header
+          data-velo
+          className="glass-thick sticky top-3 z-20 mx-3 mt-3 flex items-center gap-3 rounded-full py-2 pr-5 pl-2 lg:hidden"
+        >
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
@@ -238,7 +244,10 @@ export function Layout() {
         </header>
 
         {!isPersistenceShared ? (
-          <div className="mx-auto flex w-full max-w-7xl justify-end px-4 pt-4 sm:px-6">
+          <div
+            data-velo
+            className="mx-auto flex w-full max-w-7xl justify-end px-4 pt-4 sm:px-6"
+          >
             <p className="glass flex items-center gap-1.5 rounded-full py-1 pr-1.5 pl-3 text-xs font-semibold text-brand-ink/80">
               Modo local
               <InfoTip>
@@ -249,7 +258,10 @@ export function Layout() {
           </div>
         ) : null}
 
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
+        <main
+          data-velo
+          className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6"
+        >
           {/* Solo cambia el contenido: menú y pie se quedan mientras llega la
               página, que es lo que hace que la navegación no parpadee. */}
           <Suspense fallback={<PageSkeleton />}>

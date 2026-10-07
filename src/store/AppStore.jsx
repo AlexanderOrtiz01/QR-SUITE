@@ -162,6 +162,20 @@ export function AppProvider({ children }) {
     [persist],
   )
 
+  /**
+   * Alta en bloque de códigos importados de otra plataforma. Va en lotes
+   * (`seed`), no código a código: una importación de un libro entero serían
+   * cientos de escrituras sueltas.
+   */
+  const importQrs = useCallback(
+    (list) => {
+      if (list.length === 0) return
+      setQrs((current) => [...list, ...current])
+      persist(() => storage.seed({ qrs: list }))
+    },
+    [persist],
+  )
+
   const updateQr = useCallback(
     (shortCode, patch) => {
       const stamped = { ...patch, updated_at: new Date().toISOString() }
@@ -263,6 +277,7 @@ export function AppProvider({ children }) {
       addProject,
       removeProject,
       addQr,
+      importQrs,
       updateQr,
       removeQr,
       recordScan,
@@ -283,6 +298,7 @@ export function AppProvider({ children }) {
       addProject,
       removeProject,
       addQr,
+      importQrs,
       updateQr,
       removeQr,
       recordScan,

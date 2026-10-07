@@ -67,9 +67,15 @@ export function QrPreview({
           fill: 'backwards',
         },
       )
-      const qr = frame.querySelector('svg svg') || frame.querySelector('svg')
-      if (qr) playModuleCascade(qr, { delay: entranceDelay + 80 })
-      return
+      const stopCascade = playModuleCascade(frame, {
+        delay: entranceDelay + 80,
+      })
+      // Si el código cambia o el componente se desmonta a mitad, la cascada
+      // se detiene y la siguiente vista vuelve a entrar desde cero (también
+      // el doble montaje de StrictMode en desarrollo).
+      return () => {
+        if (stopCascade()) shownRef.current = false
+      }
     }
 
     if (popRef.current?.playState === 'running') return

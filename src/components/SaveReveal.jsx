@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { QrPreview } from './QrPreview.jsx'
 import { IconCheck } from './icons.jsx'
 
@@ -36,6 +37,17 @@ export function SaveReveal({ data, style, title, onDone }) {
     }
   }, [])
 
+  // El desenfoque del fondo es un `filter` fijo sobre las piezas del panel
+  // (`data-velo`), no un `backdrop-filter` en el velo: este se recalculaba en
+  // cada fotograma porque la lámina se mueve encima, y el filtro fijo se
+  // calcula una vez. La confirmación va en un portal para quedar fuera de lo
+  // desenfocado.
+  useEffect(() => {
+    const root = document.documentElement
+    root.classList.add('velo-activo')
+    return () => root.classList.remove('velo-activo')
+  }, [])
+
   useEffect(() => {
     function terminar() {
       if (terminado.current) return
@@ -59,19 +71,35 @@ export function SaveReveal({ data, style, title, onDone }) {
     }
   }, [onDone])
 
-  return (
+  return createPortal(
     <div
       role="status"
       aria-live="polite"
       onClick={onDone}
-      className="fixed inset-0 z-50 flex h-dvh w-dvw cursor-pointer items-center justify-center bg-brand-deep/20 px-6 backdrop-blur-xl backdrop-saturate-150 [animation:velo-entra_.35s_ease-out_both]"
+      className="fixed inset-0 z-50 flex h-dvh w-dvw cursor-pointer items-center justify-center px-6"
     >
+      {/* Rendimiento: aquí solo se anima `opacity` y `transform`, que resuelve
+          el compositor. La lámina no lleva `backdrop-filter` ni `filter`: con
+          el código brotando dentro, ambos se rehacían por fotograma. Sobre el
+          velo, un blanco casi opaco se ve igual que el vidrio. */}
       <div
-        className={`glass-thick flex w-full max-w-xs flex-col items-center rounded-[2.25rem] px-7 pt-7 pb-6 text-center ${
+        className={`absolute inset-0 bg-brand-deep/30 ${
+          saliendo
+            ? '[animation:fundido-sale_.3s_ease-in_both]'
+            : '[animation:fundido-entra_.3s_ease-out_both]'
+        }`}
+      />
+      <div
+        className={`glass-thick relative flex w-full max-w-xs flex-col items-center rounded-[2.25rem] px-7 pt-7 pb-6 text-center will-change-transform ${
           saliendo
             ? '[animation:lamina-sale_.3s_ease-in_both]'
             : '[animation:lamina-emerge_.55s_var(--ease-ios)_both]'
         }`}
+        style={{
+          backgroundColor: 'rgb(255 255 255 / 0.92)',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+        }}
       >
         <div className="glass-well rounded-3xl bg-white p-3">
           <QrPreview data={data} style={style} size={184} entranceDelay={220} />
@@ -93,6 +121,7 @@ export function SaveReveal({ data, style, title, onDone }) {
           {title}
         </p>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
