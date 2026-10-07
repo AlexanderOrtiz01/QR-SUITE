@@ -6,6 +6,7 @@ import { Layout } from './components/Layout.jsx'
 import { Dashboard } from './pages/Dashboard.jsx'
 import {
   Analytics,
+  Import,
   Login,
   Privacy,
   Projects,
@@ -36,6 +37,7 @@ function Panel() {
         <Route path="proyectos" element={<Projects />} />
         <Route path="codigos" element={<QrList />} />
         <Route path="codigos/:shortCode" element={<QrDetail />} />
+        <Route path="importar" element={<Import />} />
         <Route path="analitica" element={<Analytics />} />
         <Route path="ajustes" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />

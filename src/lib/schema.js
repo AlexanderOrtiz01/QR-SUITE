@@ -60,6 +60,7 @@ export function createQr({
   tags = [],
   style = DEFAULT_STYLE,
   createdBy,
+  legacy = null,
 }) {
   return {
     short_code: shortCode,
@@ -74,6 +75,15 @@ export function createQr({
     created_at: nowIso(),
     updated_at: nowIso(),
     total_scans: 0,
+    // Código que ya existía impreso, generado en otra plataforma: se guarda
+    // lo que codifica para reconocerlo y no importarlo dos veces.
+    ...(legacy
+      ? {
+          origin: 'importado',
+          legacy_content: legacy.content,
+          legacy_source: legacy.source,
+        }
+      : {}),
   }
 }
 

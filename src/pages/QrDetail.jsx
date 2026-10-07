@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { QR_STATUS, RESOURCE_TAGS, resolveTarget } from '../lib/schema.js'
+import { legacyKind, sourceOf } from '../lib/importer.js'
 import { shortUrlFor } from '../lib/shortUrl.js'
 import { can } from '../lib/roles.js'
 import {
@@ -15,13 +16,96 @@ import {
   Select,
 } from '../components/ui.jsx'
 import { Tooltip } from '../components/Tooltip.jsx'
-import { IconChevronLeft, IconTrash } from '../components/icons.jsx'
+import {
+  IconAlert,
+  IconCheck,
+  IconChevronLeft,
+  IconCopy,
+  IconTrash,
+} from '../components/icons.jsx'
 import { StyleControls } from '../components/StyleControls.jsx'
 import { QrPreview } from '../components/QrPreview.jsx'
 import { ExportPanel } from '../components/ExportPanel.jsx'
 import { LegibilityCheck } from '../components/LegibilityCheck.jsx'
 import { TagPicker } from '../components/TagPicker.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
+
+/** Copia un texto y lo confirma durante un momento. */
+function CopyButton({ text, label }) {
+  const [copied, setCopied] = useState(false)
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    } catch (error) {
+      console.error('[qrsuite] no se pudo copiar', error)
+    }
+  }
+
+  return (
+    <Button variant="secondary" size="compact" onClick={copy}>
+      {copied ? (
+        <IconCheck className="size-4 shrink-0" strokeWidth="2.4" />
+      ) : (
+        <IconCopy className="size-4 shrink-0" />
+      )}
+      {copied ? 'Copiada' : label}
+    </Button>
+  )
+}
+
+/**
+ * El QR que ya circula impreso, generado en otra plataforma. No se puede
+ * cambiar desde aquí. Si pasa por una plataforma de redirección, esa
+ * plataforma suele dejar apuntarlo a la URL corta, y entonces los libros ya
+ * impresos pasan por QR Suite; si es un enlace directo, solo reimprimir con
+ * el código nuevo da control sobre el destino y la analítica.
+ *
+ * Al importar, el destino de un QR de redirección es el propio enlace de la
+ * otra plataforma: el destino real queda detrás y el navegador no puede
+ * averiguarlo. Si se apuntara esa plataforma a la URL corta sin cambiar antes
+ * el destino aquí, se formaría un bucle (QR Suite → plataforma → QR Suite),
+ * así que hasta entonces la tarjeta lo pide en lugar de ofrecer la URL.
+ */
+function LegacyCard({ qr, shortUrl }) {
+  const content = qr.legacy_content || ''
+  const source = sourceOf(content) || qr.legacy_source || 'otra plataforma'
+  const redirects = legacyKind(content) === 'redireccion'
+  const loops = redirects && sourceOf(qr.target_url) === sourceOf(content)
+
+  return (
+    <Card className="space-y-3">
+      <CardTitle
+        info={
+          redirects
+            ? `Los libros ya impresos pasan por ${source} y esos escaneos no se cuentan aquí. Si en ${source} cambias el destino de ese código por la URL corta, los libros ya impresos pasarán por QR Suite sin reimprimir.`
+            : `El código impreso lleva directo a ${source}: nadie puede cambiar su destino ni contar sus escaneos. Para tener ambas cosas, usa la versión dinámica en la próxima reimpresión.`
+        }
+      >
+        QR original
+      </CardTitle>
+      <p className="text-xs text-brand-ink/65">
+        {redirects ? 'Redirige vía ' : 'Enlace directo a '}
+        <span className="font-semibold text-brand-ink">{source}</span>
+      </p>
+      <p className="font-mono text-xs break-all text-brand-ink/80">{content}</p>
+      {loops ? (
+        <p className="flex gap-2 rounded-2xl bg-red-50/85 p-3 text-xs text-red-800 ring-1 ring-red-200">
+          <IconAlert className="mt-px size-4 shrink-0 text-red-600" />
+          <span>
+            El destino publicado aún es el enlace de {source}. Pon el destino
+            real y guarda antes de apuntar {source} a la URL corta, o se formará
+            un bucle.
+          </span>
+        </p>
+      ) : redirects ? (
+        <CopyButton text={shortUrl} label="Copiar URL corta" />
+      ) : null}
+    </Card>
+  )
+}
 
 export function QrDetail() {
   const { shortCode } = useParams()
@@ -235,8 +319,18 @@ function QrEditor({ qr }) {
         </div>
 
         <div className="space-y-6">
+          {qr.origin === 'importado' ? (
+            <LegacyCard qr={qr} shortUrl={shortUrl} />
+          ) : null}
+
           <Card className="space-y-4">
-            <h2 className="font-semibold">Código impreso</h2>
+            {qr.origin === 'importado' ? (
+              <CardTitle info="Úsala al reimprimir: es el mismo destino, ya con redirección editable y analítica.">
+                Versión dinámica
+              </CardTitle>
+            ) : (
+              <h2 className="font-semibold">Código impreso</h2>
+            )}
             <div className="glass-well flex justify-center rounded-2xl p-4">
               <QrPreview data={shortUrl} style={draft.style} size={220} />
             </div>
