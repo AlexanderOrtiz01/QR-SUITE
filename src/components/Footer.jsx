@@ -65,7 +65,10 @@ export function Footer() {
       ref={footerRef}
       className="glass-dark mt-auto text-footer-ink lg:mr-3 lg:mb-3 lg:rounded-[1.75rem]"
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-6 sm:px-6 lg:py-7">
+      <div
+        data-velo
+        className="mx-auto flex max-w-7xl items-center justify-center px-4 py-6 sm:px-6 lg:py-7"
+      >
         <Picture
           src="/footer-logo.svg"
           alt="Gobierno de El Salvador"
