@@ -5,11 +5,19 @@ import { storage } from '../lib/storage/index.js'
 import { usingFallbackDomain } from '../lib/shortUrl.js'
 import { isAuthEnabled } from '../lib/auth.js'
 import { ALLOWED_DOMAIN } from '../lib/config.js'
-import { Banner, Button, Card, Field, Input } from '../components/ui.jsx'
+import {
+  Banner,
+  Button,
+  Card,
+  CardTitle,
+  Field,
+  Input,
+  PageHeader,
+} from '../components/ui.jsx'
 import { RoleManager } from '../components/RoleManager.jsx'
 
 export function Settings() {
-  const { settings, saveSettings, session, loadDemoData, scans } = useApp()
+  const { settings, saveSettings, session, loadDemoData } = useApp()
   const allowed = can(session?.role, 'settings:write')
   const [draft, setDraft] = useState(settings)
   const [saved, setSaved] = useState(false)
@@ -29,16 +37,11 @@ export function Settings() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Ajustes</h1>
-        <p className="text-sm text-brand-ink/65">
-          Configuración institucional de la plataforma
-        </p>
-      </header>
+      <PageHeader title="Ajustes" />
 
       {!allowed ? (
         <Banner tone="warning">
-          Solo un administrador puede modificar estos ajustes.
+          Solo lectura: requiere rol Administrador.
         </Banner>
       ) : null}
 
@@ -52,8 +55,8 @@ export function Settings() {
             />
           </Field>
           <Field
-            label="Página de aviso para códigos deprecados"
-            hint="Destino de los QR cuyo estado es Deprecado."
+            label="Página para códigos deprecados"
+            hint="Adónde llevan los QR en estado Deprecado."
           >
             <Input
               type="url"
@@ -64,7 +67,7 @@ export function Settings() {
             />
           </Field>
           {allowed ? (
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Button type="submit">Guardar</Button>
               {saved ? (
                 <span className="text-sm text-brand-primary">Guardado</span>
@@ -75,7 +78,9 @@ export function Settings() {
       </Card>
 
       <Card className="space-y-3">
-        <h2 className="font-semibold">Estado de la integración</h2>
+        <CardTitle info="El dominio permitido y las credenciales se configuran en .env.local (a partir de .env.example), no aquí: deciden quién entra.">
+          Integración
+        </CardTitle>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-brand-ink/80">Almacenamiento</dt>
@@ -102,25 +107,16 @@ export function Settings() {
             <dd className="text-brand-ink">@{ALLOWED_DOMAIN}</dd>
           </div>
         </dl>
-        <p className="text-xs text-brand-ink/65">
-          El dominio permitido y las credenciales se configuran en{' '}
-          <code>.env.local</code> a partir de <code>.env.example</code>: no se
-          editan desde aquí porque deciden quién entra.
-        </p>
       </Card>
 
       {allowed ? <RoleManager currentEmail={session?.email} /> : null}
 
       {allowed ? (
         <Card className="space-y-3">
-          <h2 className="font-semibold">Datos de demostración</h2>
-          <p className="text-sm text-brand-ink/80">
-            Genera un proyecto con cinco recursos y treinta días de escaneos
-            simulados, para revisar la analítica sin tener que escanear códigos
-            uno a uno. Se guarda solo en este navegador y se elimina con el
-            botón de borrado de abajo.
-          </p>
-          <div className="flex items-center gap-3">
+          <CardTitle info="Un proyecto con cinco recursos y treinta días de escaneos simulados, para revisar la analítica. Se guarda solo en este navegador.">
+            Datos de demostración
+          </CardTitle>
+          <div className="flex flex-wrap items-center gap-3">
             <Button
               variant="secondary"
               onClick={() => setSeeded(loadDemoData().scans.length)}
@@ -129,7 +125,7 @@ export function Settings() {
             </Button>
             {seeded ? (
               <span className="text-sm text-brand-primary">
-                {seeded} escaneos añadidos ({scans.length} en total)
+                +{seeded} escaneos
               </span>
             ) : null}
           </div>
@@ -138,11 +134,9 @@ export function Settings() {
 
       {allowed ? (
         <Card className="space-y-3">
-          <h2 className="font-semibold text-red-700">Zona de riesgo</h2>
-          <p className="text-sm text-brand-ink/80">
-            Borra proyectos, códigos y escaneos guardados en este navegador. No
-            se puede deshacer.
-          </p>
+          <CardTitle info="Borra proyectos, códigos y escaneos guardados en este navegador. No se puede deshacer.">
+            <span className="text-red-700">Zona de riesgo</span>
+          </CardTitle>
           <Button
             variant="danger"
             loading={clearing}
@@ -152,7 +146,7 @@ export function Settings() {
               window.location.reload()
             }}
           >
-            {clearing ? 'Borrando…' : 'Borrar todos los datos locales'}
+            {clearing ? 'Borrando…' : 'Borrar datos locales'}
           </Button>
         </Card>
       ) : null}

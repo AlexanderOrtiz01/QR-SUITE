@@ -10,7 +10,10 @@ export function TagPicker({ options, value, onChange, label = 'Etiquetas' }) {
   }
 
   return (
-    <Field label={label} hint="Capítulo, unidad o tipo de recurso.">
+    <Field
+      label={label}
+      hint="Tipo de material. Sirve para buscar y para la analítica."
+    >
       <div className="flex flex-wrap gap-2">
         {options.map((tag) => (
           <button

@@ -83,7 +83,7 @@ function ChartTooltip({ active, payload, label, unit = 'escaneos' }) {
 }
 
 /**
- * Barras horizontales para categorías con etiqueta larga (SO, navegador).
+ * Barras horizontales para categorías con etiqueta larga (p. ej. navegador).
  * El valor va rotulado junto a la barra: tres de los cuatro hues quedan por
  * debajo de 3:1 sobre blanco, así que la identidad no puede ser solo el color.
  */
@@ -223,7 +223,7 @@ export function HourHeatmap({ data }) {
               key={item.hour}
               className="h-8 flex-1 rounded-sm transition-transform hover:scale-y-110"
               style={{ background: step ?? '#f3f5f9' }}
-              title={`${String(item.hour).padStart(2, '0')}:00 — ${item.value} escaneos`}
+              title={`${String(item.hour).padStart(2, '0')}:00 · ${item.value} escaneos`}
             />
           )
         })}
@@ -243,6 +243,71 @@ export function HourHeatmap({ data }) {
         </span>
         <span>23 h</span>
       </div>
+    </div>
+  )
+}
+
+/**
+ * Ranking en HTML: nombre completo, cifra y su parte del total, con una barra
+ * de un solo tono porque aquí lo que se compara es magnitud, no categorías.
+ * Los nombres de códigos y proyectos son largos y un eje de Recharts los
+ * cortaría.
+ */
+export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
+  if (data.length === 0) {
+    return <p className="text-sm text-brand-ink/65">{emptyLabel}</p>
+  }
+
+  const rows = data.slice(0, limit)
+  const max = Math.max(rows[0].value, 1)
+  const rest = data.length - rows.length
+
+  return (
+    <div className="space-y-3">
+      <ol className="space-y-3.5">
+        {rows.map((row, index) => (
+          <li key={row.id ?? row.label}>
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="flex min-w-0 items-baseline gap-2">
+                <span className="w-4 shrink-0 text-xs text-brand-ink/45 tabular-nums">
+                  {index + 1}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate font-medium text-brand-ink">
+                    {row.label}
+                  </span>
+                  {row.hint ? (
+                    <span className="block truncate text-xs text-brand-ink/60">
+                      {row.hint}
+                    </span>
+                  ) : null}
+                </span>
+              </span>
+              <span className="shrink-0 tabular-nums">
+                <span className="font-semibold">{row.value}</span>
+                {total ? (
+                  <span className="text-xs text-brand-ink/60">
+                    {' '}
+                    · {Math.round((row.value / total) * 100)} %
+                  </span>
+                ) : null}
+              </span>
+            </div>
+            <div className="mt-1.5 ml-6 h-1.5 overflow-hidden rounded-full bg-brand-ink/8">
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${(row.value / max) * 100}%`,
+                  background: SERIES,
+                }}
+              />
+            </div>
+          </li>
+        ))}
+      </ol>
+      {rest > 0 ? (
+        <p className="ml-6 text-xs text-brand-ink/60">y {rest} más</p>
+      ) : null}
     </div>
   )
 }

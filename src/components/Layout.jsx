@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { Footer } from './Footer.jsx'
 import { PageSkeleton, Picture, Spinner } from './ui.jsx'
+import { InfoTip, Tooltip } from './Tooltip.jsx'
 import { preloadPanelPages } from '../pages/routes.js'
 import { ROLES } from '../lib/roles.js'
 import { isPersistenceShared } from '../lib/storage/index.js'
@@ -139,23 +140,31 @@ export function Layout() {
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
           {NAV.map((item) => (
-            <NavLink
+            <Tooltip
               key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={() => setMobileOpen(false)}
-              title={collapsed ? item.label : undefined}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-full px-3.5 py-2.5 text-sm font-semibold transition-[background-color,color,transform] duration-200 ease-ios active:scale-[0.97] ${
-                  isActive
-                    ? 'glass-tint text-white'
-                    : 'border border-transparent text-brand-ink/75 hover:bg-white/70 hover:text-brand-ink'
-                } ${collapsed ? 'lg:justify-center lg:px-0' : ''}`
-              }
+              content={collapsed ? item.label : null}
+              side="right"
+              className="flex"
             >
-              <item.Icon className="size-5 shrink-0" />
-              <span className={collapsed ? 'lg:hidden' : ''}>{item.label}</span>
-            </NavLink>
+              <NavLink
+                to={item.to}
+                end={item.end}
+                onClick={() => setMobileOpen(false)}
+                aria-label={collapsed ? item.label : undefined}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-full px-3.5 py-2.5 text-sm font-semibold transition-[background-color,color,transform] duration-200 ease-ios active:scale-[0.97] ${
+                    isActive
+                      ? 'glass-tint text-white'
+                      : 'border border-transparent text-brand-ink/75 hover:bg-white/70 hover:text-brand-ink'
+                  } ${collapsed ? 'lg:justify-center lg:px-0' : ''}`
+                }
+              >
+                <item.Icon className="size-5 shrink-0" />
+                <span className={collapsed ? 'lg:hidden' : ''}>
+                  {item.label}
+                </span>
+              </NavLink>
+            </Tooltip>
           ))}
         </nav>
 
@@ -171,26 +180,31 @@ export function Layout() {
                 </p>
               </div>
             ) : null}
-            <button
-              type="button"
-              onClick={handleSignOut}
-              disabled={signingOut}
-              aria-busy={signingOut || undefined}
-              title={collapsed ? 'Cerrar sesión' : undefined}
-              aria-label={collapsed ? 'Cerrar sesión' : undefined}
-              className={`glass-well flex w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition-[background-color,transform] duration-200 ease-ios hover:bg-white active:scale-[0.97] disabled:cursor-progress ${
-                collapsed ? 'lg:px-0' : ''
-              }`}
+            <Tooltip
+              content={collapsed ? 'Cerrar sesión' : null}
+              side="right"
+              className="flex"
             >
-              {signingOut ? (
-                <Spinner className="size-4 shrink-0" />
-              ) : (
-                <IconLogout className="size-4 shrink-0" />
-              )}
-              <span className={collapsed ? 'lg:hidden' : ''}>
-                {signingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}
-              </span>
-            </button>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={signingOut}
+                aria-busy={signingOut || undefined}
+                aria-label={collapsed ? 'Cerrar sesión' : undefined}
+                className={`glass-well flex w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition-[background-color,transform] duration-200 ease-ios hover:bg-white active:scale-[0.97] disabled:cursor-progress ${
+                  collapsed ? 'lg:px-0' : ''
+                }`}
+              >
+                {signingOut ? (
+                  <Spinner className="size-4 shrink-0" />
+                ) : (
+                  <IconLogout className="size-4 shrink-0" />
+                )}
+                <span className={collapsed ? 'lg:hidden' : ''}>
+                  {signingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}
+                </span>
+              </button>
+            </Tooltip>
           </div>
         ) : null}
       </aside>
@@ -224,10 +238,13 @@ export function Layout() {
         </header>
 
         {!isPersistenceShared ? (
-          <div className="mx-auto w-full max-w-7xl px-4 pt-4 sm:px-6">
-            <p className="glass rounded-2xl px-4 py-2 text-center text-xs font-medium text-brand-ink/80">
-              Modo local: los datos se guardan solo en este navegador. Conecta
-              Firestore para compartirlos entre usuarios y dispositivos.
+          <div className="mx-auto flex w-full max-w-7xl justify-end px-4 pt-4 sm:px-6">
+            <p className="glass flex items-center gap-1.5 rounded-full py-1 pr-1.5 pl-3 text-xs font-semibold text-brand-ink/80">
+              Modo local
+              <InfoTip>
+                Los datos se guardan solo en este navegador. Conecta Firestore
+                para compartirlos entre usuarios y dispositivos.
+              </InfoTip>
             </p>
           </div>
         ) : null}

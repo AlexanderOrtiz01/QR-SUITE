@@ -5,17 +5,21 @@ import { QR_STATUS, RESOURCE_TAGS, resolveTarget } from '../lib/schema.js'
 import { shortUrlFor } from '../lib/shortUrl.js'
 import { can } from '../lib/roles.js'
 import {
-  Banner,
   Button,
   Card,
+  CardTitle,
   EmptyState,
   Field,
+  IconButton,
   Input,
   Select,
 } from '../components/ui.jsx'
+import { Tooltip } from '../components/Tooltip.jsx'
+import { IconChevronLeft, IconTrash } from '../components/icons.jsx'
 import { StyleControls } from '../components/StyleControls.jsx'
 import { QrPreview } from '../components/QrPreview.jsx'
 import { ExportPanel } from '../components/ExportPanel.jsx'
+import { LegibilityCheck } from '../components/LegibilityCheck.jsx'
 import { TagPicker } from '../components/TagPicker.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
 
@@ -76,48 +80,50 @@ function QrEditor({ qr }) {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+      <header className="flex items-center gap-3">
+        <Tooltip content="Volver al listado">
+          <Link
+            to="/codigos"
+            aria-label="Volver al listado"
+            className="grid size-9 shrink-0 place-items-center rounded-full text-brand-ink/65 transition-colors hover:bg-white/70 hover:text-brand-ink"
+          >
+            <IconChevronLeft className="size-5" />
+          </Link>
+        </Tooltip>
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3">
             <h1 className="truncate text-2xl font-bold tracking-tight">
               {qr.title}
             </h1>
             <StatusBadge status={qr.status} />
           </div>
-          <p className="text-sm text-brand-ink/65">
+          <p className="truncate text-sm text-brand-ink/65">
             <code className="font-mono">{qr.short_code}</code>
             {project ? ` · ${project.name}` : null} · {qr.total_scans || 0}{' '}
             escaneos
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link to="/codigos">
-            <Button variant="secondary">Volver</Button>
-          </Link>
-          {allowed ? (
-            <Button
-              variant="danger"
-              onClick={() => {
-                removeQr(qr.short_code)
-                navigate('/codigos')
-              }}
-            >
-              Eliminar
-            </Button>
-          ) : null}
-        </div>
+        {allowed ? (
+          <IconButton
+            label="Eliminar código"
+            icon={IconTrash}
+            variant="danger"
+            onClick={() => {
+              removeQr(qr.short_code)
+              navigate('/codigos')
+            }}
+          />
+        ) : null}
       </header>
 
-      <Banner tone="info">
-        Cambiar el destino no altera la imagen impresa: el QR codifica{' '}
-        <code className="font-mono">{shortUrl}</code>, y la redirección se
-        resuelve aquí.
-      </Banner>
-
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
           <Card className="space-y-4">
-            <h2 className="font-semibold">Redirección en caliente</h2>
+            <CardTitle
+              info={`Cambiar el destino no altera la imagen impresa: el QR codifica ${shortUrl} y la redirección se resuelve aquí.`}
+            >
+              Datos y destino
+            </CardTitle>
             <Field label="Título">
               <Input
                 value={draft.title}
@@ -176,20 +182,20 @@ function QrEditor({ qr }) {
 
             <div className="glass-well rounded-2xl p-3">
               <p className="text-xs font-medium text-brand-ink">
-                Destino activo ahora
+                Destino activo
               </p>
               <p className="mt-0.5 break-all font-mono text-xs text-brand-ink/80">
                 {activeTarget || 'Sin destino configurado para este estado'}
               </p>
               {draft.status === 'deprecated' && !settings.deprecatedUrl ? (
                 <p className="mt-1 text-xs text-brand-primary-deep">
-                  Falta definir la página institucional de aviso en Ajustes.
+                  Falta la página de aviso en Ajustes.
                 </p>
               ) : null}
             </div>
 
             {allowed ? (
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <Button onClick={handleSave}>Guardar cambios</Button>
                 {saved ? (
                   <span className="text-sm text-brand-primary">Guardado</span>
@@ -199,7 +205,7 @@ function QrEditor({ qr }) {
           </Card>
 
           <Card className="space-y-4">
-            <h2 className="font-semibold">Estilo institucional</h2>
+            <h2 className="font-semibold">Estilo</h2>
             <StyleControls
               style={draft.style}
               disabled={!allowed}
@@ -208,11 +214,9 @@ function QrEditor({ qr }) {
           </Card>
 
           <Card className="space-y-3">
-            <h2 className="font-semibold">Escaneos registrados</h2>
+            <h2 className="font-semibold">Escaneos</h2>
             {qrScans.length === 0 ? (
-              <p className="text-sm text-brand-ink/65">
-                Todavía no hay escaneos con detalle técnico para este código.
-              </p>
+              <p className="text-sm text-brand-ink/65">Sin escaneos todavía.</p>
             ) : (
               <ul className="divide-y divide-brand-ink/8 text-sm">
                 {qrScans.slice(0, 10).map((scan) => (
@@ -239,6 +243,7 @@ function QrEditor({ qr }) {
             <p className="break-all font-mono text-xs text-brand-ink/65">
               {shortUrl}
             </p>
+            <LegibilityCheck data={shortUrl} style={draft.style} />
           </Card>
 
           <Card className="space-y-4">

@@ -13,7 +13,7 @@ const TONES = {
 export function StatusBadge({ status }) {
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${TONES[status] || TONES.draft}`}
+      className={`inline-flex shrink-0 rounded-full px-2.5 whitespace-nowrap py-0.5 text-xs font-bold ${TONES[status] || TONES.draft}`}
     >
       {QR_STATUS[status]?.label || status}
     </span>

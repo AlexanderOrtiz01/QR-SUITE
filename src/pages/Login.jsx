@@ -26,55 +26,64 @@ import { IconGoogle } from '../components/icons.jsx'
  * valida el dominio en cliente y deja elegir rol: no es control de acceso.
  */
 
+// Una tesela de la trama: módulos de tamaño y posición desiguales, porque una
+// retícula regular delataría el mosaico y dejaría de parecer un código.
+const MODULES = [
+  [14, 6, 6, 5],
+  [7, 28, 10, 2.5],
+  [10, 44, 4, 3.5],
+  [6, 64, 14, 2],
+  [7, 10, 30, 2.5],
+  [12, 32, 34, 4],
+  [7, 56, 30, 2.5],
+  [10, 18, 52, 3.5],
+  [6, 40, 58, 2],
+  [9, 62, 50, 3],
+  [6, 4, 68, 2],
+  [7, 70, 70, 2.5],
+]
+const TILE = 80
+const MODULE_TILE = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE}" height="${TILE}">${MODULES.map(
+    ([size, x, y, r]) =>
+      `<rect width="${size}" height="${size}" x="${x}" y="${y}" rx="${r}" fill="#fff"/>`,
+  ).join('')}</svg>`,
+)}")`
+
 /**
- * Fondo de módulos. Evoca la trama de un código sin dibujar uno falso: los
- * tres cuadros grandes son las marcas de posición que todo QR lleva en sus
- * esquinas, y el resto son módulos sueltos que se apagan hacia abajo.
+ * Fondo de módulos en movimiento. Evoca la trama de un código sin dibujar uno
+ * falso: los módulos sueltos derivan despacio en diagonal, una luz cruza el
+ * azul y las dos marcas de posición flotan en las esquinas.
+ *
+ * Solo se anima `transform`, que el navegador resuelve sin repintar. La trama
+ * se desplaza exactamente una tesela por ciclo, así que el bucle no tiene
+ * costura; la máscara que la apaga hacia abajo va en el padre, quieta, para
+ * que el degradado no viaje con ella. Con movimiento reducido todo queda fijo.
  */
 function Backdrop() {
   return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 size-full"
-    >
-      <defs>
-        <pattern
-          id="qr-modules"
-          width="80"
-          height="80"
-          patternUnits="userSpaceOnUse"
-        >
-          {/* Módulos de tamaño y posición desiguales: una retícula regular
-              delataría el mosaico y dejaría de parecer la trama de un código. */}
-          <rect width="14" height="14" x="6" y="6" rx="5" fill="#fff" />
-          <rect width="7" height="7" x="28" y="10" rx="2.5" fill="#fff" />
-          <rect width="10" height="10" x="44" y="4" rx="3.5" fill="#fff" />
-          <rect width="6" height="6" x="64" y="14" rx="2" fill="#fff" />
-          <rect width="7" height="7" x="10" y="30" rx="2.5" fill="#fff" />
-          <rect width="12" height="12" x="32" y="34" rx="4" fill="#fff" />
-          <rect width="7" height="7" x="56" y="30" rx="2.5" fill="#fff" />
-          <rect width="10" height="10" x="18" y="52" rx="3.5" fill="#fff" />
-          <rect width="6" height="6" x="40" y="58" rx="2" fill="#fff" />
-          <rect width="9" height="9" x="62" y="50" rx="3" fill="#fff" />
-          <rect width="6" height="6" x="4" y="68" rx="2" fill="#fff" />
-          <rect width="7" height="7" x="70" y="70" rx="2.5" fill="#fff" />
-        </pattern>
-        <linearGradient id="qr-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="0.5" />
-          <stop offset="70%" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <mask id="qr-mask">
-          <rect width="100%" height="100%" fill="url(#qr-fade)" />
-        </mask>
-      </defs>
-      <rect
-        width="100%"
-        height="100%"
-        fill="url(#qr-modules)"
-        mask="url(#qr-mask)"
-        opacity="0.16"
-      />
-    </svg>
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+      {/* Las luces son degradados radiales y no círculos con `filter: blur`:
+          un desenfoque de ese radio se recalcula en cada fotograma. */}
+      <div className="absolute -top-1/4 -left-1/4 size-[70vmax] bg-[radial-gradient(closest-side,rgb(127_179_255/0.28),transparent)] will-change-transform [animation:luz-deriva_24s_ease-in-out_infinite_alternate] motion-reduce:animate-none" />
+      <div className="absolute -right-1/4 -bottom-1/3 size-[60vmax] bg-[radial-gradient(closest-side,rgb(26_72_230/0.45),transparent)] will-change-transform [animation:luz-deriva_30s_ease-in-out_-8s_infinite_alternate-reverse] motion-reduce:animate-none" />
+
+      {/* Capa propia para la máscara, de modo que se aplique al componer y no
+          obligue a repintar la trama en cada fotograma. */}
+      <div className="absolute inset-0 transform-gpu overflow-hidden [mask-image:linear-gradient(to_bottom,rgb(0_0_0/0.5),transparent_70%)]">
+        <div
+          className="absolute -inset-20 opacity-[0.16] will-change-transform [animation:trama-deriva_25s_linear_infinite] motion-reduce:animate-none"
+          style={{
+            backgroundImage: MODULE_TILE,
+            backgroundSize: `${TILE}px ${TILE}px`,
+          }}
+        />
+      </div>
+
+      {/* Las marcas de posición de un QR, a tamaño de página. */}
+      <span className="absolute -top-16 -right-20 size-80 rounded-[3.5rem] border-[18px] border-white/6 will-change-transform [animation:marca-flota_11s_ease-in-out_infinite_alternate] motion-reduce:animate-none" />
+      <span className="absolute -bottom-24 -left-24 size-96 rounded-[4rem] border-[20px] border-white/5 will-change-transform [animation:marca-flota_14s_ease-in-out_-5s_infinite_alternate-reverse] motion-reduce:animate-none" />
+    </div>
   )
 }
 
@@ -97,7 +106,12 @@ function GoogleAccess() {
 
   return (
     <div className="space-y-4">
-      <Button className="w-full py-3" onClick={handleSignIn} loading={busy}>
+      <Button
+        size="lg"
+        className="w-full"
+        onClick={handleSignIn}
+        loading={busy}
+      >
         {/* Mientras se abre Google, el indicador ocupa el sitio del logotipo. */}
         {busy ? null : (
           <span className="grid size-6 place-items-center rounded-full bg-white">
@@ -169,7 +183,7 @@ function SimulatedAccess() {
           {error}
         </p>
       ) : null}
-      <Button type="submit" className="w-full py-3" loading={entering}>
+      <Button type="submit" size="lg" className="w-full" loading={entering}>
         {entering ? 'Entrando…' : 'Entrar'}
       </Button>
     </form>
@@ -180,22 +194,19 @@ export function Login() {
   return (
     <div className="relative min-h-dvh overflow-hidden bg-linear-160 from-brand-deep via-brand-hero to-brand-hero-light">
       <Backdrop />
-      {/* Las marcas de posición de un QR, a tamaño de página. */}
-      <span
-        aria-hidden="true"
-        className="absolute -top-16 -right-20 size-80 rounded-[3.5rem] border-[18px] border-white/6"
-      />
-      <span
-        aria-hidden="true"
-        className="absolute -bottom-24 -left-24 size-96 rounded-[4rem] border-[20px] border-white/5"
-      />
 
       <div className="relative grid min-h-dvh place-items-center px-4 py-12">
         <div
           className="w-full max-w-sm [animation:rise_.55s_cubic-bezier(.16,1,.3,1)]"
           style={{ animationDelay: '60ms' }}
         >
-          <div className="glass-thick rounded-[2.25rem] p-8">
+          {/* Sin `backdrop-filter`: con el fondo en movimiento, el desenfoque
+              tendría que recalcularse en cada fotograma. Detrás solo hay
+              degradados suaves, así que el vidrio se ve igual sin él. */}
+          <div
+            className="glass-thick rounded-[2.25rem] p-6 sm:p-8"
+            style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none' }}
+          >
             <Picture
               src="/logo-azul-192.webp"
               alt=""

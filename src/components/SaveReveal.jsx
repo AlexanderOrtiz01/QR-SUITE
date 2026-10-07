@@ -74,7 +74,7 @@ export function SaveReveal({ data, style, title, onDone }) {
         }`}
       >
         <div className="glass-well rounded-3xl bg-white p-3">
-          <QrPreview data={data} style={style} size={184} />
+          <QrPreview data={data} style={style} size={184} entranceDelay={220} />
         </div>
 
         <div className="mt-5 flex items-center gap-2">
