@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { DEFAULT_STYLE } from '../lib/brand.js'
 import { QR_STATUS, RESOURCE_TAGS, createQr } from '../lib/schema.js'
@@ -10,10 +10,13 @@ import {
   Banner,
   Button,
   Card,
+  CardTitle,
   Field,
   Input,
+  PageHeader,
   Select,
 } from '../components/ui.jsx'
+import { Tooltip } from '../components/Tooltip.jsx'
 import { StepHeader, StepProgress, TabBar } from '../components/Wizard.jsx'
 import {
   ColorControls,
@@ -26,31 +29,30 @@ import { QrPreview } from '../components/QrPreview.jsx'
 import { ExportPanel } from '../components/ExportPanel.jsx'
 import { TagPicker } from '../components/TagPicker.jsx'
 import { SaveReveal } from '../components/SaveReveal.jsx'
+import { LegibilityCheck } from '../components/LegibilityCheck.jsx'
 
 const STEPS = [
   {
     id: 'contenido',
     label: 'Contenido',
     title: 'Describe el recurso',
-    hint: 'Título, proyecto al que pertenece y tipo de material',
   },
   {
     id: 'destino',
     label: 'Destino',
     title: 'Define a dónde lleva',
-    hint: 'El destino se puede cambiar después sin reimprimir el código',
+    hint: 'Se puede cambiar después sin reimprimir el código.',
   },
   {
     id: 'estilo',
     label: 'Estilo',
     title: 'Personaliza el código',
-    hint: 'Colores, forma y logotipo dentro del manual de marca',
+    hint: 'Solo opciones dentro del manual de marca.',
   },
   {
     id: 'guardar',
     label: 'Guardar',
     title: 'Revisa y guarda',
-    hint: 'Comprueba los datos y descarga los archivos para imprenta',
   },
 ]
 
@@ -68,10 +70,12 @@ function Summary({ rows }) {
       {rows.map((row) => (
         <div
           key={row.label}
-          className="grid gap-1 py-2.5 sm:grid-cols-[10rem_1fr]"
+          className="grid gap-1 py-2.5 sm:grid-cols-[10rem_minmax(0,1fr)]"
         >
           <dt className="text-brand-ink/65">{row.label}</dt>
-          <dd className="break-all text-brand-ink">{row.value || '—'}</dd>
+          <dd className="text-brand-ink wrap-anywhere">
+            {row.value || 'Sin definir'}
+          </dd>
         </div>
       ))}
     </dl>
@@ -154,22 +158,16 @@ export function Studio() {
         />
       ) : null}
 
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Crear código QR</h1>
-        <p className="text-sm text-brand-ink/65">
-          El QR codifica la URL corta, no el destino: por eso el destino se
-          puede cambiar después sin reimprimir el libro.
-        </p>
-      </header>
+      <PageHeader
+        title="Crear código QR"
+        info="El QR codifica la URL corta, no el destino: el destino se puede cambiar después sin reimprimir el libro."
+      />
 
       {!allowed ? (
-        <Banner tone="warning">
-          Tu rol es de solo lectura. Puedes recorrer el asistente, pero no
-          guardar.
-        </Banner>
+        <Banner tone="warning">Solo lectura: no puedes guardar.</Banner>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] xl:grid-cols-[minmax(0,1fr)_320px]">
         <Card className="space-y-6">
           <StepProgress steps={STEPS} current={step} onSelect={setStep} />
 
@@ -186,7 +184,7 @@ export function Studio() {
                 <Input
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  placeholder="Video explicativo — Ecuaciones cuadráticas"
+                  placeholder="Video explicativo: Ecuaciones cuadráticas"
                 />
               </Field>
               <Field label="Proyecto">
@@ -204,7 +202,13 @@ export function Studio() {
               </Field>
               {projects.length === 0 ? (
                 <p className="text-xs font-semibold text-brand-primary-deep">
-                  No hay proyectos todavía. Crea uno en la sección Proyectos.
+                  Sin proyectos.{' '}
+                  <Link
+                    to="/proyectos"
+                    className="underline underline-offset-2"
+                  >
+                    Crear uno
+                  </Link>
                 </p>
               ) : null}
               <TagPicker
@@ -231,7 +235,7 @@ export function Studio() {
               </Field>
               <Field
                 label="Destino publicado"
-                hint="URL definitiva a la que apunta el QR cuando está publicado."
+                hint="Adónde lleva el QR una vez publicado."
               >
                 <Input
                   type="url"
@@ -242,7 +246,7 @@ export function Studio() {
               </Field>
               <Field
                 label="Destino de borrador"
-                hint="Vista previa interna en Drive. Se usa mientras el estado sea Borrador."
+                hint="Vista previa interna (Drive). Se usa mientras esté en Borrador."
               >
                 <Input
                   type="url"
@@ -293,9 +297,9 @@ export function Studio() {
                 ]}
               />
               <div className="border-t border-brand-ink/10 pt-5">
-                <h3 className="mb-3 font-semibold text-brand-ink">
-                  Descargar para imprenta
-                </h3>
+                <CardTitle as="h3" className="mb-3">
+                  Descargar
+                </CardTitle>
                 <ExportPanel
                   data={shortUrl}
                   style={style}
@@ -312,12 +316,12 @@ export function Studio() {
           <div className="glass-well flex justify-center rounded-2xl p-4">
             <QrPreview data={shortUrl} style={style} size={200} />
           </div>
-          <div>
-            <p className="text-xs font-medium text-brand-ink">URL impresa</p>
-            <p className="mt-0.5 break-all font-mono text-xs text-brand-ink/65">
+          <Tooltip content="URL que se imprime en el código">
+            <p className="font-mono text-xs break-all text-brand-ink/65">
               {shortUrl}
             </p>
-          </div>
+          </Tooltip>
+          <LegibilityCheck data={shortUrl} style={style} />
         </Card>
       </div>
     </div>

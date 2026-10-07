@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { cloneElement, isValidElement, useId, useState } from 'react'
+import { InfoTip, Tooltip } from './Tooltip.jsx'
 
 const VARIANTS = {
   primary:
@@ -13,8 +14,18 @@ const VARIANTS = {
  * deshabilitado) y muestra el indicador de actividad: la acción está en marcha,
  * no bloqueada. Mientras tanto ignora los clics, también los de envío.
  */
+// El relleno va por tamaño y no se sobrescribe desde fuera: dos utilidades
+// de relleno en la misma clase compiten por orden de hoja, no de escritura.
+const SIZES = {
+  md: 'px-5 py-2.5',
+  lg: 'px-5 py-3',
+  compact: 'px-3 py-2.5',
+  icon: 'size-10 shrink-0',
+}
+
 export function Button({
   variant = 'primary',
+  size = 'md',
   loading = false,
   className = '',
   onClick,
@@ -23,7 +34,7 @@ export function Button({
 }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[background-color,filter,transform] duration-200 ease-ios focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent focus-visible:outline-none active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${
+      className={`inline-flex items-center justify-center gap-2 rounded-full ${SIZES[size]} text-sm font-semibold transition-[background-color,filter,transform] duration-200 ease-ios focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent focus-visible:outline-none active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${
         loading ? 'cursor-progress active:scale-100' : ''
       } ${VARIANTS[variant]} ${className}`}
       aria-busy={loading || undefined}
@@ -174,23 +185,114 @@ export function PageSkeleton({ label = 'Cargando' }) {
   )
 }
 
+/**
+ * Botón de solo icono. El nombre de la acción va en el globo y en
+ * `aria-label`: ocupa lo que el icono, sin perder qué hace.
+ */
+export function IconButton({
+  label,
+  icon: Icon,
+  variant = 'secondary',
+  loading = false,
+  className = '',
+  ...props
+}) {
+  return (
+    <Tooltip content={label}>
+      <Button
+        variant={variant}
+        loading={loading}
+        size="icon"
+        aria-label={label}
+        className={className}
+        {...props}
+      >
+        {loading ? null : <Icon className="size-[1.125rem] shrink-0" />}
+      </Button>
+    </Tooltip>
+  )
+}
+
+/**
+ * Cabecera de página: título, su explicación en un globo (en lugar de un
+ * párrafo debajo) y las acciones a la derecha.
+ */
+export function PageHeader({ title, info, meta, children }) {
+  return (
+    <header className="flex flex-wrap items-center justify-between gap-3">
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <h1 className="truncate text-2xl font-bold tracking-tight">
+            {title}
+          </h1>
+          {info ? <InfoTip>{info}</InfoTip> : null}
+        </div>
+        {meta ? <p className="text-sm text-brand-ink/65">{meta}</p> : null}
+      </div>
+      {children ? (
+        <div className="flex shrink-0 items-center gap-2">{children}</div>
+      ) : null}
+    </header>
+  )
+}
+
+/** Título de tarjeta con su aclaración opcional en un globo. */
+export function CardTitle({ children, info, as: Tag = 'h2', className = '' }) {
+  return (
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      <Tag className="font-semibold">{children}</Tag>
+      {info ? <InfoTip>{info}</InfoTip> : null}
+    </div>
+  )
+}
+
 export function Card({ className = '', ...props }) {
   return (
     <div className={`glass rounded-[1.75rem] p-5 ${className}`} {...props} />
   )
 }
 
+/**
+ * Campo con su rótulo. La ayuda no ocupa una línea bajo el control: va en el
+ * globo de un icono junto al rótulo, y el control la recibe como descripción
+ * para que el lector de pantalla la siga anunciando.
+ *
+ * El icono es un botón, así que el rótulo ya no puede envolver al control (lo
+ * tomaría por el elemento etiquetado): se enlaza con `htmlFor` cuando el hijo
+ * es un control, y queda como texto cuando es un grupo de opciones.
+ */
 export function Field({ label, hint, children }) {
+  const id = useId()
+  const hintId = `${id}-ayuda`
+  const isControl =
+    isValidElement(children) &&
+    [Input, Select, 'input', 'select', 'textarea'].includes(children.type)
+  const control = isControl
+    ? cloneElement(children, {
+        id: children.props.id || id,
+        'aria-describedby': hint ? hintId : undefined,
+      })
+    : children
+  const Label = isControl ? 'label' : 'span'
+
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-semibold text-brand-ink">
-        {label}
-      </span>
-      {children}
+    <div>
+      <div className="mb-1.5 flex items-center gap-1.5">
+        <Label
+          htmlFor={isControl ? children.props.id || id : undefined}
+          className="text-sm font-semibold text-brand-ink"
+        >
+          {label}
+        </Label>
+        {hint ? <InfoTip>{hint}</InfoTip> : null}
+      </div>
+      {control}
       {hint ? (
-        <span className="mt-1 block text-xs text-brand-ink/65">{hint}</span>
+        <span id={hintId} hidden>
+          {hint}
+        </span>
       ) : null}
-    </label>
+    </div>
   )
 }
 

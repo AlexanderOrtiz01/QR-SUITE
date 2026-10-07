@@ -2,7 +2,14 @@ import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { QR_STATUS } from '../lib/schema.js'
-import { Button, Card, EmptyState, Input, Select } from '../components/ui.jsx'
+import {
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  PageHeader,
+  Select,
+} from '../components/ui.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
 
 export function QrList() {
@@ -35,29 +42,28 @@ export function QrList() {
   }, [qrs, search, projectId, status])
 
   const projectName = (id) =>
-    projects.find((project) => project.id === id)?.name || '—'
+    projects.find((project) => project.id === id)?.name || 'Sin proyecto'
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Códigos QR</h1>
-          <p className="text-sm text-brand-ink/65">
-            {filtered.length} de {qrs.length} códigos
-          </p>
-        </div>
+      <PageHeader
+        title="Códigos QR"
+        meta={`${filtered.length} de ${qrs.length}`}
+      >
         <Link to="/estudio">
           <Button>Crear código QR</Button>
         </Link>
-      </header>
+      </PageHeader>
 
       <Card className="grid gap-3 sm:grid-cols-3">
         <Input
           value={search}
           onChange={(event) => setParam('q', event.target.value)}
-          placeholder="Buscar por título, código o etiqueta…"
+          placeholder="Buscar…"
+          aria-label="Buscar por título, código o etiqueta"
         />
         <Select
+          aria-label="Proyecto"
           value={projectId}
           onChange={(event) => setParam('proyecto', event.target.value)}
         >
@@ -69,6 +75,7 @@ export function QrList() {
           ))}
         </Select>
         <Select
+          aria-label="Estado"
           value={status}
           onChange={(event) => setParam('estado', event.target.value)}
         >
@@ -82,13 +89,38 @@ export function QrList() {
       </Card>
 
       {filtered.length === 0 ? (
-        <EmptyState
-          title="Sin resultados"
-          description="Ajusta los filtros o crea un código nuevo."
-        />
+        <EmptyState title="Sin resultados" />
       ) : (
         <Card className="overflow-x-auto p-0">
-          <table className="w-full min-w-[640px] text-sm">
+          {/* En el móvil la tabla obligaría a desplazarse de lado: cada código
+              pasa a ser una fila apilada con los mismos datos. */}
+          <ul className="divide-y divide-brand-ink/8 md:hidden">
+            {filtered.map((qr) => (
+              <li key={qr.short_code}>
+                <Link
+                  to={`/codigos/${qr.short_code}`}
+                  className="flex items-start justify-between gap-3 p-4 transition-colors hover:bg-white/55"
+                >
+                  <div className="min-w-0 text-sm">
+                    <p className="font-medium break-words">{qr.title}</p>
+                    <p className="mt-0.5 text-xs text-brand-ink/65">
+                      <code className="font-mono">{qr.short_code}</code> ·{' '}
+                      {projectName(qr.project_id)} · {qr.total_scans || 0}{' '}
+                      escaneos
+                    </p>
+                    {qr.tags.length > 0 ? (
+                      <p className="text-xs text-brand-ink/65">
+                        {qr.tags.join(' · ')}
+                      </p>
+                    ) : null}
+                  </div>
+                  <StatusBadge status={qr.status} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <table className="hidden w-full text-sm md:table">
             <thead className="border-b border-brand-ink/10 text-left text-xs font-bold uppercase tracking-[0.12em] text-brand-ink/65">
               <tr>
                 <th className="px-4 py-3 font-medium">Título</th>

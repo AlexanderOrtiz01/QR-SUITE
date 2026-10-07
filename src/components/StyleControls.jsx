@@ -25,45 +25,47 @@ function tileClass(active) {
 export function ColorControls({ style, onChange, disabled = false }) {
   return (
     <Field label="Paleta institucional">
-      <div className="grid gap-2 sm:grid-cols-2">
-        {BRAND_PRESETS.map((preset) => (
-          <button
-            key={preset.id}
-            type="button"
-            disabled={disabled}
-            onClick={() =>
-              onChange({
-                ...style,
-                preset: preset.id,
-                dark: preset.dark,
-                light: preset.light,
-              })
-            }
-            className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 ${
-              style.preset === preset.id
-                ? 'border-brand-primary/70 bg-white/90 ring-2 ring-brand-primary/20'
-                : 'border-white/80 bg-white/45 hover:bg-white/75'
-            }`}
-          >
-            <span
-              className="flex size-8 shrink-0 items-center justify-center rounded-md border border-brand-ink/10 bg-white"
-              style={{ background: preset.light }}
+      <div className="@container">
+        <div className="grid gap-2 @sm:grid-cols-2">
+          {BRAND_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              disabled={disabled}
+              onClick={() =>
+                onChange({
+                  ...style,
+                  preset: preset.id,
+                  dark: preset.dark,
+                  light: preset.light,
+                })
+              }
+              className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors disabled:opacity-50 ${
+                style.preset === preset.id
+                  ? 'border-brand-primary/70 bg-white/90 ring-2 ring-brand-primary/20'
+                  : 'border-white/80 bg-white/45 hover:bg-white/75'
+              }`}
             >
               <span
-                className="size-4 rounded-xs"
-                style={{ background: preset.dark }}
-              />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate font-bold text-brand-ink">
-                {preset.label}
+                className="flex size-8 shrink-0 items-center justify-center rounded-md border border-brand-ink/10 bg-white"
+                style={{ background: preset.light }}
+              >
+                <span
+                  className="size-4 rounded-xs"
+                  style={{ background: preset.dark }}
+                />
               </span>
-              <span className="block font-mono text-xs text-brand-ink/65">
-                {preset.dark}
+              <span className="min-w-0">
+                <span className="block truncate font-bold text-brand-ink">
+                  {preset.label}
+                </span>
+                <span className="block font-mono text-xs text-brand-ink/65">
+                  {preset.dark}
+                </span>
               </span>
-            </span>
-          </button>
-        ))}
+            </button>
+          ))}
+        </div>
       </div>
     </Field>
   )
@@ -71,52 +73,54 @@ export function ColorControls({ style, onChange, disabled = false }) {
 
 export function ShapeControls({ style, onChange, disabled = false }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Field label="Estilo de módulos">
-        <Select
-          value={style.dotStyle}
-          disabled={disabled}
-          onChange={(event) =>
-            onChange({ ...style, dotStyle: event.target.value })
-          }
-        >
-          {DOT_STYLES.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </Select>
-      </Field>
-      <Field label="Esquinas">
-        <Select
-          value={style.cornerSquareStyle}
-          disabled={disabled}
-          onChange={(event) =>
-            onChange({ ...style, cornerSquareStyle: event.target.value })
-          }
-        >
-          {CORNER_STYLES.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </Select>
-      </Field>
-      <Field label="Centro de las esquinas">
-        <Select
-          value={style.cornerDotStyle}
-          disabled={disabled}
-          onChange={(event) =>
-            onChange({ ...style, cornerDotStyle: event.target.value })
-          }
-        >
-          {CORNER_STYLES.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </Select>
-      </Field>
+    <div className="@container">
+      <div className="grid gap-4 @sm:grid-cols-2">
+        <Field label="Estilo de módulos">
+          <Select
+            value={style.dotStyle}
+            disabled={disabled}
+            onChange={(event) =>
+              onChange({ ...style, dotStyle: event.target.value })
+            }
+          >
+            {DOT_STYLES.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Esquinas">
+          <Select
+            value={style.cornerSquareStyle}
+            disabled={disabled}
+            onChange={(event) =>
+              onChange({ ...style, cornerSquareStyle: event.target.value })
+            }
+          >
+            {CORNER_STYLES.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Centro de las esquinas">
+          <Select
+            value={style.cornerDotStyle}
+            disabled={disabled}
+            onChange={(event) =>
+              onChange({ ...style, cornerDotStyle: event.target.value })
+            }
+          >
+            {CORNER_STYLES.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </div>
     </div>
   )
 }
@@ -134,7 +138,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
     <div className="space-y-4">
       <Field
         label="Logotipo central"
-        hint={`Corrección de errores fijada en nivel ${ECC_LEVEL} (30%) para admitirlo sin perder lectura.`}
+        hint={`Corrección de errores en nivel ${ECC_LEVEL} (30 %): admite el logo sin perder lectura.`}
       >
         <input
           type="file"
@@ -171,10 +175,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
           </div>
         </Field>
       ) : (
-        <p className="text-sm text-brand-ink/65">
-          Sin logotipo. El código se genera igualmente con corrección de errores
-          alta.
-        </p>
+        <p className="text-sm text-brand-ink/65">Sin logotipo.</p>
       )}
     </div>
   )
@@ -201,12 +202,12 @@ export function GradientControls({ style, onChange, disabled = false }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="@container space-y-4">
       <Field
         label="Degradado"
-        hint="Solo combinaciones de la paleta institucional, y siempre entre tonos oscuros: aclarar los módulos reduce el contraste y el código deja de leerse sobre papel."
+        hint="Solo tonos oscuros de la paleta: aclarar los módulos resta contraste y el código deja de leerse en papel."
       >
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 @md:grid-cols-3">
           <button
             type="button"
             disabled={disabled}
@@ -247,7 +248,7 @@ export function GradientControls({ style, onChange, disabled = false }) {
       </Field>
 
       {gradient ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 @sm:grid-cols-2">
           <Field label="Tipo">
             <Select
               value={gradient.type}
@@ -300,9 +301,9 @@ export function FrameControls({ style, onChange, disabled = false }) {
   const withLabel = FRAMES.find((frame) => frame.id === style.frame)?.hasLabel
 
   return (
-    <div className="space-y-4">
+    <div className="@container space-y-4">
       <Field label="Estilo de marco">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 @md:grid-cols-3 @2xl:grid-cols-4">
           {FRAMES.map((frame) => (
             <button
               key={frame.id}
@@ -320,7 +321,7 @@ export function FrameControls({ style, onChange, disabled = false }) {
                   }),
                 }}
               />
-              <span className="mt-1.5 block text-center text-brand-ink">
+              <span className="mt-1.5 block text-center text-balance text-brand-ink">
                 {frame.label}
               </span>
             </button>

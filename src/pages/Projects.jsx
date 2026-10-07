@@ -3,7 +3,17 @@ import { Link } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { createProject } from '../lib/schema.js'
 import { can } from '../lib/roles.js'
-import { Button, Card, EmptyState, Field, Input } from '../components/ui.jsx'
+import {
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageHeader,
+} from '../components/ui.jsx'
+import { Tooltip } from '../components/Tooltip.jsx'
+import { IconTrash } from '../components/icons.jsx'
 
 export function Projects() {
   const { projects, qrs, addProject, removeProject, session } = useApp()
@@ -27,12 +37,10 @@ export function Projects() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Proyectos</h1>
-        <p className="text-sm text-brand-ink/65">
-          Un proyecto agrupa los códigos de un libro o asignatura.
-        </p>
-      </header>
+      <PageHeader
+        title="Proyectos"
+        info="Un proyecto agrupa los códigos de un libro o asignatura."
+      />
 
       {allowed ? (
         <Card>
@@ -61,10 +69,7 @@ export function Projects() {
       ) : null}
 
       {projects.length === 0 ? (
-        <EmptyState
-          title="Sin proyectos"
-          description="Crea un proyecto para empezar a organizar los códigos."
-        />
+        <EmptyState title="Sin proyectos" />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => {
@@ -77,14 +82,15 @@ export function Projects() {
                 className="flex flex-col justify-between gap-3"
               >
                 <div>
-                  <p className="font-medium">{project.name}</p>
+                  <p className="font-medium break-words">{project.name}</p>
                   <p className="text-sm text-brand-ink/65">
                     {project.department || 'Sin departamento'}
                   </p>
-                  <p className="mt-2 text-xs text-brand-ink/65">
-                    {count} {count === 1 ? 'código' : 'códigos'} · creado por{' '}
-                    {project.created_by}
-                  </p>
+                  <Tooltip content={`Creado por ${project.created_by}`}>
+                    <p className="mt-2 text-xs text-brand-ink/65">
+                      {count} {count === 1 ? 'código' : 'códigos'}
+                    </p>
+                  </Tooltip>
                 </div>
                 <div className="flex gap-2">
                   <Link
@@ -96,12 +102,12 @@ export function Projects() {
                     </Button>
                   </Link>
                   {allowed ? (
-                    <Button
+                    <IconButton
+                      label="Eliminar proyecto"
+                      icon={IconTrash}
                       variant="danger"
                       onClick={() => removeProject(project.id)}
-                    >
-                      Eliminar
-                    </Button>
+                    />
                   ) : null}
                 </div>
               </Card>

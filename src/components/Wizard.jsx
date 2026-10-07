@@ -1,4 +1,5 @@
 import { IconChevronLeft } from './icons.jsx'
+import { InfoTip } from './Tooltip.jsx'
 
 /**
  * Piezas del asistente por pasos, siguiendo el patrón de QRStuff: barra de
@@ -21,7 +22,7 @@ export function StepProgress({ steps, current, onSelect }) {
           aria-label={`Paso ${current + 1} de ${steps.length}`}
         />
       </div>
-      <ol className="flex flex-wrap gap-x-6 gap-y-1">
+      <ol className="flex flex-wrap justify-between gap-x-3 gap-y-1 sm:justify-start sm:gap-x-6">
         {steps.map((step, index) => {
           const done = index < current
           return (
@@ -51,23 +52,23 @@ export function StepProgress({ steps, current, onSelect }) {
 
 export function StepHeader({ title, hint, onBack, action }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="flex min-w-0 items-start gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-2">
         {onBack ? (
           <button
             type="button"
             onClick={onBack}
             aria-label="Paso anterior"
-            className="mt-0.5 rounded-full p-1 text-brand-ink/65 transition-colors hover:bg-white/70 hover:text-brand-primary-deep"
+            className="rounded-full p-1 text-brand-ink/65 transition-colors hover:bg-white/70 hover:text-brand-primary-deep"
           >
             <IconChevronLeft className="size-5" />
           </button>
         ) : null}
-        <div className="min-w-0">
+        <div className="flex min-w-0 items-center gap-1.5">
           <h2 className="text-xl font-bold tracking-tight text-brand-ink">
             {title}
           </h2>
-          {hint ? <p className="text-sm text-brand-ink/65">{hint}</p> : null}
+          {hint ? <InfoTip>{hint}</InfoTip> : null}
         </div>
       </div>
       {action}
@@ -86,15 +87,18 @@ export function TabBar({ tabs, value, onChange }) {
     tabs.findIndex((tab) => tab.id === value),
   )
 
+  // En un contenedor estrecho las opciones no caben en una fila: pasan a una
+  // rejilla de dos o tres columnas y cada una marca su propia selección,
+  // porque la píldora deslizante solo sabe moverse en horizontal.
   return (
-    <div className="overflow-x-auto">
+    <div className="@container">
       <div
-        className="relative grid min-w-[26rem] rounded-full bg-brand-ink/8 p-1 shadow-[inset_0_1px_2px_rgb(15_31_99/0.08)]"
-        style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}
+        className="relative grid grid-cols-2 gap-1 @2xs:grid-cols-3 rounded-3xl bg-brand-ink/8 p-1 shadow-[inset_0_1px_2px_rgb(15_31_99/0.08)] @lg:grid-cols-(--tabs) @lg:gap-0 @lg:rounded-full"
+        style={{ '--tabs': `repeat(${tabs.length}, minmax(0, 1fr))` }}
       >
         <span
           aria-hidden="true"
-          className="absolute inset-y-1 left-1 rounded-full bg-white shadow-[0_3px_8px_-2px_rgb(15_31_99/0.2),0_0_0_0.5px_rgb(15_31_99/0.06)] transition-transform duration-300 ease-ios"
+          className="absolute inset-y-1 left-1 hidden rounded-full bg-white shadow-[0_3px_8px_-2px_rgb(15_31_99/0.2),0_0_0_0.5px_rgb(15_31_99/0.06)] transition-transform duration-300 ease-ios @lg:block"
           style={{
             width: `calc((100% - 0.5rem) / ${tabs.length})`,
             transform: `translateX(${index * 100}%)`,
@@ -106,9 +110,9 @@ export function TabBar({ tabs, value, onChange }) {
             type="button"
             onClick={() => onChange(tab.id)}
             aria-current={value === tab.id}
-            className={`relative rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
+            className={`relative truncate rounded-full px-2 py-1.5 @lg:px-3 text-sm font-semibold transition-colors ${
               value === tab.id
-                ? 'text-brand-ink'
+                ? 'bg-white text-brand-ink shadow-[0_3px_8px_-2px_rgb(15_31_99/0.2)] @lg:bg-transparent @lg:shadow-none'
                 : 'text-brand-ink/60 hover:text-brand-ink'
             }`}
           >

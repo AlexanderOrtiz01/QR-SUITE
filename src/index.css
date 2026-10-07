@@ -261,6 +261,34 @@
     }
   }
 
+  /* Fondo del acceso: la trama avanza una tesela (80 px) por ciclo, así el
+     bucle no tiene costura. */
+  @keyframes trama-deriva {
+    to {
+      transform: translate3d(80px, -80px, 0);
+    }
+  }
+
+  @keyframes luz-deriva {
+    to {
+      transform: translate3d(18vw, 12vh, 0);
+    }
+  }
+
+  @keyframes marca-flota {
+    to {
+      transform: translate3d(-22px, 18px, 0) rotate(4deg);
+    }
+  }
+
+  /* Ayuda contextual: aparece casi en su sitio, sin viajar. */
+  @keyframes tip-entra {
+    from {
+      opacity: 0;
+      transform: translateY(var(--tip-from, 3px)) scale(0.97);
+    }
+  }
+
   @keyframes check-traza {
     from {
       stroke-dashoffset: 24;

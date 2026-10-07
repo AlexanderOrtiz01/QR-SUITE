@@ -2,7 +2,16 @@ import { useCallback, useEffect, useState } from 'react'
 import { storage } from '../lib/storage/index.js'
 import { REVOKED, ROLES, SELF_REGISTER_ROLE } from '../lib/roles.js'
 import { ALLOWED_DOMAIN } from '../lib/config.js'
-import { Button, Card, Field, Input, Select, Skeleton, Spinner } from './ui.jsx'
+import {
+  Button,
+  Card,
+  CardTitle,
+  Field,
+  Input,
+  Select,
+  Skeleton,
+  Spinner,
+} from './ui.jsx'
 
 /**
  * Módulo 1 — gestión de roles.
@@ -90,14 +99,11 @@ export function RoleManager({ currentEmail }) {
 
   return (
     <Card className="space-y-4">
-      <div>
-        <h2 className="font-semibold">Personas con acceso</h2>
-        <p className="mt-1 text-sm text-brand-ink/65">
-          Quien entra con una cuenta @{ALLOWED_DOMAIN} se registra solo como{' '}
-          {ROLES[SELF_REGISTER_ROLE]?.label}. Aquí cambias su rol o le retiras
-          el acceso.
-        </p>
-      </div>
+      <CardTitle
+        info={`Quien entra con una cuenta @${ALLOWED_DOMAIN} se registra solo como ${ROLES[SELF_REGISTER_ROLE]?.label}. Aquí cambias su rol o le retiras el acceso.`}
+      >
+        Personas con acceso
+      </CardTitle>
 
       <form
         onSubmit={handleAdd}
@@ -168,10 +174,10 @@ export function RoleManager({ currentEmail }) {
           {people.map((person) => (
             <li
               key={person.email}
-              className="flex flex-wrap items-center justify-between gap-3 py-2.5"
+              className="flex items-center justify-between gap-3 py-2.5"
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-brand-ink">
+                <p className="text-sm font-semibold break-all text-brand-ink">
                   {person.email}
                 </p>
                 <p
@@ -187,7 +193,7 @@ export function RoleManager({ currentEmail }) {
                 </p>
               </div>
               {person.email === currentEmail ? (
-                <span className="text-xs font-semibold text-brand-ink/65">
+                <span className="shrink-0 text-xs font-semibold text-brand-ink/65">
                   Tu cuenta
                 </span>
               ) : person.role === REVOKED ? null : (
@@ -196,7 +202,7 @@ export function RoleManager({ currentEmail }) {
                   disabled={Boolean(busy)}
                   aria-busy={busy === person.email || undefined}
                   onClick={() => handleRemove(person.email)}
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50/80 disabled:opacity-50"
+                  className="-mr-3 inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50/80 disabled:opacity-50"
                 >
                   {busy === person.email ? (
                     <Spinner className="size-4" />

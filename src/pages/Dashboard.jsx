@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
-import { Button, Card, EmptyState } from '../components/ui.jsx'
+import { Button, Card, EmptyState, PageHeader } from '../components/ui.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
 import { Sparkline } from '../components/Sparkline.jsx'
 
@@ -51,19 +51,13 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-brand-ink/65">
-            Estado general de la plataforma
-          </p>
-        </div>
+      <PageHeader title="Dashboard">
         <Link to="/estudio">
           <Button>Crear código QR</Button>
         </Link>
-      </header>
+      </PageHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <Stat label="Proyectos" value={projects.length} />
         <Stat
           label="Códigos QR"
@@ -71,29 +65,26 @@ export function Dashboard() {
           hint={`${published} publicados`}
         />
         <Stat label="Escaneos totales" value={totalScans} />
-        <Stat label="Borradores" value={drafts} hint="Pendientes de publicar" />
+        <Stat label="Borradores" value={drafts} />
       </div>
 
       <Card className="space-y-3">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-semibold">
-            Escaneos de los últimos 14 días{' '}
-            <span className="ml-1 tabular-nums text-brand-ink/65">
+            Últimos 14 días{' '}
+            <span className="ml-1 text-brand-ink/65 tabular-nums">
               {periodScans}
             </span>
           </h2>
           <Link
             to="/analitica"
-            className="text-sm text-brand-primary hover:underline"
+            className="shrink-0 text-sm text-brand-primary hover:underline"
           >
             Ver analítica
           </Link>
         </div>
         {periodScans === 0 ? (
-          <p className="text-sm text-brand-ink/65">
-            Sin escaneos en el periodo. Abre la URL corta de un código para
-            registrar el primero.
-          </p>
+          <p className="text-sm text-brand-ink/65">Sin escaneos.</p>
         ) : (
           <Sparkline data={trend} />
         )}
@@ -103,11 +94,10 @@ export function Dashboard() {
         <h2 className="text-lg font-semibold">Últimos códigos</h2>
         {recent.length === 0 ? (
           <EmptyState
-            title="Todavía no hay códigos QR"
-            description="Crea el primero desde el estudio de diseño."
+            title="Todavía no hay códigos"
             action={
               <Link to="/estudio">
-                <Button>Ir al estudio</Button>
+                <Button>Crear código QR</Button>
               </Link>
             }
           />
@@ -122,7 +112,7 @@ export function Dashboard() {
                   <div className="min-w-0">
                     <Link
                       to={`/codigos/${qr.short_code}`}
-                      className="truncate text-sm font-medium hover:underline"
+                      className="block truncate text-sm font-medium hover:underline"
                     >
                       {qr.title}
                     </Link>
