@@ -12,17 +12,14 @@ updates:
     target-branch: dev
     commit-message:
       prefix: 'deps'
-    # Vite queda fijado en la 6 a propósito: la 7 y la 8 exigen Node ^20.19 o
-    # >=22.12, y el entorno de desarrollo corre sobre Node 20.18. La 8 además
-    # rompe los peers de @vitejs/plugin-react y @tailwindcss/vite, así que no
-    # es un salto de dependencia sino una migración. Se desbloquea el día que
-    # el proyecto suba a Node 22 LTS.
+    # Decisión del equipo: de momento no se migra a ninguna versión mayor.
+    # Un salto mayor puede exigir otra versión de Node (Vite 7+ pide ^20.19 o
+    # >=22.12) o romper peers (Vite 8 con @vitejs/plugin-react y
+    # @tailwindcss/vite), y no todos los equipos de desarrollo están en la
+    # misma versión. Solo entran minor y patch; una mayor se hará como
+    # migración planificada, quitando esta regla a propósito.
     ignore:
-      - dependency-name: vite
-        update-types: [version-update:semver-major]
-      # Sus versiones mayores piden un Vite más nuevo (la 6 no instala sobre
-      # Vite 6), así que se mueve junto con Vite, no por su cuenta.
-      - dependency-name: '@vitejs/plugin-react'
+      - dependency-name: '*'
         update-types: [version-update:semver-major]
 
     # Dependabot mete cada dependencia en el PRIMER grupo que la acepta, así
