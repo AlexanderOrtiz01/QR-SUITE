@@ -1,17 +1,10 @@
 /**
- * Roles y permisos del Módulo 1. Hoy los aplica solo la interfaz; cuando
- * entre Firebase Auth deben duplicarse en las reglas de seguridad de
- * Firestore, que son la única frontera real.
- */
-/**
- * Rol con el que queda registrada una persona la primera vez que entra.
+ * Roles y permisos del Módulo 1. Esto solo decide qué muestra la interfaz: la
+ * frontera real son las reglas de `firestore.rules`, que deben decir lo mismo.
  *
- * El autorregistro convierte el dominio del correo en la única frontera: quien
- * tenga una cuenta del dominio permitido entra con este rol sin que nadie lo
- * apruebe. Bajarlo a 'editor' o 'analyst' reduce lo que puede hacer alguien
- * recién llegado.
+ * No hay autorregistro: solo entra quien un administrador haya añadido, porque
+ * el dominio institucional también incluye a los estudiantes.
  */
-export const SELF_REGISTER_ROLE = 'admin'
 
 /** Marca de acceso retirado. No es un rol: no concede ningún permiso. */
 export const REVOKED = 'revoked'
@@ -20,7 +13,7 @@ export const ROLES = {
   admin: {
     id: 'admin',
     label: 'Administrador',
-    hint: 'Control total y auditoría',
+    hint: 'Control total: personas, proyectos y ajustes',
   },
   editor: {
     id: 'editor',
@@ -38,6 +31,7 @@ const PERMISSIONS = {
   admin: [
     'project:write',
     'qr:write',
+    'qr:delete',
     'qr:export',
     'analytics:read',
     'settings:write',

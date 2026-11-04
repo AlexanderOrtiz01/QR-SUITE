@@ -7,6 +7,7 @@ describe('can', () => {
     for (const permiso of [
       'project:write',
       'qr:write',
+      'qr:delete',
       'qr:export',
       'analytics:read',
       'settings:write',
@@ -15,9 +16,10 @@ describe('can', () => {
     }
   })
 
-  it('deja al editor crear y exportar, pero no tocar ajustes ni proyectos', () => {
+  it('deja al editor crear y exportar, pero no borrar ni tocar ajustes o proyectos', () => {
     expect(can('editor', 'qr:write')).toBe(true)
     expect(can('editor', 'qr:export')).toBe(true)
+    expect(can('editor', 'qr:delete')).toBe(false)
     expect(can('editor', 'settings:write')).toBe(false)
     expect(can('editor', 'project:write')).toBe(false)
   })
