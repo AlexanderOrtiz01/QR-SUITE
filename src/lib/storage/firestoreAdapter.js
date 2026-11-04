@@ -118,9 +118,8 @@ export const firestoreAdapter = {
   },
 
   /**
-   * Retirar el acceso marca el documento, no lo borra: con autorregistro,
-   * borrarlo dejaría que la persona volviera a entrar y se registrara de nuevo
-   * en el siguiente inicio de sesión.
+   * Retirar el acceso marca el documento, no lo borra: así queda constancia en
+   * la lista y la persona ve un mensaje claro al intentar entrar.
    */
   async removeRole(email) {
     await setDoc(doc(db, 'roles', email), {

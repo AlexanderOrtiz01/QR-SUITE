@@ -40,6 +40,9 @@
     "prettier": "^3.9.8",
     "tailwindcss": "^4.1.13",
     "vite": "^6.3.6",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.12"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.13.6"
   }
 }

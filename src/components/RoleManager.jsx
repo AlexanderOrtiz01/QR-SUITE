@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { storage } from '../lib/storage/index.js'
-import { REVOKED, ROLES, SELF_REGISTER_ROLE } from '../lib/roles.js'
+import { REVOKED, ROLES } from '../lib/roles.js'
 import { ALLOWED_DOMAIN } from '../lib/config.js'
 import {
   Button,
@@ -69,6 +69,11 @@ export function RoleManager({ currentEmail }) {
       setError(`Solo se permiten cuentas @${ALLOWED_DOMAIN}.`)
       return
     }
+    // Evita quedarse sin administradores: nadie puede degradarse a sí mismo.
+    if (normalized === currentEmail?.toLowerCase()) {
+      setError('No puedes cambiar tu propio rol.')
+      return
+    }
 
     setError('')
     setBusy('add')
@@ -100,7 +105,7 @@ export function RoleManager({ currentEmail }) {
   return (
     <Card className="space-y-4">
       <CardTitle
-        info={`Quien entra con una cuenta @${ALLOWED_DOMAIN} se registra solo como ${ROLES[SELF_REGISTER_ROLE]?.label}. Aquí cambias su rol o le retiras el acceso.`}
+        info={`Solo entran las personas que añadas aquí, con una cuenta @${ALLOWED_DOMAIN}. También puedes cambiar su rol o retirarles el acceso.`}
       >
         Personas con acceso
       </CardTitle>
@@ -167,7 +172,7 @@ export function RoleManager({ currentEmail }) {
         </ul>
       ) : people.length === 0 ? (
         <p className="text-sm text-brand-ink/65">
-          Todavía no ha entrado nadie.
+          Todavía no hay nadie con acceso.
         </p>
       ) : (
         <ul className="divide-y divide-brand-ink/8">

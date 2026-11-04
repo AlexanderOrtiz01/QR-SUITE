@@ -135,6 +135,7 @@ function QrEditor({ qr }) {
   const navigate = useNavigate()
   const { projects, scans, settings, updateQr, removeQr, session } = useApp()
   const allowed = can(session?.role, 'qr:write')
+  const canDelete = can(session?.role, 'qr:delete')
 
   const [draft, setDraft] = useState(qr)
   const [saved, setSaved] = useState(false)
@@ -187,7 +188,7 @@ function QrEditor({ qr }) {
             escaneos
           </p>
         </div>
-        {allowed ? (
+        {canDelete ? (
           <IconButton
             label="Eliminar código"
             icon={IconTrash}
