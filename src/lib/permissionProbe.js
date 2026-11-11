@@ -23,8 +23,12 @@ import {
 import { db, isFirebaseConfigured } from './firebase.js'
 import { PROBES, gradeProbe } from './roleTests.js'
 
-/** Identificador que nunca usa un documento real (los códigos son base62). */
-const PHANTOM_ID = '__prueba-de-permisos__'
+/**
+ * Identificador que nunca usa un documento real (los códigos son base62, sin
+ * guiones). No puede tener la forma `__…__`: Firestore reserva esos nombres y
+ * rechaza la operación antes de evaluar las reglas.
+ */
+const PHANTOM_ID = 'prueba-de-permisos'
 
 export const canProbe = isFirebaseConfigured
 
