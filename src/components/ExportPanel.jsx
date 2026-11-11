@@ -17,20 +17,29 @@ const FORMATS = [
  * SVG cubre el flujo de imprenta (InDesign e Illustrator lo abren sin
  * pérdida). EPS no se genera en el navegador: ver nota en la interfaz.
  */
-export function ExportPanel({ data, style, title, disabled = false }) {
+export function ExportPanel({
+  data,
+  style,
+  title,
+  disabled = false,
+  blockedReason = '',
+}) {
   const [sizeMm, setSizeMm] = useState(30)
   const [dpi, setDpi] = useState(300)
   // El formato en curso, para que solo su botón muestre la actividad.
   const [busy, setBusy] = useState('')
+  const [failed, setFailed] = useState(false)
   const print = printMetrics(data, style, sizeMm)
   const tooSmall = sizeMm < print.minSizeMm
 
   async function handleExport(format) {
     setBusy(format)
+    setFailed(false)
     try {
       await exportQr({ data, style, title, format, sizeMm, dpi })
     } catch (error) {
       console.error('[qrsuite] fallo al exportar', error)
+      setFailed(true)
     } finally {
       setBusy('')
     }
@@ -80,7 +89,7 @@ export function ExportPanel({ data, style, title, disabled = false }) {
         </p>
       ) : null}
 
-      <div className="flex items-center gap-1.5 text-xs text-brand-ink/65">
+      <div className="flex items-center gap-1.5 text-xs text-brand-ink/75">
         <span className="tabular-nums">
           {mmToPx(sizeMm, dpi)} × {mmToPx(sizeMm, dpi)} px
         </span>
@@ -102,7 +111,9 @@ export function ExportPanel({ data, style, title, disabled = false }) {
             variant={index === 0 ? 'primary' : 'secondary'}
             size="compact"
             aria-label={`Descargar ${format.label}`}
-            disabled={disabled || (busy && busy !== format.id)}
+            disabled={
+              disabled || Boolean(blockedReason) || (busy && busy !== format.id)
+            }
             loading={busy === format.id}
             onClick={() => handleExport(format.id)}
           >
@@ -113,6 +124,19 @@ export function ExportPanel({ data, style, title, disabled = false }) {
           </Button>
         ))}
       </div>
+
+      {blockedReason ? (
+        <p className="text-xs font-semibold text-brand-ink/80">
+          {blockedReason}
+        </p>
+      ) : null}
+
+      {failed ? (
+        <p role="alert" className="text-xs font-semibold text-red-700">
+          No se pudo generar el archivo. Inténtalo de nuevo o prueba con otro
+          formato.
+        </p>
+      ) : null}
     </div>
   )
 }

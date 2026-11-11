@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { createProject } from '../lib/schema.js'
+import { scansLabel } from '../lib/format.js'
 import { can } from '../lib/roles.js'
 import {
   Button,
@@ -13,13 +14,28 @@ import {
   PageHeader,
 } from '../components/ui.jsx'
 import { Tooltip } from '../components/Tooltip.jsx'
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
 import { IconTrash } from '../components/icons.jsx'
 
 export function Projects() {
-  const { projects, qrs, addProject, removeProject, session } = useApp()
+  const { projects, qrs, addProject, removeProject, notify, session } = useApp()
   const allowed = can(session?.role, 'project:write')
   const [name, setName] = useState('')
   const [department, setDepartment] = useState('')
+  const [pendingDelete, setPendingDelete] = useState(null)
+  const pendingCodes = pendingDelete
+    ? qrs.filter((qr) => qr.project_id === pendingDelete.id)
+    : []
+  const pendingScans = pendingCodes.reduce(
+    (sum, qr) => sum + (qr.total_scans || 0),
+    0,
+  )
+
+  function confirmDelete() {
+    removeProject(pendingDelete.id)
+    notify(`Proyecto «${pendingDelete.name}» eliminado.`)
+    setPendingDelete(null)
+  }
 
   function handleSubmit(event) {
     event.preventDefault()
@@ -69,7 +85,14 @@ export function Projects() {
       ) : null}
 
       {projects.length === 0 ? (
-        <EmptyState title="Sin proyectos" />
+        <EmptyState
+          title="Todavía no hay proyectos"
+          description={
+            allowed
+              ? 'Crea el primero con el formulario de arriba: todo código QR pertenece a un proyecto.'
+              : 'Solo un administrador puede crearlos. Pídele que cree el primero para poder añadir códigos.'
+          }
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {projects.map((project) => {
@@ -83,11 +106,11 @@ export function Projects() {
               >
                 <div>
                   <p className="font-medium break-words">{project.name}</p>
-                  <p className="text-sm text-brand-ink/65">
+                  <p className="text-sm text-brand-ink/75">
                     {project.department || 'Sin departamento'}
                   </p>
                   <Tooltip content={`Creado por ${project.created_by}`}>
-                    <p className="mt-2 text-xs text-brand-ink/65">
+                    <p className="mt-2 text-xs text-brand-ink/75">
                       {count} {count === 1 ? 'código' : 'códigos'}
                     </p>
                   </Tooltip>
@@ -106,7 +129,7 @@ export function Projects() {
                       label="Eliminar proyecto"
                       icon={IconTrash}
                       variant="danger"
-                      onClick={() => removeProject(project.id)}
+                      onClick={() => setPendingDelete(project)}
                     />
                   ) : null}
                 </div>
@@ -115,6 +138,33 @@ export function Projects() {
           })}
         </div>
       )}
+
+      {pendingDelete ? (
+        <ConfirmDialog
+          title={`¿Eliminar «${pendingDelete.name}»?`}
+          confirmLabel="Eliminar para siempre"
+          cancelLabel="Conservar"
+          tone="danger"
+          typeToConfirm={pendingCodes.length > 0 ? pendingDelete.name : ''}
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        >
+          {pendingCodes.length > 0 ? (
+            <p>
+              También se eliminarán{' '}
+              <strong>
+                {pendingCodes.length === 1
+                  ? '1 código'
+                  : `${pendingCodes.length} códigos`}
+              </strong>{' '}
+              y <strong>{scansLabel(pendingScans)}</strong>. Los libros impresos
+              con esos códigos dejarán de funcionar para siempre.
+            </p>
+          ) : (
+            <p>Este proyecto no tiene códigos.</p>
+          )}
+        </ConfirmDialog>
+      ) : null}
     </div>
   )
 }

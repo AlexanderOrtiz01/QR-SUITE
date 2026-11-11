@@ -1,10 +1,7 @@
-import { IconChevronLeft } from './icons.jsx'
-import { InfoTip } from './Tooltip.jsx'
-
 /**
  * Piezas del asistente por pasos, siguiendo el patrón de QRStuff: barra de
- * progreso, rótulos numerados, cabecera con retroceso y acción de avance, y
- * pestañas dentro de un mismo paso.
+ * progreso, rótulos numerados, cabecera del paso y pestañas dentro de un mismo
+ * paso. Avanzar y retroceder va al pie del formulario, después de los campos.
  */
 export function StepProgress({ steps, current, onSelect }) {
   const percent = ((current + 1) / steps.length) * 100
@@ -13,8 +10,8 @@ export function StepProgress({ steps, current, onSelect }) {
     <div className="space-y-3">
       <div className="h-1.5 overflow-hidden rounded-full bg-brand-ink/10">
         <div
-          className="h-full rounded-full bg-brand-primary shadow-[0_0_0_1px_rgb(255_255_255/0.4)_inset] transition-[width] duration-500 ease-ios"
-          style={{ width: `${percent}%` }}
+          className="h-full origin-left rounded-full bg-brand-primary shadow-[0_0_0_1px_rgb(255_255_255/0.4)_inset] transition-transform duration-500 ease-ios"
+          style={{ transform: `scaleX(${percent / 100})` }}
           role="progressbar"
           aria-valuenow={current + 1}
           aria-valuemin={1}
@@ -31,12 +28,13 @@ export function StepProgress({ steps, current, onSelect }) {
                 type="button"
                 // Solo se puede retroceder: avanzar exige validar el paso.
                 disabled={index > current}
+                aria-current={index === current ? 'step' : undefined}
                 onClick={() => onSelect(index)}
-                className={`text-xs font-semibold transition-colors disabled:cursor-not-allowed ${
+                className={`py-1 text-xs font-semibold transition-colors disabled:cursor-not-allowed max-lg:min-h-11 ${
                   index === current
                     ? 'text-brand-primary-deep'
                     : done
-                      ? 'text-brand-ink/65 hover:text-brand-primary-deep'
+                      ? 'text-brand-ink/75 hover:text-brand-primary-deep'
                       : 'text-brand-ink/45'
                 }`}
               >
@@ -50,28 +48,17 @@ export function StepProgress({ steps, current, onSelect }) {
   )
 }
 
-export function StepHeader({ title, hint, onBack, action }) {
+export function StepHeader({ title, hint, ref }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
-      <div className="flex min-w-0 items-center gap-2">
-        {onBack ? (
-          <button
-            type="button"
-            onClick={onBack}
-            aria-label="Paso anterior"
-            className="rounded-full p-1 text-brand-ink/65 transition-colors hover:bg-white/70 hover:text-brand-primary-deep"
-          >
-            <IconChevronLeft className="size-5" />
-          </button>
-        ) : null}
-        <div className="flex min-w-0 items-center gap-1.5">
-          <h2 className="text-xl font-bold tracking-tight text-brand-ink">
-            {title}
-          </h2>
-          {hint ? <InfoTip>{hint}</InfoTip> : null}
-        </div>
-      </div>
-      {action}
+    <div className="space-y-1">
+      <h2
+        ref={ref}
+        tabIndex={-1}
+        className="text-xl font-bold tracking-tight text-brand-ink outline-none"
+      >
+        {title}
+      </h2>
+      {hint ? <p className="text-sm text-brand-ink/75">{hint}</p> : null}
     </div>
   )
 }
@@ -110,10 +97,10 @@ export function TabBar({ tabs, value, onChange }) {
             type="button"
             onClick={() => onChange(tab.id)}
             aria-current={value === tab.id}
-            className={`relative truncate rounded-full px-2 py-1.5 @lg:px-3 text-sm font-semibold transition-colors ${
+            className={`relative truncate rounded-full px-2 py-1.5 @lg:px-3 text-sm font-semibold transition-colors max-lg:min-h-11 ${
               value === tab.id
                 ? 'bg-white text-brand-ink shadow-[0_3px_8px_-2px_rgb(15_31_99/0.2)] @lg:bg-transparent @lg:shadow-none'
-                : 'text-brand-ink/60 hover:text-brand-ink'
+                : 'text-brand-ink/75 hover:text-brand-ink'
             }`}
           >
             {tab.label}

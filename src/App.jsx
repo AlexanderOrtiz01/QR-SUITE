@@ -1,5 +1,11 @@
 import { Suspense } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import {
+  createBrowserRouter,
+  Navigate,
+  Route,
+  RouterProvider,
+  Routes,
+} from 'react-router-dom'
 import { AppProvider } from './store/AppStore.jsx'
 import { useApp } from './store/useApp.js'
 import { Layout } from './components/Layout.jsx'
@@ -13,6 +19,7 @@ import {
   QrDetail,
   QrList,
   Redirect,
+  RoleTests,
   Settings,
   Studio,
 } from './pages/routes.js'
@@ -40,46 +47,56 @@ function Panel() {
         <Route path="importar" element={<Import />} />
         <Route path="analitica" element={<Analytics />} />
         <Route path="ajustes" element={<Settings />} />
+        <Route path="pruebas-roles" element={<RoleTests />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   )
 }
 
-export default function App() {
+function AppRoutes() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* El motor de redirección va fuera del proveedor: una URL corta
+    <Routes>
+      {/* El motor de redirección va fuera del proveedor: una URL corta
             escaneada desde un libro no debe pedir inicio de sesión, y sin
             sesión tampoco puede leer las colecciones del panel. */}
-        <Route
-          path="/r/:shortCode"
-          element={
-            <Suspense fallback={<PageLoader label="Redirigiendo" />}>
-              <Redirect />
-            </Suspense>
-          }
-        />
-        {/* El aviso de privacidad también es público: Google lo consulta para
+      <Route
+        path="/r/:shortCode"
+        element={
+          <Suspense fallback={<PageLoader label="Redirigiendo" />}>
+            <Redirect />
+          </Suspense>
+        }
+      />
+      {/* El aviso de privacidad también es público: Google lo consulta para
             aprobar la pantalla de consentimiento. */}
-        <Route
-          path="/privacidad"
-          element={
-            <Suspense fallback={<PageLoader label="Cargando" />}>
-              <Privacy />
-            </Suspense>
-          }
-        />
-        <Route
-          path="/*"
-          element={
-            <AppProvider>
-              <Panel />
-            </AppProvider>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+      <Route
+        path="/privacidad"
+        element={
+          <Suspense fallback={<PageLoader label="Cargando" />}>
+            <Privacy />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/*"
+        element={
+          <AppProvider>
+            <Panel />
+          </AppProvider>
+        }
+      />
+    </Routes>
   )
+}
+
+/**
+ * Router de datos con una sola ruta comodín: las rutas siguen declaradas abajo
+ * con `<Routes>`, y a cambio funciona `useBlocker`, que avisa de los cambios sin
+ * guardar antes de navegar.
+ */
+const router = createBrowserRouter([{ path: '*', element: <AppRoutes /> }])
+
+export default function App() {
+  return <RouterProvider router={router} />
 }

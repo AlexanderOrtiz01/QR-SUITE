@@ -64,7 +64,7 @@ function titleFromFile(name) {
 
 const CHIP_TONES = {
   listo: 'bg-brand-primary/10 text-brand-primary-deep',
-  leyendo: 'bg-brand-ink/6 text-brand-ink/65',
+  leyendo: 'bg-brand-ink/6 text-brand-ink/75',
   ilegible: 'bg-red-50 text-red-700',
 }
 
@@ -74,7 +74,7 @@ function StateChip({ state }) {
     <span className="flex shrink-0 items-center gap-1">
       <span
         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold whitespace-nowrap ${
-          CHIP_TONES[state] || 'bg-brand-ink/6 text-brand-ink/65'
+          CHIP_TONES[state] || 'bg-brand-ink/6 text-brand-ink/75'
         }`}
       >
         {state === 'leyendo' ? <Spinner className="size-3" /> : null}
@@ -286,7 +286,7 @@ export function Import() {
             <span className="text-sm font-semibold">
               Arrastra las imágenes o haz clic para elegirlas
             </span>
-            <span className="flex items-center gap-1 text-xs text-brand-ink/60">
+            <span className="flex items-center gap-1 text-xs text-brand-ink/75">
               Un QR por imagen
               <InfoTip>
                 Sirve el archivo que exportó la otra plataforma, o una foto o
@@ -416,7 +416,7 @@ export function Import() {
                         content={entry.content || entry.name}
                         className="flex min-w-0 flex-1"
                       >
-                        <p className="truncate font-mono text-xs text-brand-ink/60">
+                        <p className="truncate font-mono text-xs text-brand-ink/75">
                           {entry.url || entry.content || entry.name}
                         </p>
                       </Tooltip>
@@ -434,7 +434,7 @@ export function Import() {
           </ul>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-ink/8 pt-4">
-            <p className="text-sm text-brand-ink/65">
+            <p className="text-sm text-brand-ink/75">
               {ready.length} {ready.length === 1 ? 'listo' : 'listos'}
               {skipped > 0 ? ` · ${skipped} sin importar` : ''}
             </p>

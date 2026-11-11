@@ -23,7 +23,13 @@ function prefiereQuietud() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-export function SaveReveal({ data, style, title, onDone }) {
+export function SaveReveal({
+  data,
+  style,
+  title,
+  label = 'Código guardado',
+  onDone,
+}) {
   const [saliendo, setSaliendo] = useState(false)
   const terminado = useRef(false)
 
@@ -114,7 +120,7 @@ export function SaveReveal({ data, style, title, onDone }) {
             />
           </span>
           <p className="text-sm font-semibold text-brand-primary-deep">
-            Código guardado
+            {label}
           </p>
         </div>
         <p className="mt-1.5 line-clamp-2 text-lg font-bold tracking-tight text-brand-ink">

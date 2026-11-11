@@ -59,7 +59,7 @@ export function ColorControls({ style, onChange, disabled = false }) {
                 <span className="block truncate font-bold text-brand-ink">
                   {preset.label}
                 </span>
-                <span className="block font-mono text-xs text-brand-ink/65">
+                <span className="block font-mono text-xs text-brand-ink/75">
                   {preset.dark}
                 </span>
               </span>
@@ -175,7 +175,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
           </div>
         </Field>
       ) : (
-        <p className="text-sm text-brand-ink/65">Sin logotipo.</p>
+        <p className="text-sm text-brand-ink/75">Sin logotipo.</p>
       )}
     </div>
   )

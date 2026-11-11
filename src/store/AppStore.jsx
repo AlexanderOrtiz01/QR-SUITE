@@ -34,6 +34,21 @@ export function AppProvider({ children }) {
   const [loadedEmail, setLoadedEmail] = useState('')
   // Escrituras en curso: la interfaz es optimista, pero avisa si tardan.
   const [pendingWrites, setPendingWrites] = useState(0)
+  // Aviso breve del resultado de una acción: lo pinta el Layout.
+  const [notice, setNotice] = useState(null)
+
+  const notify = useCallback((text, tone = 'success') => {
+    setNotice({ id: crypto.randomUUID(), text, tone })
+  }, [])
+
+  useEffect(() => {
+    if (!notice) return undefined
+    const timer = setTimeout(
+      () => setNotice(null),
+      notice.tone === 'error' ? 7000 : 4000,
+    )
+    return () => clearTimeout(timer)
+  }, [notice])
 
   const fetchAll = useCallback(async () => {
     // Sin sesión, las colecciones del panel no son legibles. Preguntar de
@@ -123,12 +138,16 @@ export function AppProvider({ children }) {
         await operation()
       } catch (error) {
         console.error('[qrsuite] fallo al guardar', error)
+        notify(
+          'No se pudo guardar el último cambio. La pantalla muestra lo último que sí se guardó.',
+          'error',
+        )
         await reload().catch(() => {})
       } finally {
         setPendingWrites((count) => count - 1)
       }
     },
-    [reload],
+    [reload, notify],
   )
 
   const addProject = useCallback(
@@ -267,6 +286,8 @@ export function AppProvider({ children }) {
     () => ({
       ready,
       saving,
+      notice,
+      notify,
       projects,
       qrs,
       scans,
@@ -289,6 +310,8 @@ export function AppProvider({ children }) {
     [
       ready,
       saving,
+      notice,
+      notify,
       projects,
       qrs,
       scans,

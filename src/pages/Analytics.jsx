@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useApp } from '../store/useApp.js'
 import { can } from '../lib/roles.js'
+import { dayLabel, localDayKey } from '../lib/format.js'
+import { isPersistenceShared } from '../lib/storage/index.js'
 import {
   Card,
   CardTitle,
@@ -9,7 +11,6 @@ import {
   PageHeader,
   Select,
 } from '../components/ui.jsx'
-import { InfoTip } from '../components/Tooltip.jsx'
 import { IconDownload } from '../components/icons.jsx'
 import {
   BarList,
@@ -33,10 +34,6 @@ function countBy(items, key) {
   return [...map.entries()]
     .map(([label, value]) => ({ label, value }))
     .sort((a, b) => b.value - a.value)
-}
-
-function dayKey(date) {
-  return date.toISOString().slice(0, 10)
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -65,15 +62,12 @@ function countMany(items, valuesOf) {
     .sort((a, b) => b.value - a.value)
 }
 
-function Stat({ label, value, hint, info }) {
+function Stat({ label, value, hint }) {
   return (
     <Card>
-      <div className="flex items-center gap-1.5">
-        <p className="text-sm text-brand-ink/65">{label}</p>
-        {info ? <InfoTip>{info}</InfoTip> : null}
-      </div>
+      <p className="text-sm text-brand-ink/75">{label}</p>
       <p className="mt-1 text-3xl font-semibold tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-brand-ink/65">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-brand-ink/75">{hint}</p> : null}
     </Card>
   )
 }
@@ -156,14 +150,14 @@ export function Analytics() {
   const daily = useMemo(() => {
     const buckets = new Map()
     for (let index = Number(days) - 1; index >= 0; index -= 1) {
-      buckets.set(dayKey(new Date(now - index * 24 * 60 * 60 * 1000)), 0)
+      buckets.set(localDayKey(new Date(now - index * 24 * 60 * 60 * 1000)), 0)
     }
     scoped.forEach((scan) => {
-      const key = dayKey(new Date(scan.timestamp))
+      const key = localDayKey(new Date(scan.timestamp))
       if (buckets.has(key)) buckets.set(key, buckets.get(key) + 1)
     })
     return [...buckets.entries()].map(([key, value]) => ({
-      label: key.slice(5).replace('-', '/'),
+      label: dayLabel(key),
       value,
     }))
   }, [scoped, days, now])
@@ -206,7 +200,7 @@ export function Analytics() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `escaneos-${dayKey(new Date())}.csv`
+    link.download = `escaneos-${localDayKey(new Date())}.csv`
     link.click()
     URL.revokeObjectURL(url)
   }
@@ -215,7 +209,11 @@ export function Analytics() {
     <div className="space-y-6">
       <PageHeader
         title="Analítica"
-        info="Hasta que exista la Cloud Function de redirección, los escaneos se registran en el navegador que abre la URL corta: las métricas solo reflejan este dispositivo."
+        info={
+          isPersistenceShared
+            ? undefined
+            : 'Sin Firestore, los escaneos se guardan en el navegador que abre la URL corta: las métricas solo reflejan este dispositivo.'
+        }
       >
         {can(session?.role, 'analytics:read') ? (
           <IconButton
@@ -253,7 +251,7 @@ export function Analytics() {
         </Select>
       </Card>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Stat
           label="Escaneos"
           value={scoped.length}
@@ -273,15 +271,13 @@ export function Analytics() {
             trendLabel(activeCodes, previousActive) || 'sin actividad previa'
           ).toLowerCase()}`}
         />
-        <Stat
-          label="Usuarios únicos"
-          value="Pendiente"
-          info="Requiere el hash de IP que calculará la Cloud Function."
-        />
       </div>
 
       {scans.length === 0 ? (
-        <EmptyState title="Todavía no hay escaneos" />
+        <EmptyState
+          title="Todavía no hay escaneos"
+          description="Aparecerán aquí cuando alguien abra uno de los códigos."
+        />
       ) : (
         <div className="space-y-6">
           <Card className="space-y-3">

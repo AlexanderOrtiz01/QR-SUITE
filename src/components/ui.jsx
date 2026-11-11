@@ -1,12 +1,14 @@
 import { cloneElement, isValidElement, useId, useState } from 'react'
 import { InfoTip, Tooltip } from './Tooltip.jsx'
+import { IconAlert, IconCheck } from './icons.jsx'
 
 const VARIANTS = {
   primary:
     'glass-tint text-white hover:brightness-110 disabled:border-white/60 disabled:bg-white/45 disabled:text-brand-ink/45 disabled:shadow-none disabled:hover:brightness-100',
   secondary:
     'glass text-brand-primary-deep hover:bg-white/80 disabled:text-brand-ink/45',
-  danger: 'glass text-red-600 hover:bg-red-50/80',
+  danger:
+    'glass text-red-700 hover:bg-red-50/80 disabled:text-red-700/50 disabled:hover:bg-transparent',
 }
 
 /**
@@ -17,15 +19,16 @@ const VARIANTS = {
 // El relleno va por tamaño y no se sobrescribe desde fuera: dos utilidades
 // de relleno en la misma clase compiten por orden de hoja, no de escritura.
 const SIZES = {
-  md: 'px-5 py-2.5',
+  md: 'px-5 py-2.5 max-lg:min-h-11',
   lg: 'px-5 py-3',
-  compact: 'px-3 py-2.5',
-  icon: 'size-10 shrink-0',
+  compact: 'px-3 py-2.5 max-lg:min-h-11',
+  icon: 'size-10 shrink-0 max-lg:size-11',
 }
 
 export function Button({
   variant = 'primary',
   size = 'md',
+  type = 'button',
   loading = false,
   className = '',
   onClick,
@@ -34,6 +37,7 @@ export function Button({
 }) {
   return (
     <button
+      type={type}
       className={`inline-flex items-center justify-center gap-2 rounded-full ${SIZES[size]} text-sm font-semibold transition-[background-color,filter,transform] duration-200 ease-ios focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent focus-visible:outline-none active:scale-[0.97] disabled:cursor-not-allowed disabled:active:scale-100 ${
         loading ? 'cursor-progress active:scale-100' : ''
       } ${VARIANTS[variant]} ${className}`}
@@ -227,7 +231,7 @@ export function PageHeader({ title, info, meta, children }) {
           </h1>
           {info ? <InfoTip>{info}</InfoTip> : null}
         </div>
-        {meta ? <p className="text-sm text-brand-ink/65">{meta}</p> : null}
+        {meta ? <p className="text-sm text-brand-ink/75">{meta}</p> : null}
       </div>
       {children ? (
         <div className="flex shrink-0 items-center gap-2">{children}</div>
@@ -260,17 +264,25 @@ export function Card({ className = '', ...props }) {
  * El icono es un botón, así que el rótulo ya no puede envolver al control (lo
  * tomaría por el elemento etiquetado): se enlaza con `htmlFor` cuando el hijo
  * es un control, y queda como texto cuando es un grupo de opciones.
+ *
+ * `error` se muestra bajo el control y se le asocia; `action` va al final de la
+ * fila del rótulo.
  */
-export function Field({ label, hint, children }) {
+export function Field({ label, hint, error, action, children }) {
   const id = useId()
   const hintId = `${id}-ayuda`
+  const errorId = `${id}-error`
   const isControl =
     isValidElement(children) &&
     [Input, Select, 'input', 'select', 'textarea'].includes(children.type)
+  const describedBy =
+    [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') ||
+    undefined
   const control = isControl
     ? cloneElement(children, {
         id: children.props.id || id,
-        'aria-describedby': hint ? hintId : undefined,
+        'aria-describedby': describedBy,
+        'aria-invalid': error ? true : children.props['aria-invalid'],
       })
     : children
   const Label = isControl ? 'label' : 'span'
@@ -285,6 +297,7 @@ export function Field({ label, hint, children }) {
           {label}
         </Label>
         {hint ? <InfoTip>{hint}</InfoTip> : null}
+        {action ? <div className="ml-auto">{action}</div> : null}
       </div>
       {control}
       {hint ? (
@@ -292,12 +305,21 @@ export function Field({ label, hint, children }) {
           {hint}
         </span>
       ) : null}
+      {error ? (
+        <p
+          id={errorId}
+          role="alert"
+          className="mt-1.5 text-xs font-semibold text-red-700"
+        >
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }
 
 const CONTROL =
-  'glass-well w-full rounded-xl px-3.5 py-2.5 text-sm text-brand-ink outline-none transition-[background-color,box-shadow] duration-200 focus:bg-white/90 focus:ring-4 focus:ring-brand-primary/20 disabled:bg-white/35 disabled:text-brand-ink/65'
+  'glass-well w-full rounded-xl px-3.5 py-2.5 text-sm text-brand-ink outline-none transition-[background-color,box-shadow] duration-200 focus:bg-white/90 focus:ring-4 focus:ring-brand-primary/20 aria-invalid:ring-2 aria-invalid:ring-red-300 disabled:bg-white/35 disabled:text-brand-ink/75 max-lg:min-h-11'
 
 export function Input({ className = '', ...props }) {
   return <input className={`${CONTROL} ${className}`} {...props} />
@@ -312,9 +334,34 @@ export function EmptyState({ title, description, action }) {
     <div className="glass-well rounded-[1.75rem] p-10 text-center">
       <p className="text-sm font-semibold text-brand-ink">{title}</p>
       {description ? (
-        <p className="mt-1 text-sm text-brand-ink/65">{description}</p>
+        <p className="mt-1 text-sm text-brand-ink/75">{description}</p>
       ) : null}
       {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
+    </div>
+  )
+}
+
+/**
+ * Aviso en línea, con más presencia que una ayuda: un destino que va a cambiar
+ * o algo que impide que el código funcione.
+ */
+export function Notice({ tone = 'info', className = '', children }) {
+  const tones = {
+    info: 'glass-well text-brand-ink ring-1 ring-brand-primary/25',
+    success: 'glass-well text-brand-ink ring-1 ring-brand-primary/25',
+    danger: 'bg-red-50/85 text-red-800 ring-1 ring-red-200',
+  }
+  const Icon = tone === 'success' ? IconCheck : IconAlert
+  return (
+    <div
+      className={`flex gap-2 rounded-2xl p-3 text-sm ${tones[tone]} ${className}`}
+    >
+      <Icon
+        className={`mt-0.5 size-4 shrink-0 ${
+          tone === 'danger' ? 'text-red-600' : 'text-brand-primary'
+        }`}
+      />
+      <div className="min-w-0">{children}</div>
     </div>
   )
 }

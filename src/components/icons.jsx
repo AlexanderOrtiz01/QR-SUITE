@@ -125,6 +125,15 @@ export function IconCheck(props) {
   )
 }
 
+export function IconShieldCheck(props) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M12 3.2 5 6v5.6c0 4.3 2.9 7.6 7 9.2 4.1-1.6 7-4.9 7-9.2V6z" />
+      <path d="m8.8 12.2 2.3 2.3 4.3-4.6" />
+    </svg>
+  )
+}
+
 export function IconInfo(props) {
   return (
     <svg {...BASE} {...props}>

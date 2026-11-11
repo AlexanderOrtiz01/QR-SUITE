@@ -63,7 +63,7 @@ export function Footer() {
   return (
     <footer
       ref={footerRef}
-      className="glass-dark mt-auto text-footer-ink lg:mr-3 lg:mb-3 lg:rounded-[1.75rem]"
+      className="glass-dark mt-auto text-footer-ink lg:mr-3 lg:mb-3 lg:rounded-[1.75rem] print:hidden"
     >
       <div
         data-velo

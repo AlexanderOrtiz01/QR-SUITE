@@ -9,17 +9,18 @@ export const QR_STATUS = {
   draft: {
     id: 'draft',
     label: 'Borrador',
-    hint: 'Redirige a la vista previa interna',
+    hint: 'Lleva al destino de prueba o, si no hay, al destino final.',
   },
   published: {
     id: 'published',
     label: 'Publicado',
-    hint: 'Redirige a la versión pública oficial',
+    hint: 'Lleva al destino final.',
   },
+  // El identificador se conserva: es el valor guardado en los documentos.
   deprecated: {
     id: 'deprecated',
-    label: 'Deprecado',
-    hint: 'Redirige al aviso de edición actualizada',
+    label: 'Retirado',
+    hint: 'Lleva a la página de aviso definida en Ajustes.',
   },
 }
 

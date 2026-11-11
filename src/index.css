@@ -212,7 +212,7 @@
 
   input::placeholder,
   textarea::placeholder {
-    color: rgb(20 34 79 / 0.5);
+    color: rgb(20 34 79 / 0.7);
   }
 
   :focus-visible {
@@ -339,5 +339,28 @@
   h3 {
     text-wrap: balance;
     letter-spacing: -0.022em;
+  }
+
+  /*
+   * Impresión (acta de pruebas de roles): papel blanco y tarjetas planas. El
+   * vidrio y el fondo de color no se imprimen bien y gastan tinta.
+   */
+  @media print {
+    body {
+      background: #fff;
+    }
+
+    body::before {
+      display: none;
+    }
+
+    .glass,
+    .glass-thick,
+    .glass-well {
+      background: #fff !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      border: 1px solid rgb(20 34 79 / 0.15) !important;
+    }
   }
 }
