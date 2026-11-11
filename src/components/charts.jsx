@@ -89,7 +89,7 @@ function ChartTooltip({ active, payload, label, unit = 'escaneos' }) {
  */
 export function BarList({ data, emptyLabel = 'Sin datos' }) {
   if (data.length === 0) {
-    return <p className="text-sm text-brand-ink/65">{emptyLabel}</p>
+    return <p className="text-sm text-brand-ink/75">{emptyLabel}</p>
   }
 
   // Más de cuatro categorías dejan de distinguirse: la cola se agrupa.
@@ -147,7 +147,7 @@ export function BarList({ data, emptyLabel = 'Sin datos' }) {
  */
 export function ColumnChart({ data, emptyLabel = 'Sin datos' }) {
   if (data.length === 0) {
-    return <p className="text-sm text-brand-ink/65">{emptyLabel}</p>
+    return <p className="text-sm text-brand-ink/75">{emptyLabel}</p>
   }
   // Con muchos días se etiqueta uno de cada tres para que no se solapen.
   const interval = data.length > 20 ? 2 : data.length > 10 ? 1 : 0
@@ -228,7 +228,7 @@ export function HourHeatmap({ data }) {
           )
         })}
       </div>
-      <div className="mt-2 flex items-center justify-between text-xs text-brand-ink/65">
+      <div className="mt-2 flex items-center justify-between text-xs text-brand-ink/75">
         <span>00 h</span>
         <span className="flex items-center gap-1">
           <span>0</span>
@@ -255,7 +255,7 @@ export function HourHeatmap({ data }) {
  */
 export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
   if (data.length === 0) {
-    return <p className="text-sm text-brand-ink/65">{emptyLabel}</p>
+    return <p className="text-sm text-brand-ink/75">{emptyLabel}</p>
   }
 
   const rows = data.slice(0, limit)
@@ -277,7 +277,7 @@ export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
                     {row.label}
                   </span>
                   {row.hint ? (
-                    <span className="block truncate text-xs text-brand-ink/60">
+                    <span className="block truncate text-xs text-brand-ink/75">
                       {row.hint}
                     </span>
                   ) : null}
@@ -286,7 +286,7 @@ export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
               <span className="shrink-0 tabular-nums">
                 <span className="font-semibold">{row.value}</span>
                 {total ? (
-                  <span className="text-xs text-brand-ink/60">
+                  <span className="text-xs text-brand-ink/75">
                     {' '}
                     · {Math.round((row.value / total) * 100)} %
                   </span>
@@ -306,7 +306,7 @@ export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
         ))}
       </ol>
       {rest > 0 ? (
-        <p className="ml-6 text-xs text-brand-ink/60">y {rest} más</p>
+        <p className="ml-6 text-xs text-brand-ink/75">y {rest} más</p>
       ) : null}
     </div>
   )

@@ -122,7 +122,7 @@ function GoogleAccess() {
       </Button>
 
       {authError ? (
-        <p role="alert" className="text-sm font-semibold text-red-600">
+        <p role="alert" className="text-sm font-semibold text-red-700">
           {authError}
         </p>
       ) : null}
@@ -179,7 +179,7 @@ function SimulatedAccess() {
         </Select>
       </Field>
       {error ? (
-        <p role="alert" className="text-sm font-semibold text-red-600">
+        <p role="alert" className="text-sm font-semibold text-red-700">
           {error}
         </p>
       ) : null}
@@ -217,7 +217,7 @@ export function Login() {
             <h1 className="mt-5 text-2xl font-bold tracking-tight text-brand-ink">
               QR Suite
             </h1>
-            <p className="mt-1 mb-7 text-sm text-brand-ink/65">
+            <p className="mt-1 mb-7 text-sm text-brand-ink/75">
               {isAuthEnabled
                 ? `Acceso con tu cuenta @${ALLOWED_DOMAIN}`
                 : 'Códigos QR dinámicos'}

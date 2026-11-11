@@ -1,6 +1,12 @@
 import { Field } from './ui.jsx'
 
-export function TagPicker({ options, value, onChange, label = 'Etiquetas' }) {
+export function TagPicker({
+  options,
+  value,
+  onChange,
+  disabled = false,
+  label = 'Etiquetas',
+}) {
   function toggle(tag) {
     onChange(
       value.includes(tag)
@@ -19,8 +25,10 @@ export function TagPicker({ options, value, onChange, label = 'Etiquetas' }) {
           <button
             key={tag}
             type="button"
+            disabled={disabled}
+            aria-pressed={value.includes(tag)}
             onClick={() => toggle(tag)}
-            className={`rounded-full border px-3 py-1 text-sm font-semibold transition-[background-color,transform] duration-200 ease-ios active:scale-[0.96] ${
+            className={`rounded-full border px-3 py-1 text-sm font-semibold transition-[background-color,transform] duration-200 ease-ios active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 max-lg:min-h-11 ${
               value.includes(tag)
                 ? 'glass-tint text-white'
                 : 'border-white/80 bg-white/55 text-brand-ink/80 hover:bg-white/85'

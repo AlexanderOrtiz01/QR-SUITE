@@ -47,7 +47,7 @@ export function Privacy() {
         <h1 className="text-3xl font-bold tracking-tight text-brand-ink">
           Aviso de privacidad
         </h1>
-        <p className="mt-2 text-sm text-brand-ink/65">
+        <p className="mt-2 text-sm text-brand-ink/75">
           Actualizado el {UPDATED_AT}
         </p>
 

@@ -191,7 +191,9 @@ export function InfoTip({
       <button
         type="button"
         aria-label={label}
-        className={`grid size-5 shrink-0 place-items-center rounded-full text-brand-ink/40 transition-colors hover:text-brand-ink/80 focus-visible:text-brand-ink/80 ${className}`}
+        // El icono mide 20 px; el pseudoelemento amplía la zona táctil sin
+        // descolocar la fila del rótulo.
+        className={`relative grid size-5 shrink-0 place-items-center rounded-full text-brand-ink/75 transition-colors after:absolute after:-inset-3 after:content-[''] hover:text-brand-ink focus-visible:text-brand-ink ${className}`}
       >
         <IconInfo className="size-4" />
       </button>

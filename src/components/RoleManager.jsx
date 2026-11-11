@@ -147,7 +147,7 @@ export function RoleManager({ currentEmail }) {
       </form>
 
       {error ? (
-        <p role="alert" className="text-sm font-semibold text-red-600">
+        <p role="alert" className="text-sm font-semibold text-red-700">
           {error}
         </p>
       ) : null}
@@ -171,7 +171,7 @@ export function RoleManager({ currentEmail }) {
           </li>
         </ul>
       ) : people.length === 0 ? (
-        <p className="text-sm text-brand-ink/65">
+        <p className="text-sm text-brand-ink/75">
           Todavía no hay nadie con acceso.
         </p>
       ) : (
@@ -188,8 +188,8 @@ export function RoleManager({ currentEmail }) {
                 <p
                   className={`text-xs ${
                     person.role === REVOKED
-                      ? 'font-semibold text-red-600'
-                      : 'text-brand-ink/65'
+                      ? 'font-semibold text-red-700'
+                      : 'text-brand-ink/75'
                   }`}
                 >
                   {person.role === REVOKED
@@ -198,7 +198,7 @@ export function RoleManager({ currentEmail }) {
                 </p>
               </div>
               {person.email === currentEmail ? (
-                <span className="shrink-0 text-xs font-semibold text-brand-ink/65">
+                <span className="shrink-0 text-xs font-semibold text-brand-ink/75">
                   Tu cuenta
                 </span>
               ) : person.role === REVOKED ? null : (
@@ -207,7 +207,7 @@ export function RoleManager({ currentEmail }) {
                   disabled={Boolean(busy)}
                   aria-busy={busy === person.email || undefined}
                   onClick={() => handleRemove(person.email)}
-                  className="-mr-3 inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50/80 disabled:opacity-50"
+                  className="-mr-3 inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50/80 disabled:opacity-50 max-lg:min-h-11"
                 >
                   {busy === person.email ? (
                     <Spinner className="size-4" />

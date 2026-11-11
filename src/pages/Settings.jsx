@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useApp } from '../store/useApp.js'
 import { can } from '../lib/roles.js'
-import { storage } from '../lib/storage/index.js'
+import { isPersistenceShared, storage } from '../lib/storage/index.js'
+import { urlIssue } from '../lib/urls.js'
 import { usingFallbackDomain } from '../lib/shortUrl.js'
 import { isAuthEnabled } from '../lib/auth.js'
 import { ALLOWED_DOMAIN } from '../lib/config.js'
@@ -14,6 +15,8 @@ import {
   Input,
   PageHeader,
 } from '../components/ui.jsx'
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
+import { DestinationField } from '../components/DestinationField.jsx'
 import { RoleManager } from '../components/RoleManager.jsx'
 
 export function Settings() {
@@ -23,6 +26,8 @@ export function Settings() {
   const [saved, setSaved] = useState(false)
   const [seeded, setSeeded] = useState(0)
   const [clearing, setClearing] = useState(false)
+  const [confirmingClear, setConfirmingClear] = useState(false)
+  const [attempted, setAttempted] = useState(false)
 
   function patch(next) {
     setDraft((current) => ({ ...current, ...next }))
@@ -31,7 +36,11 @@ export function Settings() {
 
   function handleSave(event) {
     event.preventDefault()
-    saveSettings(draft)
+    if (urlIssue(draft.deprecatedUrl)) {
+      setAttempted(true)
+      return
+    }
+    saveSettings({ ...draft, deprecatedUrl: draft.deprecatedUrl.trim() })
     setSaved(true)
   }
 
@@ -46,7 +55,7 @@ export function Settings() {
       ) : null}
 
       <Card>
-        <form onSubmit={handleSave} className="space-y-4">
+        <form noValidate onSubmit={handleSave} className="space-y-4">
           <Field label="Nombre de la organización">
             <Input
               value={draft.orgName}
@@ -54,23 +63,22 @@ export function Settings() {
               onChange={(event) => patch({ orgName: event.target.value })}
             />
           </Field>
-          <Field
-            label="Página para códigos deprecados"
-            hint="Adónde llevan los QR en estado Deprecado."
-          >
-            <Input
-              type="url"
-              value={draft.deprecatedUrl}
-              disabled={!allowed}
-              onChange={(event) => patch({ deprecatedUrl: event.target.value })}
-              placeholder="https://clases.edu.sv/edicion-actualizada"
-            />
-          </Field>
+          <DestinationField
+            label="Página para códigos retirados"
+            hint="Adónde lleva un código cuando lo retiras. Sin ella no se puede retirar ninguno."
+            value={draft.deprecatedUrl}
+            disabled={!allowed}
+            showError={attempted}
+            onChange={(deprecatedUrl) => patch({ deprecatedUrl })}
+            placeholder="https://clases.edu.sv/edicion-actualizada"
+          />
           {allowed ? (
             <div className="flex flex-wrap items-center gap-3">
               <Button type="submit">Guardar</Button>
               {saved ? (
-                <span className="text-sm text-brand-primary">Guardado</span>
+                <span className="text-sm text-brand-primary-deep">
+                  Guardado
+                </span>
               ) : null}
             </div>
           ) : null}
@@ -111,7 +119,9 @@ export function Settings() {
 
       {allowed ? <RoleManager currentEmail={session?.email} /> : null}
 
-      {allowed ? (
+      {/* Solo sin Firestore: con la base compartida, los datos de ejemplo se
+          mezclarían con los reales y borrar vaciaría la base de todo el equipo. */}
+      {allowed && !isPersistenceShared ? (
         <Card className="space-y-3">
           <CardTitle info="Un proyecto con cinco recursos y treinta días de escaneos simulados, para revisar la analítica. Se guarda solo en este navegador.">
             Datos de demostración
@@ -124,7 +134,7 @@ export function Settings() {
               Generar datos de ejemplo
             </Button>
             {seeded ? (
-              <span className="text-sm text-brand-primary">
+              <span className="text-sm text-brand-primary-deep">
                 +{seeded} escaneos
               </span>
             ) : null}
@@ -132,23 +142,43 @@ export function Settings() {
         </Card>
       ) : null}
 
-      {allowed ? (
-        <Card className="space-y-3">
-          <CardTitle info="Borra proyectos, códigos y escaneos guardados en este navegador. No se puede deshacer.">
-            <span className="text-red-700">Zona de riesgo</span>
-          </CardTitle>
+      {allowed && !isPersistenceShared ? (
+        <Card className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1 basis-56">
+            <h2 className="font-semibold text-red-700">Zona de riesgo</h2>
+            <p className="text-sm text-brand-ink/75">
+              Vacía los proyectos, códigos y escaneos de este navegador.
+            </p>
+          </div>
           <Button
             variant="danger"
             loading={clearing}
-            onClick={async () => {
-              setClearing(true)
-              await storage.clear()
-              window.location.reload()
-            }}
+            onClick={() => setConfirmingClear(true)}
           >
             {clearing ? 'Borrando…' : 'Borrar datos locales'}
           </Button>
         </Card>
+      ) : null}
+
+      {confirmingClear ? (
+        <ConfirmDialog
+          title="¿Borrar los datos de este navegador?"
+          confirmLabel="Borrar datos"
+          cancelLabel="Conservar"
+          tone="danger"
+          onConfirm={async () => {
+            setConfirmingClear(false)
+            setClearing(true)
+            await storage.clear()
+            window.location.reload()
+          }}
+          onCancel={() => setConfirmingClear(false)}
+        >
+          <p>
+            Se perderán todos los proyectos, códigos y escaneos guardados aquí.
+            No se puede deshacer.
+          </p>
+        </ConfirmDialog>
       ) : null}
     </div>
   )
