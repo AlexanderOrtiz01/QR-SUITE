@@ -14,6 +14,7 @@ const KEYS = {
   scans: 'qrsuite:scans',
   settings: 'qrsuite:settings',
   roles: 'qrsuite:roles',
+  roleChecks: 'qrsuite:role-checks',
 }
 
 function read(key, fallback) {
@@ -73,6 +74,23 @@ export const localAdapter = {
       { email, role: REVOKED, updated_at: new Date().toISOString() },
       ...others,
     ])
+  },
+
+  async saveRoleCheck(check) {
+    const others = read(KEYS.roleChecks, []).filter(
+      (item) => item.email !== check.email,
+    )
+    write(KEYS.roleChecks, [check, ...others])
+  },
+
+  async getRoleCheck(email) {
+    return (
+      read(KEYS.roleChecks, []).find((item) => item.email === email) || null
+    )
+  },
+
+  async listRoleChecks() {
+    return read(KEYS.roleChecks, [])
   },
 
   async addProject(project) {

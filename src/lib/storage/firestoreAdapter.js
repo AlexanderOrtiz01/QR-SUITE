@@ -128,6 +128,23 @@ export const firestoreAdapter = {
     })
   },
 
+  /**
+   * Resultado de la prueba automática de permisos. Cada cuenta guarda solo el
+   * suyo; el administrador los lee todos como evidencia de cada rol.
+   */
+  async saveRoleCheck(check) {
+    await setDoc(doc(db, 'role_checks', check.email), check)
+  },
+
+  async getRoleCheck(email) {
+    const snapshot = await getDoc(doc(db, 'role_checks', email))
+    return snapshot.exists() ? snapshot.data() : null
+  },
+
+  async listRoleChecks() {
+    return docsOf(await getDocs(collection(db, 'role_checks')))
+  },
+
   async addProject(project) {
     await setDoc(doc(db, 'projects', project.id), project)
   },

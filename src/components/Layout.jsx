@@ -1,11 +1,11 @@
-import { Suspense, useEffect, useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useApp } from '../store/useApp.js'
 import { Footer } from './Footer.jsx'
 import { PageSkeleton, Picture, Spinner } from './ui.jsx'
 import { InfoTip, Tooltip } from './Tooltip.jsx'
 import { preloadPanelPages } from '../pages/routes.js'
-import { ROLES } from '../lib/roles.js'
+import { ROLES, can } from '../lib/roles.js'
 import { isPersistenceShared } from '../lib/storage/index.js'
 import {
   IconChart,
@@ -19,19 +19,34 @@ import {
   IconMenu,
   IconQrPlus,
   IconSettings,
+  IconShieldCheck,
 } from './icons.jsx'
 
 const NAV = [
-  { to: '/', label: 'Dashboard', end: true, Icon: IconDashboard },
-  { to: '/estudio', label: 'Crear QR', Icon: IconQrPlus },
+  { to: '/', label: 'Inicio', end: true, Icon: IconDashboard },
+  { to: '/estudio', label: 'Crear QR', Icon: IconQrPlus, requires: 'qr:write' },
   { to: '/proyectos', label: 'Proyectos', Icon: IconFolder },
   { to: '/codigos', label: 'Códigos QR', Icon: IconList },
-  { to: '/importar', label: 'Importar', Icon: IconImport },
+  {
+    to: '/importar',
+    label: 'Importar',
+    Icon: IconImport,
+    requires: 'qr:write',
+  },
   { to: '/analitica', label: 'Analítica', Icon: IconChart },
   { to: '/ajustes', label: 'Ajustes', Icon: IconSettings },
+  { to: '/pruebas-roles', label: 'Pruebas de roles', Icon: IconShieldCheck },
 ]
 
 const COLLAPSE_KEY = 'qrsuite:sidebar-collapsed'
+
+/** Valor por defecto de `orgName`: es un marcador, no un dato que mostrar. */
+const ORG_PLACEHOLDER = 'Organización'
+
+function pageTitle(pathname) {
+  if (pathname.startsWith('/codigos/')) return 'Ficha del código'
+  return NAV.find((item) => item.to === pathname)?.label || 'Panel'
+}
 
 function readCollapsed() {
   try {
@@ -42,14 +57,62 @@ function readCollapsed() {
 }
 
 export function Layout() {
-  const { session, signOut, settings, saving } = useApp()
+  const { session, signOut, settings, saving, notice } = useApp()
+  const { pathname } = useLocation()
   const [signingOut, setSigningOut] = useState(false)
+  const mainRef = useRef(null)
+  const menuButtonRef = useRef(null)
+  const closeButtonRef = useRef(null)
+  const firstRoute = useRef(true)
+  const orgName = settings.orgName === ORG_PLACEHOLDER ? '' : settings.orgName
+  const title = pageTitle(pathname)
+  const nav = NAV.filter(
+    (item) => !item.requires || can(session?.role, item.requires),
+  )
 
   useEffect(() => preloadPanelPages(), [])
   // Plegado en escritorio; el cajón móvil es un estado aparte porque se
   // comporta distinto: allí el menú se superpone en vez de estrechar.
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Cada página tiene su título, empieza arriba y recibe el foco: sin esto, un
+  // lector de pantalla no se entera de que ha cambiado de pantalla.
+  useEffect(() => {
+    document.title = `${title} · QR Suite`
+    if (firstRoute.current) {
+      firstRoute.current = false
+      return
+    }
+    window.scrollTo(0, 0)
+    mainRef.current?.focus({ preventScroll: true })
+  }, [pathname, title])
+
+  useEffect(
+    () => () => {
+      document.title = 'QR Suite'
+    },
+    [],
+  )
+
+  function closeMobile() {
+    setMobileOpen(false)
+    menuButtonRef.current?.focus()
+  }
+
+  // El cajón abierto se comporta como un diálogo: el foco entra y Esc lo cierra.
+  useEffect(() => {
+    if (!mobileOpen) return undefined
+    closeButtonRef.current?.focus()
+    function onKeyDown(event) {
+      if (event.key === 'Escape') {
+        setMobileOpen(false)
+        menuButtonRef.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [mobileOpen])
 
   function toggleCollapsed() {
     setCollapsed((current) => {
@@ -80,19 +143,34 @@ export function Layout() {
 
   return (
     <div className="min-h-dvh text-brand-ink">
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-brand-primary-deep"
+      >
+        Saltar al contenido
+      </a>
+      <p className="sr-only" role="status" aria-live="polite">
+        {title}
+      </p>
+
       {mobileOpen ? (
         <button
           type="button"
           aria-label="Cerrar menú"
-          onClick={() => setMobileOpen(false)}
+          onClick={closeMobile}
           className="fixed inset-0 z-30 bg-brand-deep/25 backdrop-blur-sm lg:hidden"
         />
       ) : null}
 
       <aside
         data-velo
-        className={`glass-thick fixed top-3 bottom-3 left-3 z-40 flex w-60 flex-col overflow-hidden rounded-[1.75rem] text-brand-ink transition-[width,transform] duration-300 ease-ios ${asideWidth} ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)]'
+        // Cerrado en móvil queda además `invisible`: solo apartarlo de la pantalla
+        // dejaría sus enlaces en el orden de tabulación. La visibilidad se anima
+        // solo al cerrar, para que el contenido no desaparezca antes de salir.
+        className={`glass-thick fixed top-3 bottom-3 left-3 z-40 flex print:hidden w-60 flex-col overflow-hidden rounded-[1.75rem] text-brand-ink duration-300 ease-ios ${asideWidth} ${
+          mobileOpen
+            ? 'translate-x-0 transition-[width,transform]'
+            : '-translate-x-[calc(100%+1rem)] transition-[width,transform,visibility] max-lg:invisible'
         } lg:translate-x-0`}
       >
         <div className="px-3 py-4">
@@ -114,9 +192,10 @@ export function Layout() {
             </button>
             <button
               type="button"
-              onClick={() => setMobileOpen(false)}
+              ref={closeButtonRef}
+              onClick={closeMobile}
               aria-label="Cerrar menú"
-              className="rounded-full p-2 text-brand-ink/70 transition-colors hover:bg-white/70 hover:text-brand-ink lg:hidden"
+              className="rounded-full p-3 text-brand-ink/70 transition-colors hover:bg-white/70 hover:text-brand-ink lg:hidden"
             >
               <IconClose className="size-5" />
             </button>
@@ -134,15 +213,15 @@ export function Layout() {
             />
             <div className={`mt-2 w-full ${collapsed ? 'lg:hidden' : ''}`}>
               <p className="text-lg font-bold tracking-tight">QR Suite</p>
-              <p className="truncate text-xs text-brand-ink/60">
-                {settings.orgName}
-              </p>
+              {orgName ? (
+                <p className="truncate text-xs text-brand-ink/75">{orgName}</p>
+              ) : null}
             </div>
           </div>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Tooltip
               key={item.to}
               content={collapsed ? item.label : null}
@@ -155,7 +234,7 @@ export function Layout() {
                 onClick={() => setMobileOpen(false)}
                 aria-label={collapsed ? item.label : undefined}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-full px-3.5 py-2.5 text-sm font-semibold transition-[background-color,color,transform] duration-200 ease-ios active:scale-[0.97] ${
+                  `flex items-center gap-3 rounded-full px-3.5 py-2.5 text-sm font-semibold transition-[background-color,color,transform] duration-200 ease-ios active:scale-[0.97] max-lg:min-h-11 ${
                     isActive
                       ? 'glass-tint text-white'
                       : 'border border-transparent text-brand-ink/75 hover:bg-white/70 hover:text-brand-ink'
@@ -178,7 +257,7 @@ export function Layout() {
                 <p className="truncate text-xs font-semibold">
                   {session.email}
                 </p>
-                <p className="text-xs text-brand-ink/65">
+                <p className="text-xs text-brand-ink/75">
                   {ROLES[session.role]?.label}
                 </p>
               </div>
@@ -194,7 +273,7 @@ export function Layout() {
                 disabled={signingOut}
                 aria-busy={signingOut || undefined}
                 aria-label={collapsed ? 'Cerrar sesión' : undefined}
-                className={`glass-well flex w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition-[background-color,transform] duration-200 ease-ios hover:bg-white active:scale-[0.97] disabled:cursor-progress ${
+                className={`glass-well flex w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-semibold transition-[background-color,transform] duration-200 ease-ios hover:bg-white active:scale-[0.97] disabled:cursor-progress max-lg:min-h-11 ${
                   collapsed ? 'lg:px-0' : ''
                 }`}
               >
@@ -213,18 +292,19 @@ export function Layout() {
       </aside>
 
       <div
-        className={`flex min-h-dvh flex-col transition-[padding] duration-300 ease-ios ${contentOffset}`}
+        className={`flex min-h-dvh flex-col transition-[padding] duration-300 ease-ios ${contentOffset} print:pl-0`}
       >
         <header
           data-velo
-          className="glass-thick sticky top-3 z-20 mx-3 mt-3 flex items-center gap-3 rounded-full py-2 pr-5 pl-2 lg:hidden"
+          className="glass-thick sticky top-3 z-20 mx-3 mt-3 flex items-center gap-3 rounded-full py-2 pr-5 pl-2 lg:hidden print:hidden"
         >
           <button
             type="button"
+            ref={menuButtonRef}
             onClick={() => setMobileOpen(true)}
             aria-label="Abrir menú"
             aria-expanded={mobileOpen}
-            className="rounded-full p-2.5 transition-colors hover:bg-white/70"
+            className="rounded-full p-3 transition-colors hover:bg-white/70"
           >
             <IconMenu className="size-5" />
           </button>
@@ -237,16 +317,16 @@ export function Layout() {
           />
           <div className="min-w-0">
             <p className="leading-tight font-bold tracking-tight">QR Suite</p>
-            <p className="truncate text-xs text-brand-ink/60">
-              {settings.orgName}
-            </p>
+            {orgName ? (
+              <p className="truncate text-xs text-brand-ink/75">{orgName}</p>
+            ) : null}
           </div>
         </header>
 
         {!isPersistenceShared ? (
           <div
             data-velo
-            className="mx-auto flex w-full max-w-7xl justify-end px-4 pt-4 sm:px-6"
+            className="mx-auto flex w-full max-w-7xl justify-end px-4 pt-4 sm:px-6 print:hidden"
           >
             <p className="glass flex items-center gap-1.5 rounded-full py-1 pr-1.5 pl-3 text-xs font-semibold text-brand-ink/80">
               Modo local
@@ -259,8 +339,11 @@ export function Layout() {
         ) : null}
 
         <main
+          ref={mainRef}
+          id="contenido"
+          tabIndex={-1}
           data-velo
-          className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6"
+          className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 outline-none sm:px-6"
         >
           {/* Solo cambia el contenido: menú y pie se quedan mientras llega la
               página, que es lo que hace que la navegación no parpadee. */}
@@ -284,6 +367,26 @@ export function Layout() {
           </p>
         </div>
       ) : null}
+
+      {/* Resultado de una acción. Va arriba del aviso de guardado: si ambos
+          coinciden, este es el que importa. */}
+      <div aria-live="polite" className="contents print:hidden">
+        {notice ? (
+          <div
+            key={notice.id}
+            role={notice.tone === 'error' ? 'alert' : undefined}
+            className="glass-thick fixed bottom-4 left-1/2 z-30 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-3xl [animation:aviso-entra_.3s_var(--ease-ios)_both]"
+          >
+            <p
+              className={`px-4 py-2.5 text-sm font-semibold ${
+                notice.tone === 'error' ? 'text-red-700' : 'text-brand-ink'
+              }`}
+            >
+              {notice.text}
+            </p>
+          </div>
+        ) : null}
+      </div>
     </div>
   )
 }
