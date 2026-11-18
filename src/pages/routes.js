@@ -16,7 +16,6 @@ const PANEL = {
   Import: () => import('./Import.jsx'),
   Analytics: () => import('./Analytics.jsx'),
   Settings: () => import('./Settings.jsx'),
-  RoleTests: () => import('./RoleTests.jsx'),
 }
 
 const PUBLIC = {
@@ -38,7 +37,6 @@ export const QrDetail = page(PANEL, 'QrDetail')
 export const Import = page(PANEL, 'Import')
 export const Analytics = page(PANEL, 'Analytics')
 export const Settings = page(PANEL, 'Settings')
-export const RoleTests = page(PANEL, 'RoleTests')
 export const Login = page(PUBLIC, 'Login')
 export const Redirect = page(PUBLIC, 'Redirect')
 export const Privacy = page(PUBLIC, 'Privacy')

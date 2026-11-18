@@ -19,7 +19,6 @@ import {
   IconMenu,
   IconQrPlus,
   IconSettings,
-  IconShieldCheck,
 } from './icons.jsx'
 
 const NAV = [
@@ -35,7 +34,6 @@ const NAV = [
   },
   { to: '/analitica', label: 'Analítica', Icon: IconChart },
   { to: '/ajustes', label: 'Ajustes', Icon: IconSettings },
-  { to: '/pruebas-roles', label: 'Pruebas de roles', Icon: IconShieldCheck },
 ]
 
 const COLLAPSE_KEY = 'qrsuite:sidebar-collapsed'
