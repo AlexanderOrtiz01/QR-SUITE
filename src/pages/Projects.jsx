@@ -23,6 +23,9 @@ export function Projects() {
   const [name, setName] = useState('')
   const [department, setDepartment] = useState('')
   const [pendingDelete, setPendingDelete] = useState(null)
+  // El alta queda plegada tras un botón; sin proyectos se muestra directamente.
+  const [formOpen, setFormOpen] = useState(false)
+  const showForm = allowed && (formOpen || projects.length === 0)
   const pendingCodes = pendingDelete
     ? qrs.filter((qr) => qr.project_id === pendingDelete.id)
     : []
@@ -49,17 +52,29 @@ export function Projects() {
     )
     setName('')
     setDepartment('')
+    setFormOpen(false)
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Proyectos"
         info="Un proyecto agrupa los códigos de un libro o asignatura."
-      />
+      >
+        {allowed && projects.length > 0 ? (
+          <Button
+            variant={formOpen ? 'secondary' : 'primary'}
+            aria-expanded={formOpen}
+            aria-controls="nuevo-proyecto"
+            onClick={() => setFormOpen((open) => !open)}
+          >
+            {formOpen ? 'Cancelar' : 'Nuevo proyecto'}
+          </Button>
+        ) : null}
+      </PageHeader>
 
-      {allowed ? (
-        <Card>
+      {showForm ? (
+        <Card id="nuevo-proyecto">
           <form
             onSubmit={handleSubmit}
             className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
@@ -69,6 +84,7 @@ export function Projects() {
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Matemáticas 1.º Bachillerato"
+                autoFocus={formOpen}
                 required
               />
             </Field>
@@ -89,8 +105,8 @@ export function Projects() {
           title="Todavía no hay proyectos"
           description={
             allowed
-              ? 'Crea el primero con el formulario de arriba: todo código QR pertenece a un proyecto.'
-              : 'Solo un administrador puede crearlos. Pídele que cree el primero para poder añadir códigos.'
+              ? 'Todo código QR pertenece a un proyecto.'
+              : 'Solo un administrador puede crearlos.'
           }
         />
       ) : (
@@ -106,12 +122,14 @@ export function Projects() {
               >
                 <div>
                   <p className="font-medium break-words">{project.name}</p>
-                  <p className="text-sm text-brand-ink/75">
-                    {project.department || 'Sin departamento'}
-                  </p>
                   <Tooltip content={`Creado por ${project.created_by}`}>
-                    <p className="mt-2 text-xs text-brand-ink/75">
-                      {count} {count === 1 ? 'código' : 'códigos'}
+                    <p className="text-sm text-brand-ink/75">
+                      {[
+                        project.department,
+                        `${count} ${count === 1 ? 'código' : 'códigos'}`,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
                     </p>
                   </Tooltip>
                 </div>

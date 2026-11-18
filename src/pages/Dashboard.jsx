@@ -11,11 +11,11 @@ const DAYS = 14
 
 function Stat({ label, value, hint }) {
   return (
-    <Card>
-      <p className="text-sm text-brand-ink/75">{label}</p>
-      <p className="mt-1 text-3xl font-semibold tabular-nums">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-brand-ink/75">{hint}</p> : null}
-    </Card>
+    <div className="min-w-0 px-3 first:pl-0 last:pr-0 sm:px-5">
+      <dt className="text-sm text-brand-ink/75">{label}</dt>
+      <dd className="mt-1 text-3xl font-semibold tabular-nums">{value}</dd>
+      {hint ? <dd className="mt-1 text-xs text-brand-ink/75">{hint}</dd> : null}
+    </div>
   )
 }
 
@@ -50,7 +50,7 @@ export function Dashboard() {
   const periodScans = trend.reduce((sum, day) => sum + day.value, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Inicio">
         {canCreate ? (
           <Link to="/estudio">
@@ -59,29 +59,33 @@ export function Dashboard() {
         ) : null}
       </PageHeader>
 
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <Stat label="Proyectos" value={projects.length} />
-        <Stat
-          label="Códigos QR"
-          value={qrs.length}
-          hint={[
-            `${published} ${published === 1 ? 'publicado' : 'publicados'}`,
-            retired
-              ? `${retired} ${retired === 1 ? 'retirado' : 'retirados'}`
-              : null,
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        />
-        <Stat label="Escaneos totales" value={totalScans} />
-        <Stat label="Borradores" value={drafts} />
-      </div>
+      <Card>
+        <dl className="grid grid-cols-3 divide-x divide-brand-ink/8">
+          <Stat label="Proyectos" value={projects.length} />
+          <Stat
+            label="Códigos QR"
+            value={qrs.length}
+            hint={[
+              `${published} ${published === 1 ? 'publicado' : 'publicados'}`,
+              drafts
+                ? `${drafts} ${drafts === 1 ? 'borrador' : 'borradores'}`
+                : null,
+              retired
+                ? `${retired} ${retired === 1 ? 'retirado' : 'retirados'}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          />
+          <Stat label="Escaneos" value={totalScans} />
+        </dl>
+      </Card>
 
       <Card className="space-y-3">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-semibold">
             Últimos 14 días{' '}
-            <span className="ml-1 text-brand-ink/75 tabular-nums">
+            <span className="ml-1 font-normal text-brand-ink/75 tabular-nums">
               {periodScans}
             </span>
           </h2>
@@ -106,7 +110,7 @@ export function Dashboard() {
             title={
               canCreate ? 'Crea tu primer código QR' : 'Todavía no hay códigos'
             }
-            description="Cada código impreso lleva a una URL corta: su destino se puede cambiar cuando haga falta, sin reimprimir el libro."
+            description="Su destino se puede cambiar sin reimprimir."
             action={
               canCreate ? (
                 <Link to="/estudio">

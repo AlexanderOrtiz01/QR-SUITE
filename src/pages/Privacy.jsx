@@ -55,99 +55,85 @@ export function Privacy() {
           <Section title="Qué es esta plataforma">
             <p>
               QR Suite genera y administra códigos QR para material educativo
-              impreso. Cada código apunta a una dirección corta que puede
-              redirigirse a otro destino sin reimprimir el libro, y la
-              plataforma registra cuántas veces se escanea cada uno.
+              impreso. Cada código usa una dirección corta cuyo destino puede
+              cambiarse sin reimprimir, y se cuenta cuántas veces se escanea.
             </p>
           </Section>
 
-          <Section title="Datos de las personas que administran">
+          <Section title="Datos de quien administra">
             <p>
-              Para entrar al panel se usa una cuenta de Google del dominio
-              institucional <strong>@{ALLOWED_DOMAIN}</strong>. De esa cuenta se
-              guarda:
+              Se entra con una cuenta de Google{' '}
+              <strong>@{ALLOWED_DOMAIN}</strong>. Se guarda:
             </p>
             <ul className="list-disc space-y-1 pl-5">
-              <li>La dirección de correo electrónico.</li>
-              <li>El nombre que muestra la cuenta de Google.</li>
-              <li>El rol asignado dentro de la plataforma.</li>
+              <li>El correo electrónico.</li>
+              <li>El nombre de la cuenta de Google.</li>
+              <li>El rol dentro de la plataforma.</li>
             </ul>
             <p>
-              No se guarda la contraseña: la autenticación la realiza Google y
-              la plataforma nunca la recibe.
+              La contraseña nunca llega a la plataforma: la autenticación la
+              hace Google.
             </p>
           </Section>
 
-          <Section title="Datos de quien escanea un código">
-            <p>
-              Al abrir un código QR se registra el evento para medir el uso de
-              los recursos. De cada escaneo se guarda:
-            </p>
+          <Section title="Datos de quien escanea">
+            <p>Cada escaneo se registra para medir el uso. Se guarda:</p>
             <ul className="list-disc space-y-1 pl-5">
               <li>La fecha y la hora.</li>
               <li>El código escaneado.</li>
-              <li>El sistema operativo y el navegador detectados.</li>
+              <li>El sistema operativo y el navegador.</li>
               <li>
                 La cadena de identificación del navegador (<em>user agent</em>).
               </li>
             </ul>
             <p>
-              No se pide ni se guarda ningún dato que identifique a la persona:
-              ni nombre, ni correo, ni ubicación, ni dirección IP. Las cifras se
-              usan de forma agregada, para saber qué materiales se consultan
-              más.
+              No se guarda nombre, correo, ubicación ni dirección IP. Las cifras
+              se usan solo de forma agregada.
             </p>
           </Section>
 
           <Section title="Dónde se guardan">
             <p>
-              Los datos se almacenan en Cloud Firestore, el servicio de bases de
-              datos de Google Cloud, en servidores ubicados en Estados Unidos.
-              El acceso está restringido por reglas de seguridad: sin una cuenta
-              autorizada del dominio institucional no se puede consultar ninguna
-              información del panel.
+              En Cloud Firestore (Google Cloud), con servidores en Estados
+              Unidos. Las reglas de seguridad solo dejan consultar el panel con
+              una cuenta autorizada del dominio institucional.
             </p>
           </Section>
 
           <Section title="Con quién se comparten">
             <p>
-              Con nadie. No se venden, no se ceden a terceros y no se usan con
-              fines publicitarios. Tampoco se emplean cookies de seguimiento ni
-              herramientas de analítica externas.
+              Con nadie. No se venden, no se ceden a terceros ni se usan con
+              fines publicitarios. No hay cookies de seguimiento ni analítica
+              externa.
             </p>
           </Section>
 
           <Section title="Cuánto tiempo se conservan">
             <p>
-              Los registros de escaneo se conservan mientras el código
-              correspondiente siga activo. Al eliminar un código o un proyecto
-              se borran también sus registros asociados.
+              Los escaneos se conservan mientras su código siga activo. Al
+              eliminar un código o un proyecto se borran también sus registros.
             </p>
           </Section>
 
           <Section title="Tus derechos">
             <p>
-              Puedes solicitar que se consulte, corrija o elimine la información
-              asociada a tu cuenta administradora, así como retirar tu acceso a
-              la plataforma.
+              Puedes pedir que se consulte, corrija o elimine la información de
+              tu cuenta administradora, o que se retire tu acceso.{' '}
+              {CONTACT_EMAIL ? (
+                <>
+                  Escribe a{' '}
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}`}
+                    className="font-semibold text-brand-primary-deep underline underline-offset-4"
+                  >
+                    {CONTACT_EMAIL}
+                  </a>
+                  .
+                </>
+              ) : (
+                'Dirígete a la persona responsable de la plataforma en la institución.'
+              )}
             </p>
-            {CONTACT_EMAIL ? (
-              <p>
-                Para hacerlo, escribe a{' '}
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="font-semibold text-brand-primary-deep underline underline-offset-4"
-                >
-                  {CONTACT_EMAIL}
-                </a>
-                .
-              </p>
-            ) : (
-              <p>
-                Para hacerlo, dirígete a la persona responsable de la plataforma
-                dentro de la institución.
-              </p>
-            )}
           </Section>
         </div>
       </main>

@@ -69,16 +69,14 @@ export function Sparkline({ data, height = 90 }) {
         />
       </svg>
 
-      {data.map((day, index) => (
+      {/* Solo el punto activo: un punto por día recarga la curva. */}
+      {point ? (
         <span
-          key={day.label}
           aria-hidden="true"
-          className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-primary transition-[width,height,box-shadow] duration-150 ${
-            active === index ? 'size-2.5 ring-2 ring-white' : 'size-1'
-          }`}
-          style={{ left: `${x(index)}%`, top: y(day.value) }}
+          className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-primary ring-2 ring-white"
+          style={{ left: `${x(active)}%`, top: y(point.value) }}
         />
-      ))}
+      ) : null}
 
       {/* Franjas invisibles que reciben el puntero, una por día. */}
       <div className="absolute inset-0 flex">

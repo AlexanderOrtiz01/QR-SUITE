@@ -1,9 +1,15 @@
 import { useState } from 'react'
 import { exportQr, mmToPx } from '../lib/qr.js'
 import { printMetrics } from '../lib/legibility.js'
-import { Button, Field, Input, Select } from './ui.jsx'
+import { Button, Field, Input } from './ui.jsx'
 import { IconAlert, IconDownload } from './icons.jsx'
 import { InfoTip } from './Tooltip.jsx'
+
+const RESOLUTIONS = [
+  { value: 300, label: '300 DPI (imprenta)' },
+  { value: 150, label: '150 DPI' },
+  { value: 72, label: '72 DPI (pantalla)' },
+]
 
 const FORMATS = [
   { id: 'svg', label: 'SVG' },
@@ -45,12 +51,12 @@ export function ExportPanel({
     }
   }
 
-  // El panel vive tanto en la columna ancha del estudio como en la lateral de
-  // la ficha, así que se adapta al ancho de su contenedor y no al de la
-  // pantalla: en la columna lateral los campos y botones van uno bajo otro.
+  // A la vista, lo que se decide casi siempre: el tamaño y el formato. La
+  // resolución (casi siempre la de imprenta) va como un selector discreto en
+  // la línea de la medida resultante.
   return (
-    <div className="@container space-y-4">
-      <div className="grid gap-3 @md:grid-cols-2">
+    <div className="space-y-4">
+      <div className="space-y-2">
         <Field
           label="Tamaño impreso (mm)"
           hint={`Mínimo para papel: ${print.minSizeMm} mm.`}
@@ -65,16 +71,31 @@ export function ExportPanel({
             onChange={(event) => setSizeMm(Number(event.target.value) || 10)}
           />
         </Field>
-        <Field label="Resolución">
-          <Select
+
+        <div className="flex flex-wrap items-center gap-x-1.5 text-xs text-brand-ink/75">
+          <span className="tabular-nums">
+            {mmToPx(sizeMm, dpi)} × {mmToPx(sizeMm, dpi)} px a
+          </span>
+          <select
+            aria-label="Resolución"
             value={dpi}
             onChange={(event) => setDpi(Number(event.target.value))}
+            className="rounded-lg bg-transparent py-1 font-semibold text-brand-ink/80 outline-none hover:bg-brand-ink/5 focus-visible:ring-2 focus-visible:ring-brand-primary/30 max-lg:min-h-11"
           >
-            <option value={300}>300 DPI (imprenta)</option>
-            <option value={150}>150 DPI</option>
-            <option value={72}>72 DPI (pantalla)</option>
-          </Select>
-        </Field>
+            {RESOLUTIONS.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+          <InfoTip label="Sobre la medida y los formatos">
+            La medida es la del código en sí; con marco, el archivo es mayor.
+            {style.frame === 'none' && print.quietZoneMm > 0
+              ? ` Al maquetar, deja ${print.quietZoneMm.toFixed(1)} mm libres alrededor.`
+              : ''}{' '}
+            ¿EPS? Abre el SVG en Illustrator y guárdalo como EPS.
+          </InfoTip>
+        </div>
       </div>
 
       {tooSmall ? (
@@ -88,19 +109,6 @@ export function ExportPanel({
           </span>
         </p>
       ) : null}
-
-      <div className="flex items-center gap-1.5 text-xs text-brand-ink/75">
-        <span className="tabular-nums">
-          {mmToPx(sizeMm, dpi)} × {mmToPx(sizeMm, dpi)} px
-        </span>
-        <InfoTip label="Sobre la medida y los formatos">
-          La medida es la del código en sí; con marco, el archivo es mayor.
-          {style.frame === 'none' && print.quietZoneMm > 0
-            ? ` Al maquetar, deja ${print.quietZoneMm.toFixed(1)} mm libres alrededor.`
-            : ''}{' '}
-          ¿EPS? Abre el SVG en Illustrator y guárdalo como EPS.
-        </InfoTip>
-      </div>
 
       {/* Tres formatos con el mismo peso salvo el SVG, el de imprenta. Caben
           en una fila incluso en la columna lateral. */}
@@ -133,8 +141,7 @@ export function ExportPanel({
 
       {failed ? (
         <p role="alert" className="text-xs font-semibold text-red-700">
-          No se pudo generar el archivo. Inténtalo de nuevo o prueba con otro
-          formato.
+          No se pudo generar el archivo. Inténtalo de nuevo o con otro formato.
         </p>
       ) : null}
     </div>

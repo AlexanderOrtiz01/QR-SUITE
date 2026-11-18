@@ -78,7 +78,7 @@ export function TestDestinationField({
         onClick={() => setOpen(true)}
         className="text-sm font-semibold text-brand-primary-deep underline-offset-2 hover:underline max-lg:min-h-11"
       >
-        Añadir un destino de prueba
+        Añadir destino de prueba
       </button>
     )
   }
@@ -86,7 +86,7 @@ export function TestDestinationField({
   return (
     <DestinationField
       label="Destino de prueba (opcional)"
-      hint="Mientras el código sea un borrador, lleva aquí en lugar de al destino final."
+      hint="Mientras sea borrador, el código lleva aquí."
       value={value}
       onChange={onChange}
       disabled={disabled}

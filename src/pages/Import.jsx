@@ -63,13 +63,21 @@ function titleFromFile(name) {
 }
 
 const CHIP_TONES = {
-  listo: 'bg-brand-primary/10 text-brand-primary-deep',
   leyendo: 'bg-brand-ink/6 text-brand-ink/75',
   ilegible: 'bg-red-50 text-red-700',
 }
 
 function StateChip({ state }) {
   const meta = ENTRY_STATES[state]
+  // «Listo» es lo normal: basta una marca, sin etiqueta que repita la fila.
+  if (state === 'listo') {
+    return (
+      <span className="grid size-5 shrink-0 place-items-center text-brand-primary">
+        <IconCheck className="size-4" strokeWidth="2.4" />
+        <span className="sr-only">{meta.label}</span>
+      </span>
+    )
+  }
   return (
     <span className="flex shrink-0 items-center gap-1">
       <span
@@ -82,6 +90,36 @@ function StateChip({ state }) {
       </span>
       {meta.hint ? <InfoTip label="Por qué">{meta.hint}</InfoTip> : null}
     </span>
+  )
+}
+
+/** Formatos admitidos y ejemplos, plegados para no estorbar al flujo. */
+function FormatHelp({ source }) {
+  return (
+    <details className="text-sm">
+      <summary className="cursor-pointer font-semibold text-brand-primary-deep max-lg:min-h-11">
+        Formatos y ejemplos
+      </summary>
+      {source === 'imagenes' ? (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-brand-ink/80">
+          <li>
+            Un QR por imagen: el archivo que exportó la otra plataforma, o una
+            foto o captura con el código completo y nítido.
+          </li>
+          <li>Se leen en este equipo: las imágenes no se suben.</li>
+        </ul>
+      ) : (
+        <div className="mt-2 space-y-2 text-brand-ink/80">
+          <p>
+            Un enlace por línea, o dos columnas (título y enlace) pegadas desde
+            una hoja de cálculo o un CSV.
+          </p>
+          <pre className="glass-well overflow-x-auto rounded-xl px-3.5 py-2.5 font-mono text-xs leading-relaxed">
+            {'https://qrco.de/bfK2pQ\nVideo unidad 3\thttps://youtu.be/…'}
+          </pre>
+        </div>
+      )}
+    </details>
   )
 }
 
@@ -231,7 +269,7 @@ export function Import() {
     <div className="space-y-6">
       <PageHeader
         title="Importar códigos"
-        info="Para QR que ya están impresos en los libros y se generaron en otra plataforma. Cada uno queda en el catálogo y recibe una URL corta con el mismo destino."
+        info="Para QR ya impresos que se generaron en otra plataforma. Cada uno recibe una URL corta con el mismo destino."
       />
 
       {!allowed ? (
@@ -240,20 +278,19 @@ export function Import() {
 
       {done ? (
         <Card className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="glass-tint grid size-9 shrink-0 place-items-center rounded-full text-white">
-              <IconCheck className="size-5" strokeWidth="2.4" />
-            </span>
-            <div className="flex items-center gap-1.5">
-              <p className="font-semibold">
-                {done.count}{' '}
-                {done.count === 1 ? 'código importado' : 'códigos importados'}
-              </p>
-              <InfoTip>
-                Cada uno ya tiene su URL corta. En su ficha verás cómo usarla
-                con el QR original.
-              </InfoTip>
-            </div>
+          <div className="flex items-center gap-2">
+            <IconCheck
+              className="size-5 shrink-0 text-brand-primary"
+              strokeWidth="2.4"
+            />
+            <p className="font-semibold">
+              {done.count}{' '}
+              {done.count === 1 ? 'código importado' : 'códigos importados'}
+            </p>
+            <InfoTip>
+              Cada uno ya tiene su URL corta. En su ficha verás cómo usarla con
+              el QR original.
+            </InfoTip>
           </div>
           <Link to={`/codigos?proyecto=${done.projectId}`}>
             <Button variant="secondary">Ver códigos</Button>
@@ -286,14 +323,6 @@ export function Import() {
             <span className="text-sm font-semibold">
               Arrastra las imágenes o haz clic para elegirlas
             </span>
-            <span className="flex items-center gap-1 text-xs text-brand-ink/75">
-              Un QR por imagen
-              <InfoTip>
-                Sirve el archivo que exportó la otra plataforma, o una foto o
-                captura de la página del libro con el código completo y nítido.
-                Se leen en este equipo: las imágenes no se suben.
-              </InfoTip>
-            </span>
             <input
               type="file"
               accept="image/*"
@@ -307,17 +336,12 @@ export function Import() {
           </label>
         ) : (
           <div className="space-y-3">
-            <Field
-              label="Enlaces"
-              hint="Uno por línea. Puedes pegar dos columnas (título y enlace) desde una hoja de cálculo, o abrir un CSV."
-            >
+            <Field label="Enlaces">
               <textarea
                 rows={6}
                 value={text}
                 onChange={(event) => setText(event.target.value)}
-                placeholder={
-                  'https://qrco.de/bfK2pQ\nVideo unidad 3\thttps://youtu.be/…'
-                }
+                placeholder="Un enlace por línea"
                 className="glass-well w-full rounded-xl px-3.5 py-2.5 font-mono text-xs leading-relaxed text-brand-ink outline-none transition-[background-color,box-shadow] duration-200 focus:bg-white/90 focus:ring-4 focus:ring-brand-primary/20"
               />
             </Field>
@@ -340,56 +364,24 @@ export function Import() {
             </div>
           </div>
         )}
+
+        <FormatHelp source={source} />
       </Card>
 
       {classified.length > 0 ? (
         <Card className="space-y-5">
-          <CardTitle info="Revisa los títulos antes de importar. Solo se importan las entradas marcadas como Listo.">
+          <CardTitle info="Solo se importan las entradas listas; las demás se quedan en la lista.">
             Revisión
           </CardTitle>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Proyecto">
-              <Select
-                value={projectId}
-                onChange={(event) => setProjectId(event.target.value)}
-              >
-                <option value="">Selecciona un proyecto…</option>
-                {projects.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Estado" hint={QR_STATUS[status]?.hint}>
-              <Select
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
-              >
-                {Object.values(QR_STATUS).map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-          </div>
-          {projects.length === 0 ? (
-            <p className="text-xs font-semibold text-brand-primary-deep">
-              Sin proyectos.{' '}
-              <Link to="/proyectos" className="underline underline-offset-2">
-                Crear uno
-              </Link>
-            </p>
-          ) : null}
-          <TagPicker options={RESOURCE_TAGS} value={tags} onChange={setTags} />
-
-          <ul className="divide-y divide-brand-ink/8 border-t border-brand-ink/8">
+          <ul className="divide-y divide-brand-ink/8">
             {classified.map((entry) => {
               const importable = entry.state === 'listo'
               return (
-                <li key={entry.id} className="flex items-start gap-3 py-3">
+                <li
+                  key={entry.id}
+                  className="flex items-start gap-3 py-3 first:pt-0"
+                >
                   {entry.thumb ? (
                     <img
                       src={entry.thumb}
@@ -433,19 +425,65 @@ export function Import() {
             })}
           </ul>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-ink/8 pt-4">
-            <p className="text-sm text-brand-ink/75">
-              {ready.length} {ready.length === 1 ? 'listo' : 'listos'}
-              {skipped > 0 ? ` · ${skipped} sin importar` : ''}
-            </p>
-            <Button
-              onClick={handleImport}
-              disabled={!allowed || !projectId || ready.length === 0 || reading}
-            >
-              {ready.length === 1
-                ? 'Importar 1 código'
-                : `Importar ${ready.length} códigos`}
-            </Button>
+          {/* El destino va junto al botón: es lo último que se decide. */}
+          <div className="space-y-4 border-t border-brand-ink/8 pt-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Proyecto">
+                <Select
+                  value={projectId}
+                  onChange={(event) => setProjectId(event.target.value)}
+                >
+                  <option value="">Selecciona un proyecto…</option>
+                  {projects.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Estado" hint={QR_STATUS[status]?.hint}>
+                <Select
+                  value={status}
+                  onChange={(event) => setStatus(event.target.value)}
+                >
+                  {Object.values(QR_STATUS).map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.label}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+            {projects.length === 0 ? (
+              <p className="text-xs font-semibold text-brand-primary-deep">
+                Sin proyectos.{' '}
+                <Link to="/proyectos" className="underline underline-offset-2">
+                  Crear uno
+                </Link>
+              </p>
+            ) : null}
+            <TagPicker
+              options={RESOURCE_TAGS}
+              value={tags}
+              onChange={setTags}
+            />
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <p className="text-sm text-brand-ink/75">
+                {ready.length} {ready.length === 1 ? 'listo' : 'listos'}
+                {skipped > 0 ? ` · ${skipped} sin importar` : ''}
+              </p>
+              <Button
+                onClick={handleImport}
+                disabled={
+                  !allowed || !projectId || ready.length === 0 || reading
+                }
+              >
+                {ready.length === 1
+                  ? 'Importar 1 código'
+                  : `Importar ${ready.length} códigos`}
+              </Button>
+            </div>
           </div>
         </Card>
       ) : null}

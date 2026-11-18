@@ -158,7 +158,7 @@ function SimulatedAccess() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Banner tone="warning">
-        Acceso simulado: Firebase no está configurado en este entorno.
+        Acceso simulado: Firebase no está configurado.
       </Banner>
       <Field label="Correo">
         <Input
@@ -217,13 +217,15 @@ export function Login() {
             <h1 className="mt-5 text-2xl font-bold tracking-tight text-brand-ink">
               QR Suite
             </h1>
-            <p className="mt-1 mb-7 text-sm text-brand-ink/75">
-              {isAuthEnabled
-                ? `Acceso con tu cuenta @${ALLOWED_DOMAIN}`
-                : 'Códigos QR dinámicos'}
-            </p>
-
-            {isAuthEnabled ? <GoogleAccess /> : <SimulatedAccess />}
+            {/* Sin eslogan: solo lo que hace falta para entrar. */}
+            {isAuthEnabled ? (
+              <p className="mt-1 text-sm text-brand-ink/75">
+                Usa tu cuenta @{ALLOWED_DOMAIN}
+              </p>
+            ) : null}
+            <div className="mt-7">
+              {isAuthEnabled ? <GoogleAccess /> : <SimulatedAccess />}
+            </div>
           </div>
         </div>
       </div>

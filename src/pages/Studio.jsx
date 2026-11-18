@@ -17,7 +17,7 @@ import {
   PageHeader,
   Select,
 } from '../components/ui.jsx'
-import { Tooltip } from '../components/Tooltip.jsx'
+import { InfoTip } from '../components/Tooltip.jsx'
 import { StepHeader, StepProgress, TabBar } from '../components/Wizard.jsx'
 import {
   ColorControls,
@@ -25,6 +25,7 @@ import {
   GradientControls,
   LogoControls,
   ShapeControls,
+  StyleDisclosure,
 } from '../components/StyleControls.jsx'
 import {
   DestinationField,
@@ -46,13 +47,12 @@ const STEPS = [
     id: 'destino',
     label: 'Destino',
     title: 'Define a dónde lleva',
-    hint: 'Se puede cambiar después sin reimprimir el código.',
   },
   {
     id: 'estilo',
     label: 'Estilo',
     title: 'Personaliza el código',
-    hint: 'Opcional: ya lleva el estilo de la marca, y solo se ofrecen opciones del manual.',
+    hint: 'Opcional: ya lleva el estilo de la marca.',
   },
   {
     id: 'guardar',
@@ -61,9 +61,9 @@ const STEPS = [
   },
 ]
 
+// El degradado, de uso infrecuente, va plegado dentro de «Colores».
 const STYLE_TABS = [
   { id: 'colores', label: 'Colores' },
-  { id: 'degradado', label: 'Degradado' },
   { id: 'forma', label: 'Forma' },
   { id: 'marco', label: 'Marco' },
   { id: 'logo', label: 'Logotipo' },
@@ -320,13 +320,12 @@ export function Studio() {
                   </Field>
                 ) : canCreateProject ? (
                   <Notice tone={attempted ? 'danger' : 'info'}>
-                    Todo código pertenece a un proyecto, que agrupa los de un
-                    libro o asignatura. Crea el primero:
+                    Cada código va en un proyecto (un libro o asignatura). Crea
+                    el primero:
                   </Notice>
                 ) : (
                   <Notice tone={attempted ? 'danger' : 'info'}>
-                    Todavía no hay proyectos y solo un administrador puede
-                    crearlos. Pídele que cree uno para poder continuar.
+                    Aún no hay proyectos. Pide a un administrador que cree uno.
                   </Notice>
                 )}
                 {canCreateProject &&
@@ -350,7 +349,7 @@ export function Studio() {
               <div className="space-y-4">
                 <DestinationField
                   label="Destino final"
-                  hint="Adónde lleva el código cuando está publicado."
+                  hint="Adónde lleva el código publicado. Se puede cambiar después sin reimprimirlo."
                   value={targetUrl}
                   required
                   showError={attempted}
@@ -366,17 +365,22 @@ export function Studio() {
             ) : null}
 
             {step === 2 ? (
-              <div className="space-y-5">
+              <div className="space-y-6">
                 <TabBar
                   tabs={STYLE_TABS}
                   value={styleTab}
                   onChange={setStyleTab}
                 />
                 {styleTab === 'colores' ? (
-                  <ColorControls style={style} onChange={setStyle} />
-                ) : null}
-                {styleTab === 'degradado' ? (
-                  <GradientControls style={style} onChange={setStyle} />
+                  <>
+                    <ColorControls style={style} onChange={setStyle} />
+                    <StyleDisclosure
+                      summary="Degradado"
+                      defaultOpen={Boolean(style.gradient)}
+                    >
+                      <GradientControls style={style} onChange={setStyle} />
+                    </StyleDisclosure>
+                  </>
                 ) : null}
                 {styleTab === 'forma' ? (
                   <ShapeControls style={style} onChange={setStyle} />
@@ -405,13 +409,11 @@ export function Studio() {
                   ]}
                 />
                 <p className="text-sm text-brand-ink/75">
-                  Si publicas, quien escanee irá al destino final. Si guardas un
-                  borrador, irá{' '}
+                  Publicado, el código lleva al destino final; como borrador,{' '}
                   {draftUrl
                     ? 'al destino de prueba'
-                    : 'también al destino final, porque no hay destino de prueba'}
-                  . Después de guardar podrás descargar el archivo para
-                  imprenta.
+                    : 'también, porque no hay destino de prueba'}
+                  .
                 </p>
               </div>
             ) : null}
@@ -454,14 +456,15 @@ export function Studio() {
           <div className="glass-well flex justify-center rounded-2xl p-4">
             <QrPreview data={shortUrl} style={style} size={200} />
           </div>
-          <Tooltip content="URL que se imprime en el código">
-            <p className="font-mono text-xs break-all text-brand-ink/75">
+          <div className="flex items-start gap-1.5">
+            <p className="min-w-0 flex-1 font-mono text-xs break-all text-brand-ink/75">
               {shortUrl}
             </p>
-          </Tooltip>
-          <p className="text-xs text-brand-ink/75">
-            Este enlace empezará a funcionar al guardar.
-          </p>
+            <InfoTip label="Sobre la URL impresa">
+              Es la URL que se imprime en el código. Empezará a funcionar al
+              guardar.
+            </InfoTip>
+          </div>
           <LegibilityCheck data={shortUrl} style={style} />
         </Card>
       </div>

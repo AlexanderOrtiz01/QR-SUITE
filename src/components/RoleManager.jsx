@@ -89,6 +89,9 @@ export function RoleManager({ currentEmail }) {
     }
   }
 
+  const active = people.filter((person) => person.role !== REVOKED)
+  const revoked = people.filter((person) => person.role === REVOKED)
+
   async function handleRemove(target) {
     setBusy(target)
     try {
@@ -105,7 +108,7 @@ export function RoleManager({ currentEmail }) {
   return (
     <Card className="space-y-4">
       <CardTitle
-        info={`Solo entran las personas que añadas aquí, con una cuenta @${ALLOWED_DOMAIN}. También puedes cambiar su rol o retirarles el acceso.`}
+        info={`Solo entran las cuentas @${ALLOWED_DOMAIN} que añadas aquí.`}
       >
         Personas con acceso
       </CardTitle>
@@ -175,49 +178,60 @@ export function RoleManager({ currentEmail }) {
           Todavía no hay nadie con acceso.
         </p>
       ) : (
-        <ul className="divide-y divide-brand-ink/8">
-          {people.map((person) => (
-            <li
-              key={person.email}
-              className="flex items-center justify-between gap-3 py-2.5"
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-semibold break-all text-brand-ink">
-                  {person.email}
-                </p>
-                <p
-                  className={`text-xs ${
-                    person.role === REVOKED
-                      ? 'font-semibold text-red-700'
-                      : 'text-brand-ink/75'
-                  }`}
-                >
-                  {person.role === REVOKED
-                    ? 'Acceso retirado'
-                    : ROLES[person.role]?.label || person.role}
-                </p>
-              </div>
-              {person.email === currentEmail ? (
-                <span className="shrink-0 text-xs font-semibold text-brand-ink/75">
-                  Tu cuenta
-                </span>
-              ) : person.role === REVOKED ? null : (
-                <button
-                  type="button"
-                  disabled={Boolean(busy)}
-                  aria-busy={busy === person.email || undefined}
-                  onClick={() => handleRemove(person.email)}
-                  className="-mr-3 inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50/80 disabled:opacity-50 max-lg:min-h-11"
-                >
-                  {busy === person.email ? (
-                    <Spinner className="size-4" />
-                  ) : null}
-                  Retirar acceso
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="divide-y divide-brand-ink/8">
+            {active.map((person) => (
+              <li
+                key={person.email}
+                className="flex items-center justify-between gap-3 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold break-all text-brand-ink">
+                    {person.email}
+                  </p>
+                  <p className="text-xs text-brand-ink/75">
+                    {ROLES[person.role]?.label || person.role}
+                    {person.email === currentEmail ? ' · Tu cuenta' : null}
+                  </p>
+                </div>
+                {person.email === currentEmail ? null : (
+                  <button
+                    type="button"
+                    disabled={Boolean(busy)}
+                    aria-busy={busy === person.email || undefined}
+                    onClick={() => handleRemove(person.email)}
+                    className="-mr-3 inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50/80 disabled:opacity-50 max-lg:min-h-11"
+                  >
+                    {busy === person.email ? (
+                      <Spinner className="size-4" />
+                    ) : null}
+                    Retirar acceso
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* Las cuentas con el acceso retirado se consultan poco: van
+              plegadas. Para devolverles el acceso basta con asignarles un rol. */}
+          {revoked.length > 0 ? (
+            <details>
+              <summary className="cursor-pointer text-sm font-semibold text-brand-primary-deep max-lg:min-h-11">
+                Acceso retirado ({revoked.length})
+              </summary>
+              <ul className="mt-2 divide-y divide-brand-ink/8">
+                {revoked.map((person) => (
+                  <li
+                    key={person.email}
+                    className="py-2.5 text-sm break-all text-brand-ink/75"
+                  >
+                    {person.email}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </>
       )}
     </Card>
   )

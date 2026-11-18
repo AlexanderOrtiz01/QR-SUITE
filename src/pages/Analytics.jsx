@@ -5,13 +5,12 @@ import { dayLabel, localDayKey } from '../lib/format.js'
 import { isPersistenceShared } from '../lib/storage/index.js'
 import {
   Card,
-  CardTitle,
   EmptyState,
   IconButton,
   PageHeader,
   Select,
 } from '../components/ui.jsx'
-import { IconDownload } from '../components/icons.jsx'
+import { IconChevronLeft, IconDownload } from '../components/icons.jsx'
 import {
   BarList,
   ColumnChart,
@@ -37,16 +36,17 @@ function countBy(items, key) {
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
+const EMPTY = 'Sin escaneos en el periodo'
 
 /**
  * Variación frente al periodo inmediatamente anterior, del mismo largo. El
  * largo ya lo dice el selector de rango, así que no se repite aquí.
  */
 function trendLabel(current, before) {
-  if (before === 0) return current > 0 ? 'Sin datos del periodo anterior' : null
+  if (before === 0) return current > 0 ? 'Sin periodo anterior' : null
   const change = Math.round(((current - before) / before) * 100)
   if (change === 0) return 'Igual que el periodo anterior'
-  return `${change > 0 ? '+' : '−'}${Math.abs(change)} % vs. periodo anterior`
+  return `${change > 0 ? '+' : '−'}${Math.abs(change)} % vs. anterior`
 }
 
 /** Cuenta por una clave que puede tener varios valores (las etiquetas). */
@@ -180,6 +180,7 @@ export function Analytics() {
   )
   const activeCodes = new Set(scoped.map((scan) => scan.short_code)).size
   const previousActive = new Set(previous.map((scan) => scan.short_code)).size
+  const activeTrend = trendLabel(activeCodes, previousActive)
 
   function exportCsv() {
     const header = [
@@ -212,7 +213,7 @@ export function Analytics() {
         info={
           isPersistenceShared
             ? undefined
-            : 'Sin Firestore, los escaneos se guardan en el navegador que abre la URL corta: las métricas solo reflejan este dispositivo.'
+            : 'Sin Firestore, las métricas solo reflejan los escaneos hechos en este navegador.'
         }
       >
         {can(session?.role, 'analytics:read') ? (
@@ -225,7 +226,7 @@ export function Analytics() {
         ) : null}
       </PageHeader>
 
-      <Card className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:max-w-xl">
         <Select
           aria-label="Periodo"
           value={days}
@@ -249,7 +250,7 @@ export function Analytics() {
             </option>
           ))}
         </Select>
-      </Card>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat
@@ -267,68 +268,69 @@ export function Analytics() {
         <Stat
           label="Códigos activos"
           value={activeCodes}
-          hint={`de ${scopedQrs.length} · ${(
-            trendLabel(activeCodes, previousActive) || 'sin actividad previa'
-          ).toLowerCase()}`}
+          hint={[`de ${scopedQrs.length}`, activeTrend?.toLowerCase()]
+            .filter(Boolean)
+            .join(' · ')}
         />
       </div>
 
       {scans.length === 0 ? (
         <EmptyState
           title="Todavía no hay escaneos"
-          description="Aparecerán aquí cuando alguien abra uno de los códigos."
+          description="Aparecerán aquí cuando alguien abra un código."
         />
       ) : (
         <div className="space-y-6">
-          <Card className="space-y-3">
-            <h2 className="font-semibold">Escaneos por día</h2>
-            <ColumnChart data={daily} />
-          </Card>
+          <div className="grid gap-6 xl:grid-cols-5">
+            <Card className="space-y-3 xl:col-span-3">
+              <h2 className="font-semibold">Escaneos por día</h2>
+              <ColumnChart data={daily} />
+            </Card>
 
-          <Card className="space-y-3">
-            <h2 className="font-semibold">Escaneos por hora</h2>
-            <HourHeatmap data={hourly} />
-          </Card>
-
-          <Card className="space-y-4">
-            <CardTitle>Códigos más escaneados</CardTitle>
-            <RankList
-              data={topCodes}
-              total={scoped.length}
-              emptyLabel="Sin escaneos en el periodo"
-            />
-          </Card>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card className={`space-y-4 ${projectId ? 'lg:col-span-2' : ''}`}>
-              <CardTitle info="Según las etiquetas de cada código.">
-                Por tipo de material
-              </CardTitle>
+            <Card className="space-y-4 xl:col-span-2">
+              <h2 className="font-semibold">Códigos más escaneados</h2>
               <RankList
-                data={byTag}
+                data={topCodes}
                 total={scoped.length}
-                emptyLabel="Sin escaneos en el periodo"
+                emptyLabel={EMPTY}
               />
             </Card>
-            {projectId ? null : (
-              <Card className="space-y-4">
-                <CardTitle>Por proyecto</CardTitle>
-                <RankList
-                  data={byProject}
-                  total={scoped.length}
-                  emptyLabel="Sin escaneos en el periodo"
-                />
-              </Card>
-            )}
           </div>
 
-          <Card className="space-y-3">
-            <h2 className="font-semibold">Navegador</h2>
-            <BarList
-              data={countBy(scoped, 'browser')}
-              emptyLabel="Sin escaneos en el periodo"
-            />
-          </Card>
+          <details className="glass group rounded-[1.75rem] p-5">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl max-lg:min-h-11 [&::-webkit-details-marker]:hidden">
+              <span className="font-semibold">Más desgloses</span>
+              <IconChevronLeft className="size-5 shrink-0 -rotate-90 text-brand-ink/75 transition-transform duration-200 ease-ios group-open:rotate-90" />
+            </summary>
+            <div className="mt-5 grid gap-x-8 gap-y-8 lg:grid-cols-2">
+              <section className="space-y-3 lg:col-span-2">
+                <h3 className="text-sm font-semibold">Por hora</h3>
+                <HourHeatmap data={hourly} />
+              </section>
+              <section className="space-y-3">
+                <h3 className="text-sm font-semibold">Por tipo de material</h3>
+                <RankList
+                  data={byTag}
+                  total={scoped.length}
+                  emptyLabel={EMPTY}
+                />
+              </section>
+              {projectId ? null : (
+                <section className="space-y-3">
+                  <h3 className="text-sm font-semibold">Por proyecto</h3>
+                  <RankList
+                    data={byProject}
+                    total={scoped.length}
+                    emptyLabel={EMPTY}
+                  />
+                </section>
+              )}
+              <section className="space-y-3">
+                <h3 className="text-sm font-semibold">Por navegador</h3>
+                <BarList data={countBy(scoped, 'browser')} emptyLabel={EMPTY} />
+              </section>
+            </div>
+          </details>
         </div>
       )}
     </div>

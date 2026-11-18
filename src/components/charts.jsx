@@ -190,7 +190,7 @@ export function ColumnChart({ data, emptyLabel = 'Sin datos' }) {
           stroke={SERIES}
           strokeWidth={2}
           fill="url(#scanFill)"
-          dot={{ r: 2.5, fill: SERIES, strokeWidth: 0 }}
+          dot={false}
           activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff' }}
         />
       </AreaChart>
@@ -200,7 +200,8 @@ export function ColumnChart({ data, emptyLabel = 'Sin datos' }) {
 
 /**
  * Franja de intensidad por hora del día. Escala secuencial de un solo hue: es
- * magnitud continua, no categorías, así que nunca lleva colores distintos.
+ * magnitud continua, no categorías, así que nunca lleva colores distintos. Sin
+ * leyenda de la rampa: la cifra exacta de cada hora va en su globo.
  */
 export function HourHeatmap({ data }) {
   const max = Math.max(...data.map((item) => item.value), 1)
@@ -228,19 +229,9 @@ export function HourHeatmap({ data }) {
           )
         })}
       </div>
-      <div className="mt-2 flex items-center justify-between text-xs text-brand-ink/75">
+      <div className="mt-2 flex justify-between text-xs text-brand-ink/75">
         <span>00 h</span>
-        <span className="flex items-center gap-1">
-          <span>0</span>
-          {RAMP.map((color) => (
-            <span
-              key={color}
-              className="h-2.5 w-2.5 rounded-xs"
-              style={{ background: color }}
-            />
-          ))}
-          <span>{max}</span>
-        </span>
+        <span>12 h</span>
         <span>23 h</span>
       </div>
     </div>
@@ -265,23 +256,18 @@ export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
   return (
     <div className="space-y-3">
       <ol className="space-y-3.5">
-        {rows.map((row, index) => (
+        {rows.map((row) => (
           <li key={row.id ?? row.label}>
             <div className="flex items-baseline justify-between gap-3 text-sm">
-              <span className="flex min-w-0 items-baseline gap-2">
-                <span className="w-4 shrink-0 text-xs text-brand-ink/45 tabular-nums">
-                  {index + 1}
+              <span className="min-w-0">
+                <span className="block truncate font-medium text-brand-ink">
+                  {row.label}
                 </span>
-                <span className="min-w-0">
-                  <span className="block truncate font-medium text-brand-ink">
-                    {row.label}
+                {row.hint ? (
+                  <span className="block truncate text-xs text-brand-ink/75">
+                    {row.hint}
                   </span>
-                  {row.hint ? (
-                    <span className="block truncate text-xs text-brand-ink/75">
-                      {row.hint}
-                    </span>
-                  ) : null}
-                </span>
+                ) : null}
               </span>
               <span className="shrink-0 tabular-nums">
                 <span className="font-semibold">{row.value}</span>
@@ -293,7 +279,7 @@ export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
                 ) : null}
               </span>
             </div>
-            <div className="mt-1.5 ml-6 h-1.5 overflow-hidden rounded-full bg-brand-ink/8">
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-brand-ink/8">
               <div
                 className="h-full rounded-full"
                 style={{
@@ -306,7 +292,7 @@ export function RankList({ data, total, emptyLabel = 'Sin datos', limit = 5 }) {
         ))}
       </ol>
       {rest > 0 ? (
-        <p className="ml-6 text-xs text-brand-ink/75">y {rest} más</p>
+        <p className="text-xs text-brand-ink/75">y {rest} más</p>
       ) : null}
     </div>
   )
