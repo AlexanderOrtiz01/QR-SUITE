@@ -18,7 +18,7 @@ export function TagPicker({
   return (
     <Field
       label={label}
-      hint="Tipo de material. Sirve para buscar y para la analítica."
+      hint="Tipo de material, para buscar y para la analítica."
     >
       <div className="flex flex-wrap gap-2">
         {options.map((tag) => (

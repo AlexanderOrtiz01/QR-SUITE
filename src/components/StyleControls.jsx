@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import {
   BRAND_PRESETS,
   CORNER_STYLES,
+  DEFAULT_STYLE,
   DOT_STYLES,
   ECC_LEVEL,
   GRADIENT_PRESETS,
@@ -8,12 +10,32 @@ import {
 } from '../lib/brand.js'
 import { FRAMES, frameThumbnail } from '../lib/frames.js'
 import { Field, Input, Select } from './ui.jsx'
+import { IconChevronLeft } from './icons.jsx'
 
 const TILE =
   'rounded-xl border p-2 text-left text-xs transition-colors disabled:opacity-50'
 
 function tileClass(active) {
   return `${TILE} ${active ? 'border-brand-primary/70 bg-white/90 ring-2 ring-brand-primary/20' : 'border-white/80 bg-white/45 hover:bg-white/75'}`
+}
+
+/**
+ * Bloque plegable para las opciones de uso infrecuente. Arranca abierto si ya
+ * tienen un valor propio, para que no quede oculto lo que se ha cambiado; el
+ * estado inicial no se recalcula, así que no se cierra solo al deshacerlo.
+ */
+export function StyleDisclosure({ summary, defaultOpen = false, children }) {
+  const [initialOpen] = useState(defaultOpen)
+
+  return (
+    <details open={initialOpen} className="group/opciones">
+      <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 rounded-lg text-sm font-semibold text-brand-primary-deep max-lg:min-h-11 [&::-webkit-details-marker]:hidden">
+        <IconChevronLeft className="size-4 shrink-0 rotate-180 transition-transform duration-200 ease-ios group-open/opciones:rotate-270" />
+        {summary}
+      </summary>
+      <div className="mt-4 space-y-6">{children}</div>
+    </details>
+  )
 }
 
 /**
@@ -32,6 +54,8 @@ export function ColorControls({ style, onChange, disabled = false }) {
               key={preset.id}
               type="button"
               disabled={disabled}
+              aria-pressed={style.preset === preset.id}
+              title={`${preset.dark} sobre ${preset.light}`}
               onClick={() =>
                 onChange({
                   ...style,
@@ -55,13 +79,8 @@ export function ColorControls({ style, onChange, disabled = false }) {
                   style={{ background: preset.dark }}
                 />
               </span>
-              <span className="min-w-0">
-                <span className="block truncate font-bold text-brand-ink">
-                  {preset.label}
-                </span>
-                <span className="block font-mono text-xs text-brand-ink/75">
-                  {preset.dark}
-                </span>
+              <span className="min-w-0 truncate font-semibold text-brand-ink">
+                {preset.label}
               </span>
             </button>
           ))}
@@ -138,7 +157,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
     <div className="space-y-4">
       <Field
         label="Logotipo central"
-        hint={`Corrección de errores en nivel ${ECC_LEVEL} (30 %): admite el logo sin perder lectura.`}
+        hint={`Corrección de errores ${ECC_LEVEL} (30 %): el logo no impide la lectura.`}
       >
         <input
           type="file"
@@ -174,9 +193,7 @@ export function LogoControls({ style, onChange, disabled = false }) {
             </button>
           </div>
         </Field>
-      ) : (
-        <p className="text-sm text-brand-ink/75">Sin logotipo.</p>
-      )}
+      ) : null}
     </div>
   )
 }
@@ -205,7 +222,7 @@ export function GradientControls({ style, onChange, disabled = false }) {
     <div className="@container space-y-4">
       <Field
         label="Degradado"
-        hint="Solo tonos oscuros de la paleta: aclarar los módulos resta contraste y el código deja de leerse en papel."
+        hint="Solo tonos oscuros: aclarar los módulos resta contraste en papel."
       >
         <div className="grid grid-cols-2 gap-2 @md:grid-cols-3">
           <button
@@ -330,10 +347,7 @@ export function FrameControls({ style, onChange, disabled = false }) {
       </Field>
 
       {withLabel ? (
-        <Field
-          label="Texto del marco"
-          hint="Llamada a la acción impresa junto al código."
-        >
+        <Field label="Texto del marco" hint="Se imprime junto al código.">
           <Input
             value={style.frameLabel}
             disabled={disabled}
@@ -348,15 +362,38 @@ export function FrameControls({ style, onChange, disabled = false }) {
   )
 }
 
-/** Composición de los bloques, para pantallas sin pestañas. */
+/** Si el estilo se aparta del de marca en algo de uso infrecuente. */
+function hasAdvancedStyle(style) {
+  return Boolean(
+    style.gradient ||
+    style.logo ||
+    style.dotStyle !== DEFAULT_STYLE.dotStyle ||
+    style.cornerSquareStyle !== DEFAULT_STYLE.cornerSquareStyle ||
+    style.cornerDotStyle !== DEFAULT_STYLE.cornerDotStyle,
+  )
+}
+
+/**
+ * Composición de los bloques, para pantallas sin pestañas: a la vista lo
+ * habitual (paleta y marco); degradado, forma y logotipo, plegados.
+ */
 export function StyleControls({ style, onChange, disabled = false }) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <ColorControls style={style} onChange={onChange} disabled={disabled} />
-      <GradientControls style={style} onChange={onChange} disabled={disabled} />
-      <ShapeControls style={style} onChange={onChange} disabled={disabled} />
       <FrameControls style={style} onChange={onChange} disabled={disabled} />
-      <LogoControls style={style} onChange={onChange} disabled={disabled} />
+      <StyleDisclosure
+        summary="Degradado, forma y logotipo"
+        defaultOpen={hasAdvancedStyle(style)}
+      >
+        <GradientControls
+          style={style}
+          onChange={onChange}
+          disabled={disabled}
+        />
+        <ShapeControls style={style} onChange={onChange} disabled={disabled} />
+        <LogoControls style={style} onChange={onChange} disabled={disabled} />
+      </StyleDisclosure>
     </div>
   )
 }

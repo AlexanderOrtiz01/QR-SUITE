@@ -147,11 +147,15 @@ function AutomaticCheck({ session, onSaved }) {
 
   return (
     <Card className="space-y-4">
-      <CardTitle info="Intenta cada operación contra las reglas de Firestore con tu cuenta y la compara con lo que tu rol debe poder hacer. No modifica ningún dato.">
-        Tu cuenta
-      </CardTitle>
-
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <CardTitle info="Prueba cada operación con tu cuenta contra las reglas de Firestore. No modifica ningún dato.">
+            Tu cuenta
+          </CardTitle>
+          <p className="text-sm break-all text-brand-ink/75">
+            {session.email} · {ROLES[session.role]?.label}
+          </p>
+        </div>
         <Button onClick={run} loading={running} disabled={!loaded}>
           {running
             ? 'Probando…'
@@ -159,9 +163,6 @@ function AutomaticCheck({ session, onSaved }) {
               ? 'Repetir prueba'
               : 'Probar mis permisos'}
         </Button>
-        <p className="text-sm break-all text-brand-ink/75">
-          {session.email} · {ROLES[session.role]?.label}
-        </p>
       </div>
 
       {!loaded ? (
@@ -169,17 +170,20 @@ function AutomaticCheck({ session, onSaved }) {
       ) : check ? (
         <>
           <Notice tone={grade.ok ? 'success' : 'danger'}>
-            {grade.ok
-              ? `Correcto: ${grade.passed} de ${grade.total} operaciones respondieron como se esperaba.`
-              : `${grade.failed} ${grade.failed === 1 ? 'operación no respondió' : 'operaciones no respondieron'} como se esperaba.`}{' '}
-            <span className="text-brand-ink/75">
+            <p className="font-semibold">
+              {grade.passed} de {grade.total} correctas
+              {grade.failed > 0
+                ? ` · ${grade.failed} ${grade.failed === 1 ? 'fallida' : 'fallidas'}`
+                : ''}
+            </p>
+            <p className="text-xs text-brand-ink/75">
               {formatDateTime(check.ran_at)}
-            </span>
+            </p>
           </Notice>
           {/* El detalle se despliega solo si algo falló. */}
           <details open={!grade.ok}>
             <summary className="cursor-pointer text-sm font-semibold text-brand-primary-deep max-lg:min-h-11">
-              Ver detalle
+              Detalle por operación
             </summary>
             <div className="pt-3">
               <ProbeTable results={check.results} />
@@ -196,12 +200,21 @@ function AccountEvidence({ checks, loaded, error }) {
   const missing = ROLE_IDS.filter(
     (role) => !checks.some((check) => check.role === role),
   )
+  const failing = checks.filter((check) => !gradeRun(check.results).ok).length
 
   return (
     <Card className="space-y-4">
-      <CardTitle info="Cada cuenta que lanza la prueba deja aquí su resultado. Para validar los tres roles hace falta al menos una cuenta de cada uno.">
-        Todas las cuentas
-      </CardTitle>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <CardTitle info="Aquí queda el resultado de cada cuenta que lanza la prueba. Hace falta al menos una cuenta por rol.">
+          Todas las cuentas
+        </CardTitle>
+        {loaded && !error && checks.length > 0 ? (
+          <p className="text-sm text-brand-ink/75">
+            {checks.length - failing} de {checks.length} correctas
+            {failing > 0 ? ` · ${failing} con error` : ''}
+          </p>
+        ) : null}
+      </div>
       {error ? (
         <Notice tone="danger">{error}</Notice>
       ) : !loaded ? (
@@ -300,7 +313,7 @@ export function RoleTests() {
     <div className="space-y-6">
       <PageHeader
         title="Pruebas de roles"
-        info="Comprueba que las reglas de Firestore aplican los permisos de cada rol (Administrador, Editor y Analista)."
+        info="Comprueba que las reglas de Firestore aplican los permisos de cada rol."
       />
 
       {!canProbe ? (

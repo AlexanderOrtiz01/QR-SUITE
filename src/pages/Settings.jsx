@@ -10,7 +10,6 @@ import {
   Banner,
   Button,
   Card,
-  CardTitle,
   Field,
   Input,
   PageHeader,
@@ -18,6 +17,23 @@ import {
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
 import { DestinationField } from '../components/DestinationField.jsx'
 import { RoleManager } from '../components/RoleManager.jsx'
+import { IconChevronLeft } from '../components/icons.jsx'
+
+/**
+ * Sección plegable para lo que se consulta o usa pocas veces. `open` solo
+ * fija cómo arranca; luego la abre y cierra quien la usa.
+ */
+function Section({ title, open = false, children }) {
+  return (
+    <details open={open} className="glass group rounded-[1.75rem] p-5">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl max-lg:min-h-11 [&::-webkit-details-marker]:hidden">
+        <h2 className="font-semibold">{title}</h2>
+        <IconChevronLeft className="size-5 shrink-0 -rotate-90 text-brand-ink/75 transition-transform duration-200 ease-ios group-open:rotate-90" />
+      </summary>
+      <div className="mt-4 space-y-4">{children}</div>
+    </details>
+  )
+}
 
 export function Settings() {
   const { settings, saveSettings, session, loadDemoData } = useApp()
@@ -45,7 +61,7 @@ export function Settings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader title="Ajustes" />
 
       {!allowed ? (
@@ -65,7 +81,7 @@ export function Settings() {
           </Field>
           <DestinationField
             label="Página para códigos retirados"
-            hint="Adónde lleva un código cuando lo retiras. Sin ella no se puede retirar ninguno."
+            hint="Adónde lleva un código retirado. Sin ella no se puede retirar ninguno."
             value={draft.deprecatedUrl}
             disabled={!allowed}
             showError={attempted}
@@ -85,10 +101,11 @@ export function Settings() {
         </form>
       </Card>
 
-      <Card className="space-y-3">
-        <CardTitle info="El dominio permitido y las credenciales se configuran en .env.local (a partir de .env.example), no aquí: deciden quién entra.">
-          Integración
-        </CardTitle>
+      {allowed ? <RoleManager currentEmail={session?.email} /> : null}
+
+      {/* Sin autenticación real se abre de entrada: avisa de que nada está
+          protegido. */}
+      <Section title="Integración" open={!isAuthEnabled}>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-brand-ink/80">Almacenamiento</dt>
@@ -115,49 +132,54 @@ export function Settings() {
             <dd className="text-brand-ink">@{ALLOWED_DOMAIN}</dd>
           </div>
         </dl>
-      </Card>
-
-      {allowed ? <RoleManager currentEmail={session?.email} /> : null}
+        <p className="text-xs text-brand-ink/75">
+          Se configura en .env.local (a partir de .env.example), no aquí.
+        </p>
+      </Section>
 
       {/* Solo sin Firestore: con la base compartida, los datos de ejemplo se
           mezclarían con los reales y borrar vaciaría la base de todo el equipo. */}
       {allowed && !isPersistenceShared ? (
-        <Card className="space-y-3">
-          <CardTitle info="Un proyecto con cinco recursos y treinta días de escaneos simulados, para revisar la analítica. Se guarda solo en este navegador.">
-            Datos de demostración
-          </CardTitle>
-          <div className="flex flex-wrap items-center gap-3">
+        <Section title="Datos de este navegador">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0 flex-1 basis-56">
+              <p className="text-sm font-semibold">Datos de demostración</p>
+              <p className="text-sm text-brand-ink/75">
+                Un proyecto con cinco recursos y 30 días de escaneos.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {seeded ? (
+                <span className="text-sm text-brand-primary-deep">
+                  +{seeded} escaneos
+                </span>
+              ) : null}
+              <Button
+                variant="secondary"
+                onClick={() => setSeeded(loadDemoData().scans.length)}
+              >
+                Generar
+              </Button>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-ink/8 pt-4">
+            <div className="min-w-0 flex-1 basis-56">
+              <p className="text-sm font-semibold text-red-700">
+                Borrar datos locales
+              </p>
+              <p className="text-sm text-brand-ink/75">
+                Proyectos, códigos y escaneos.
+              </p>
+            </div>
             <Button
-              variant="secondary"
-              onClick={() => setSeeded(loadDemoData().scans.length)}
+              variant="danger"
+              loading={clearing}
+              onClick={() => setConfirmingClear(true)}
             >
-              Generar datos de ejemplo
+              {clearing ? 'Borrando…' : 'Borrar'}
             </Button>
-            {seeded ? (
-              <span className="text-sm text-brand-primary-deep">
-                +{seeded} escaneos
-              </span>
-            ) : null}
           </div>
-        </Card>
-      ) : null}
-
-      {allowed && !isPersistenceShared ? (
-        <Card className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0 flex-1 basis-56">
-            <h2 className="font-semibold text-red-700">Zona de riesgo</h2>
-            <p className="text-sm text-brand-ink/75">
-              Vacía los proyectos, códigos y escaneos de este navegador.
-            </p>
-          </div>
-          <Button
-            variant="danger"
-            loading={clearing}
-            onClick={() => setConfirmingClear(true)}
-          >
-            {clearing ? 'Borrando…' : 'Borrar datos locales'}
-          </Button>
-        </Card>
+        </Section>
       ) : null}
 
       {confirmingClear ? (

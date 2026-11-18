@@ -18,7 +18,7 @@ import {
   Select,
 } from '../components/ui.jsx'
 import { Tooltip } from '../components/Tooltip.jsx'
-import { IconAlert, IconChevronLeft } from '../components/icons.jsx'
+import { IconChevronLeft } from '../components/icons.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
 import { CopyButton } from '../components/CopyButton.jsx'
 import {
@@ -33,21 +33,18 @@ import { LegibilityCheck } from '../components/LegibilityCheck.jsx'
 import { TagPicker } from '../components/TagPicker.jsx'
 import { StatusBadge } from '../components/StatusBadge.jsx'
 
-/** Frase de estado y acciones posibles desde cada estado del código. */
+/** Acciones posibles desde cada estado; el estado ya lo dice la insignia. */
 const STATUS_FLOW = {
   draft: {
-    headline: 'Este código aún no está publicado.',
     actions: [{ to: 'published', label: 'Publicar', primary: true }],
   },
   published: {
-    headline: 'Este código está publicado.',
     actions: [
       { to: 'draft', label: 'Volver a borrador' },
       { to: 'deprecated', label: 'Retirar' },
     ],
   },
   deprecated: {
-    headline: 'Este código está retirado.',
     actions: [
       { to: 'draft', label: 'Volver a borrador' },
       { to: 'published', label: 'Volver a publicar', primary: true },
@@ -86,6 +83,24 @@ function TargetLine({ url }) {
   return <p className="font-mono text-xs break-all text-brand-ink">{url}</p>
 }
 
+/** Bloque secundario plegado: el título queda a la vista y el resto, a mano. */
+function Section({ title, meta, children }) {
+  return (
+    <details className="glass group rounded-[1.75rem] p-5">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl max-lg:min-h-11 [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0">
+          <span className="block font-semibold">{title}</span>
+          {meta ? (
+            <span className="block text-xs text-brand-ink/75">{meta}</span>
+          ) : null}
+        </span>
+        <IconChevronLeft className="size-5 shrink-0 -rotate-90 text-brand-ink/75 transition-transform duration-200 ease-ios group-open:rotate-90" />
+      </summary>
+      <div className="mt-4">{children}</div>
+    </details>
+  )
+}
+
 /**
  * El QR que ya circula impreso, generado en otra plataforma. No se puede
  * cambiar desde aquí. Si pasa por una plataforma de redirección, esa
@@ -110,8 +125,8 @@ function LegacyCard({ qr, shortUrl }) {
       <CardTitle
         info={
           redirects
-            ? `Los libros ya impresos pasan por ${source} y esos escaneos no se cuentan aquí. Si en ${source} cambias el destino de ese código por la URL corta, los libros ya impresos pasarán por QR Suite sin reimprimir.`
-            : `El código impreso lleva directo a ${source}: nadie puede cambiar su destino ni contar sus escaneos. Para tener ambas cosas, usa la versión dinámica en la próxima reimpresión.`
+            ? `Sus escaneos se cuentan en ${source}, no aquí. Si allí lo apuntas a la URL corta, los libros impresos pasarán por QR Suite sin reimprimir.`
+            : `Lleva directo a ${source}: no se puede cambiar su destino ni contar sus escaneos. Usa la versión dinámica al reimprimir.`
         }
       >
         QR original
@@ -122,14 +137,10 @@ function LegacyCard({ qr, shortUrl }) {
       </p>
       <p className="font-mono text-xs break-all text-brand-ink/80">{content}</p>
       {loops ? (
-        <p className="flex gap-2 rounded-2xl bg-red-50/85 p-3 text-xs text-red-800 ring-1 ring-red-200">
-          <IconAlert className="mt-px size-4 shrink-0 text-red-600" />
-          <span>
-            El destino final aún es el enlace de {source}. Pon el destino real y
-            guarda antes de apuntar {source} a la URL corta, o se formará un
-            bucle.
-          </span>
-        </p>
+        <Notice tone="danger">
+          El destino final aún es el enlace de {source}. Guarda el real antes de
+          apuntar {source} a la URL corta, o se formará un bucle.
+        </Notice>
       ) : redirects ? (
         <CopyButton text={shortUrl} label="Copiar URL corta" />
       ) : null}
@@ -284,16 +295,15 @@ function QrEditor({ qr }) {
 
       <Card className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-0 flex-1 basis-72 space-y-1">
-          <p className="text-sm font-semibold">{flow.headline}</p>
           {savedTarget ? (
             <>
-              <p className="text-sm text-brand-ink/75">Quien escanee irá a:</p>
+              <p className="text-xs text-brand-ink/75">Al escanear lleva a</p>
               <TargetLine url={savedTarget} />
             </>
           ) : (
-            <Notice tone="danger" className="mt-2">
-              Quien escanee verá un aviso de recurso no disponible, porque falta
-              la página para códigos retirados.{' '}
+            <Notice tone="danger">
+              Falta la página para códigos retirados: quien escanee verá un
+              aviso de recurso no disponible.{' '}
               {canEditSettings ? (
                 <Link to="/ajustes" className="font-semibold underline">
                   Configúrala en Ajustes
@@ -323,39 +333,43 @@ function QrEditor({ qr }) {
         <div className="min-w-0 space-y-6">
           <Card className="space-y-4">
             <CardTitle
-              info={`Cambiar el destino no altera la imagen impresa: el QR codifica ${shortUrl} y la redirección se resuelve aquí.`}
+              info={`El QR impreso codifica ${shortUrl}: el destino se cambia aquí sin reimprimir.`}
             >
-              Datos y destino
+              Datos
             </CardTitle>
-            <Field
-              label="Título"
-              error={
-                attempted && !draft.title.trim() ? 'Escribe un título.' : ''
-              }
-            >
-              <Input
-                value={draft.title}
-                disabled={!allowed}
-                onChange={(event) => patch({ title: event.target.value })}
-              />
-            </Field>
-            <Field label="Proyecto">
-              <Select
-                value={draft.project_id}
-                disabled={!allowed}
-                onChange={(event) => patch({ project_id: event.target.value })}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Título"
+                error={
+                  attempted && !draft.title.trim() ? 'Escribe un título.' : ''
+                }
               >
-                <option value="">Sin proyecto</option>
-                {projects.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </Select>
-            </Field>
+                <Input
+                  value={draft.title}
+                  disabled={!allowed}
+                  onChange={(event) => patch({ title: event.target.value })}
+                />
+              </Field>
+              <Field label="Proyecto">
+                <Select
+                  value={draft.project_id}
+                  disabled={!allowed}
+                  onChange={(event) =>
+                    patch({ project_id: event.target.value })
+                  }
+                >
+                  <option value="">Sin proyecto</option>
+                  {projects.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
             <DestinationField
               label="Destino final"
-              hint="Adónde lleva el código cuando está publicado. Se puede cambiar sin reimprimir."
+              hint="Adónde lleva el código publicado."
               value={draft.target_url}
               required
               disabled={!allowed}
@@ -364,8 +378,7 @@ function QrEditor({ qr }) {
             />
             {destinationChanged ? (
               <Notice>
-                Este código está publicado: al guardar, los libros ya impresos
-                llevarán a este nuevo destino.
+                Al guardar, los libros ya impresos llevarán a este destino.
               </Notice>
             ) : null}
             <TestDestinationField
@@ -382,86 +395,69 @@ function QrEditor({ qr }) {
             />
           </Card>
 
-          <details className="glass group rounded-[1.75rem] p-5">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl max-lg:min-h-11 [&::-webkit-details-marker]:hidden">
-              <span>
-                <span className="block font-semibold">Estilo del código</span>
-                <span className="block text-xs text-brand-ink/75">
-                  Cambiarlo solo afecta a las próximas impresiones.
-                </span>
-              </span>
-              <IconChevronLeft className="size-5 shrink-0 -rotate-90 text-brand-ink/75 transition-transform duration-200 ease-ios group-open:rotate-90" />
-            </summary>
-            <div className="mt-4">
-              <StyleControls
-                style={draft.style}
-                disabled={!allowed}
-                onChange={(style) => patch({ style })}
-              />
-            </div>
-          </details>
+          <Section
+            title="Estilo"
+            meta="Solo afecta a las próximas impresiones."
+          >
+            <StyleControls
+              style={draft.style}
+              disabled={!allowed}
+              onChange={(style) => patch({ style })}
+            />
+          </Section>
 
-          <Card className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="font-semibold">Últimos escaneos</h2>
+          <Section title="Últimos escaneos" meta={scansLabel(qr.total_scans)}>
+            <div className="space-y-3">
+              {qrScans.length === 0 ? (
+                <p className="text-sm text-brand-ink/75">
+                  Sin escaneos todavía.
+                </p>
+              ) : (
+                <ul className="divide-y divide-brand-ink/8 text-sm">
+                  {qrScans.slice(0, 5).map((scan) => (
+                    <li
+                      key={scan.id}
+                      className="flex flex-wrap justify-between gap-x-3 py-2"
+                    >
+                      <span className="text-brand-ink/80">
+                        {new Date(scan.timestamp).toLocaleString('es')}
+                      </span>
+                      <span className="text-brand-ink/75">
+                        {scan.device_os} · {scan.browser}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <Link
                 to="/analitica"
-                className="inline-flex shrink-0 items-center text-sm font-semibold text-brand-primary-deep hover:underline max-lg:min-h-11"
+                className="inline-flex items-center text-sm font-semibold text-brand-primary-deep hover:underline max-lg:min-h-11"
               >
                 Ver analítica
               </Link>
             </div>
-            {qrScans.length === 0 ? (
-              <p className="text-sm text-brand-ink/75">Sin escaneos todavía.</p>
-            ) : (
-              <ul className="divide-y divide-brand-ink/8 text-sm">
-                {qrScans.slice(0, 5).map((scan) => (
-                  <li
-                    key={scan.id}
-                    className="flex flex-wrap justify-between gap-x-3 py-2"
-                  >
-                    <span className="text-brand-ink/80">
-                      {new Date(scan.timestamp).toLocaleString('es')}
-                    </span>
-                    <span className="text-brand-ink/75">
-                      {scan.device_os} · {scan.browser}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
+          </Section>
 
           {canDelete ? (
-            <Card className="flex flex-wrap items-center justify-between gap-3">
-              <div className="min-w-0 flex-1 basis-56">
-                <h2 className="font-semibold text-red-700">Zona de riesgo</h2>
-                <p className="text-sm text-brand-ink/75">
-                  Eliminar un código no se puede deshacer.
-                </p>
-              </div>
+            <div className="flex justify-end">
               <Button variant="danger" onClick={() => setDialog('delete')}>
                 Eliminar código
               </Button>
-            </Card>
+            </div>
           ) : null}
         </div>
 
         {/* En móvil va primero: casi siempre se viene a descargar o a copiar. */}
         <div className="order-first min-w-0 space-y-6 lg:order-none">
-          {qr.origin === 'importado' ? (
-            <LegacyCard qr={qr} shortUrl={shortUrl} />
-          ) : null}
-
           {justCreated ? (
             <Notice tone="success">
-              El código ya existe. Descárgalo aquí para enviarlo a imprenta.
+              Código creado. Descárgalo para enviarlo a imprenta.
             </Notice>
           ) : null}
 
           <Card className="space-y-4">
             {qr.origin === 'importado' ? (
-              <CardTitle info="Úsala al reimprimir: es el mismo destino, ya con redirección editable y analítica.">
+              <CardTitle info="Úsala al reimprimir: mismo destino, con redirección editable y analítica.">
                 Versión dinámica
               </CardTitle>
             ) : (
@@ -475,22 +471,23 @@ function QrEditor({ qr }) {
             </p>
             <CopyButton text={shortUrl} label="Copiar URL impresa" />
             <LegibilityCheck data={shortUrl} style={draft.style} />
+            <div className="space-y-4 border-t border-brand-ink/8 pt-4">
+              <h3 className="font-semibold">Descargar</h3>
+              <ExportPanel
+                data={shortUrl}
+                style={draft.style}
+                title={draft.title}
+                disabled={!can(session?.role, 'qr:export')}
+                blockedReason={
+                  dirty ? 'Guarda o descarta los cambios para descargar.' : ''
+                }
+              />
+            </div>
           </Card>
 
-          <Card className="space-y-4">
-            <h2 className="font-semibold">Descargar</h2>
-            <ExportPanel
-              data={shortUrl}
-              style={draft.style}
-              title={draft.title}
-              disabled={!can(session?.role, 'qr:export')}
-              blockedReason={
-                dirty
-                  ? 'Guarda o descarta los cambios para descargar la versión definitiva.'
-                  : ''
-              }
-            />
-          </Card>
+          {qr.origin === 'importado' ? (
+            <LegacyCard qr={qr} shortUrl={shortUrl} />
+          ) : null}
         </div>
       </div>
 
@@ -524,7 +521,6 @@ function QrEditor({ qr }) {
         >
           <p>Quien escanee irá a:</p>
           <TargetLine url={draft.target_url.trim()} />
-          <p>Podrás cambiar el destino después sin reimprimir.</p>
           {dirty ? <p>También se guardarán tus cambios pendientes.</p> : null}
         </ConfirmDialog>
       ) : null}
@@ -555,10 +551,7 @@ function QrEditor({ qr }) {
             onConfirm={() => applyStatus('deprecated')}
             onCancel={() => setDialog(null)}
           >
-            <p>
-              Los libros impresos seguirán funcionando, pero quien escanee irá a
-              la página de aviso:
-            </p>
+            <p>Quien escanee irá a la página de aviso:</p>
             <TargetLine url={settings.deprecatedUrl} />
             {dirty ? <p>También se guardarán tus cambios pendientes.</p> : null}
           </ConfirmDialog>
@@ -576,11 +569,9 @@ function QrEditor({ qr }) {
             onCancel={() => setDialog(null)}
           >
             <p>
-              Antes de retirar un código hay que indicar a qué página deben
-              llegar quienes lo escaneen.
-              {canEditSettings
-                ? ''
-                : ' Pide a un administrador que la configure en Ajustes.'}
+              Para retirar un código, primero hay que configurar la página de
+              aviso en Ajustes.
+              {canEditSettings ? '' : ' Pide a un administrador que lo haga.'}
             </p>
           </ConfirmDialog>
         )
@@ -614,10 +605,7 @@ function QrEditor({ qr }) {
                 {hasScans ? ` Se perderán ${scansLabel(qr.total_scans)}.` : ''}
               </p>
               {qr.status === 'published' ? (
-                <p>
-                  Si solo quieres dejar de usarlo, retíralo: los libros seguirán
-                  llevando a la página de aviso.
-                </p>
+                <p>Si solo quieres dejar de usarlo, mejor retíralo.</p>
               ) : null}
             </>
           ) : (

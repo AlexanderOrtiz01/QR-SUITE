@@ -63,7 +63,7 @@ export function QrList() {
     projects.find((project) => project.id === id)?.name || 'Sin proyecto'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Códigos QR"
         meta={`${filtered.length} de ${qrs.length}`}
@@ -80,7 +80,7 @@ export function QrList() {
         ) : null}
       </PageHeader>
 
-      <Card className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
         <Input
           value={search}
           onChange={(event) => setParam('q', event.target.value)}
@@ -111,17 +111,14 @@ export function QrList() {
             </option>
           ))}
         </Select>
-      </Card>
+      </div>
 
       {filtered.length === 0 ? (
         qrs.length === 0 ? (
-          <EmptyState
-            title="Todavía no hay códigos"
-            description="Cuando se cree el primero, aparecerá aquí."
-          />
+          <EmptyState title="Todavía no hay códigos" />
         ) : (
           <EmptyState
-            title="Ningún código coincide con estos filtros"
+            title="Sin resultados"
             action={
               <Button
                 variant="secondary"
@@ -169,7 +166,6 @@ export function QrList() {
             <thead className="border-b border-brand-ink/10 text-left text-xs font-bold uppercase tracking-[0.12em] text-brand-ink/75">
               <tr>
                 <th className="px-4 py-3 font-medium">Título</th>
-                <th className="px-4 py-3 font-medium">Código</th>
                 <th className="px-4 py-3 font-medium">Proyecto</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
                 <th className="px-4 py-3 text-right font-medium">Escaneos</th>
@@ -194,14 +190,10 @@ export function QrList() {
                       {qr.title}
                     </Link>
                     <ImportedMark qr={qr} />
-                    {qr.tags.length > 0 ? (
-                      <p className="text-xs text-brand-ink/75">
-                        {qr.tags.join(' · ')}
-                      </p>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs">
-                    {qr.short_code}
+                    <p className="text-xs text-brand-ink/75">
+                      <code className="font-mono">{qr.short_code}</code>
+                      {qr.tags.length > 0 ? ` · ${qr.tags.join(' · ')}` : null}
+                    </p>
                   </td>
                   <td className="px-4 py-3 text-brand-ink/80">
                     {projectName(qr.project_id)}
