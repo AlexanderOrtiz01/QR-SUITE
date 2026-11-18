@@ -19,7 +19,6 @@ import {
   QrDetail,
   QrList,
   Redirect,
-  RoleTests,
   Settings,
   Studio,
 } from './pages/routes.js'
@@ -47,7 +46,6 @@ function Panel() {
         <Route path="importar" element={<Import />} />
         <Route path="analitica" element={<Analytics />} />
         <Route path="ajustes" element={<Settings />} />
-        <Route path="pruebas-roles" element={<RoleTests />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
