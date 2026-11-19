@@ -243,3 +243,21 @@ export function IconUsers(props) {
     </svg>
   )
 }
+
+export function IconSearch(props) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m20 20-4.4-4.4" />
+    </svg>
+  )
+}
+
+export function IconEdit(props) {
+  return (
+    <svg {...BASE} {...props}>
+      <path d="M4 20h4L19 9a2.83 2.83 0 0 0-4-4L4 16z" />
+      <path d="m13.5 6.5 4 4" />
+    </svg>
+  )
+}
