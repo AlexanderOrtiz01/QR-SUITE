@@ -13,6 +13,7 @@ import {
   IconClose,
   IconDashboard,
   IconFolder,
+  IconHelp,
   IconImport,
   IconList,
   IconLogout,
@@ -22,18 +23,26 @@ import {
 } from './icons.jsx'
 
 const NAV = [
-  { to: '/', label: 'Inicio', end: true, Icon: IconDashboard },
-  { to: '/estudio', label: 'Crear QR', Icon: IconQrPlus, requires: 'qr:write' },
-  { to: '/proyectos', label: 'Proyectos', Icon: IconFolder },
-  { to: '/codigos', label: 'Códigos QR', Icon: IconList },
+  { to: '/', label: 'Inicio', end: true, Icon: IconDashboard, tour: 'inicio' },
+  {
+    to: '/estudio',
+    label: 'Crear QR',
+    Icon: IconQrPlus,
+    requires: 'qr:write',
+    tour: 'estudio',
+  },
+  { to: '/proyectos', label: 'Proyectos', Icon: IconFolder, tour: 'proyectos' },
+  { to: '/codigos', label: 'Códigos QR', Icon: IconList, tour: 'codigos' },
   {
     to: '/importar',
     label: 'Importar',
     Icon: IconImport,
     requires: 'qr:write',
+    tour: 'importar',
   },
-  { to: '/analitica', label: 'Analítica', Icon: IconChart },
-  { to: '/ajustes', label: 'Ajustes', Icon: IconSettings },
+  { to: '/analitica', label: 'Analítica', Icon: IconChart, tour: 'analitica' },
+  { to: '/ajustes', label: 'Ajustes', Icon: IconSettings, tour: 'ajustes' },
+  { to: '/ayuda', label: 'Ayuda', Icon: IconHelp, tour: 'ayuda' },
 ]
 
 const COLLAPSE_KEY = 'qrsuite:sidebar-collapsed'
@@ -162,6 +171,7 @@ export function Layout() {
 
       <aside
         data-velo
+        data-tour="sidebar"
         // Cerrado en móvil queda además `invisible`: solo apartarlo de la pantalla
         // dejaría sus enlaces en el orden de tabulación. La visibilidad se anima
         // solo al cerrar, para que el contenido no desaparezca antes de salir.
@@ -180,6 +190,7 @@ export function Layout() {
             <button
               type="button"
               onClick={toggleCollapsed}
+              data-tour="collapse-toggle"
               aria-label={collapsed ? 'Expandir menú' : 'Plegar menú'}
               aria-expanded={!collapsed}
               className="hidden rounded-full p-2 text-brand-ink/70 transition-colors hover:bg-white/70 hover:text-brand-ink lg:block"
@@ -229,6 +240,7 @@ export function Layout() {
               <NavLink
                 to={item.to}
                 end={item.end}
+                data-tour={`nav-${item.tour}`}
                 onClick={() => setMobileOpen(false)}
                 aria-label={collapsed ? item.label : undefined}
                 className={({ isActive }) =>
@@ -251,7 +263,7 @@ export function Layout() {
         {session ? (
           <div className="border-t border-brand-ink/10 p-3">
             {!collapsed ? (
-              <div className="mb-2 px-1">
+              <div data-tour="user-info" className="mb-2 px-1">
                 <p className="truncate text-xs font-semibold">
                   {session.email}
                 </p>
@@ -268,6 +280,7 @@ export function Layout() {
               <button
                 type="button"
                 onClick={handleSignOut}
+                data-tour="logout"
                 disabled={signingOut}
                 aria-busy={signingOut || undefined}
                 aria-label={collapsed ? 'Cerrar sesión' : undefined}

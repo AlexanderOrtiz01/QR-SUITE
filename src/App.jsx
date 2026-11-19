@@ -10,8 +10,10 @@ import { AppProvider } from './store/AppStore.jsx'
 import { useApp } from './store/useApp.js'
 import { Layout } from './components/Layout.jsx'
 import { Dashboard } from './pages/Dashboard.jsx'
+import { TourProvider } from './components/tour/TourProvider.jsx'
 import {
   Analytics,
+  Help,
   Import,
   Login,
   Privacy,
@@ -35,20 +37,25 @@ function Panel() {
     )
   }
 
+  // El motor de guías va dentro del router (navega entre pantallas) y
+  // envuelve todo el panel para sobrevivir a cada cambio de página.
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="estudio" element={<Studio />} />
-        <Route path="proyectos" element={<Projects />} />
-        <Route path="codigos" element={<QrList />} />
-        <Route path="codigos/:shortCode" element={<QrDetail />} />
-        <Route path="importar" element={<Import />} />
-        <Route path="analitica" element={<Analytics />} />
-        <Route path="ajustes" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+    <TourProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="estudio" element={<Studio />} />
+          <Route path="proyectos" element={<Projects />} />
+          <Route path="codigos" element={<QrList />} />
+          <Route path="codigos/:shortCode" element={<QrDetail />} />
+          <Route path="importar" element={<Import />} />
+          <Route path="analitica" element={<Analytics />} />
+          <Route path="ajustes" element={<Settings />} />
+          <Route path="ayuda" element={<Help />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </TourProvider>
   )
 }
 

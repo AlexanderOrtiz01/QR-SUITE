@@ -298,7 +298,7 @@ export function Import() {
         </Card>
       ) : null}
 
-      <Card className="space-y-5">
+      <Card data-tour="import-source" className="space-y-5">
         <TabBar tabs={SOURCES} value={source} onChange={setSource} />
 
         {source === 'imagenes' ? (
@@ -369,7 +369,7 @@ export function Import() {
       </Card>
 
       {classified.length > 0 ? (
-        <Card className="space-y-5">
+        <Card data-tour="import-review" className="space-y-5">
           <CardTitle info="Solo se importan las entradas listas; las demás se quedan en la lista.">
             Revisión
           </CardTitle>

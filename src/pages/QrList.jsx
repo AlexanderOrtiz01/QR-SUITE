@@ -74,14 +74,18 @@ export function QrList() {
               <Button variant="secondary">Importar</Button>
             </Link>
             <Link to="/estudio">
-              <Button>Crear código QR</Button>
+              <Button data-tour="codes-create">Crear código QR</Button>
             </Link>
           </>
         ) : null}
       </PageHeader>
 
-      <div className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
+      <div
+        data-tour="codes-filters"
+        className="grid gap-3 sm:grid-cols-[2fr_1fr_1fr]"
+      >
         <Input
+          data-tour="codes-search"
           value={search}
           onChange={(event) => setParam('q', event.target.value)}
           placeholder="Buscar…"
@@ -130,7 +134,7 @@ export function QrList() {
           />
         )
       ) : (
-        <Card className="overflow-x-auto p-0">
+        <Card data-tour="codes-table" className="overflow-x-auto p-0">
           {/* En el móvil la tabla obligaría a desplazarse de lado: cada código
               pasa a ser una fila apilada con los mismos datos. */}
           <ul className="divide-y divide-brand-ink/8 md:hidden">

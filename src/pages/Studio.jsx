@@ -266,7 +266,7 @@ export function Studio() {
       ) : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] xl:grid-cols-[minmax(0,1fr)_320px]">
-        <Card className="min-w-0">
+        <Card data-tour="studio-form" className="min-w-0">
           <form
             ref={formRef}
             noValidate
@@ -285,6 +285,7 @@ export function Studio() {
               <div className="space-y-4">
                 <Field label="Título" error={attempted ? errors.title : ''}>
                   <Input
+                    data-tour="studio-title"
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
                     placeholder="Video explicativo: Ecuaciones cuadráticas"
@@ -419,6 +420,7 @@ export function Studio() {
             ) : null}
 
             <div
+              data-tour="studio-actions"
               className={`flex flex-wrap gap-2 border-t border-brand-ink/10 pt-5 ${
                 step > 0 ? 'justify-between' : 'justify-end'
               }`}
@@ -451,7 +453,10 @@ export function Studio() {
           </form>
         </Card>
 
-        <Card className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+        <Card
+          data-tour="studio-preview"
+          className="space-y-4 lg:sticky lg:top-6 lg:self-start"
+        >
           <h2 className="font-semibold">Vista previa</h2>
           <div className="glass-well flex justify-center rounded-2xl p-4">
             <QrPreview data={shortUrl} style={style} size={200} />

@@ -218,6 +218,7 @@ export function Analytics() {
       >
         {can(session?.role, 'analytics:read') ? (
           <IconButton
+            data-tour="analytics-export"
             label="Exportar CSV"
             icon={IconDownload}
             onClick={exportCsv}
@@ -226,7 +227,10 @@ export function Analytics() {
         ) : null}
       </PageHeader>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:max-w-xl">
+      <div
+        data-tour="analytics-filters"
+        className="grid gap-3 sm:grid-cols-2 lg:max-w-xl"
+      >
         <Select
           aria-label="Periodo"
           value={days}
@@ -252,7 +256,7 @@ export function Analytics() {
         </Select>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div data-tour="analytics-stats" className="grid gap-4 sm:grid-cols-3">
         <Stat
           label="Escaneos"
           value={scoped.length}
@@ -282,7 +286,10 @@ export function Analytics() {
       ) : (
         <div className="space-y-6">
           <div className="grid gap-6 xl:grid-cols-5">
-            <Card className="space-y-3 xl:col-span-3">
+            <Card
+              data-tour="analytics-daily"
+              className="space-y-3 xl:col-span-3"
+            >
               <h2 className="font-semibold">Escaneos por día</h2>
               <ColumnChart data={daily} />
             </Card>
