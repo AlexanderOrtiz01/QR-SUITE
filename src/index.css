@@ -152,6 +152,31 @@
     scrollbar-color: rgb(20 34 79 / 0.28) transparent;
   }
 
+  /*
+   * Tailwind 4 deja los botones con el cursor por defecto. Todo lo que se
+   * pulsa muestra la mano; lo deshabilitado, que no se puede usar.
+   */
+  button,
+  [role='button'],
+  [role='tab'],
+  [role='menuitem'],
+  [role='option'],
+  summary,
+  select,
+  label:has(> input[type='checkbox'], > input[type='radio']),
+  input[type='checkbox'],
+  input[type='radio'],
+  input[type='color'],
+  input[type='file'],
+  input[type='range'] {
+    cursor: pointer;
+  }
+
+  :is(button, select, input):disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
   body {
     background-color: var(--color-brand-page);
     color: var(--color-brand-ink);
