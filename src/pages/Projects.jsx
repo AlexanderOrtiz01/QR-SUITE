@@ -63,6 +63,7 @@ export function Projects() {
       >
         {allowed && projects.length > 0 ? (
           <Button
+            data-tour="projects-new"
             variant={formOpen ? 'secondary' : 'primary'}
             aria-expanded={formOpen}
             aria-controls="nuevo-proyecto"
@@ -110,7 +111,10 @@ export function Projects() {
           }
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div
+          data-tour="projects-grid"
+          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"
+        >
           {projects.map((project) => {
             const count = qrs.filter(
               (qr) => qr.project_id === project.id,

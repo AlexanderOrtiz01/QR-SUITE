@@ -70,7 +70,7 @@ export function Settings() {
         </Banner>
       ) : null}
 
-      <Card>
+      <Card data-tour="settings-org">
         <form noValidate onSubmit={handleSave} className="space-y-4">
           <Field label="Nombre de la organización">
             <Input

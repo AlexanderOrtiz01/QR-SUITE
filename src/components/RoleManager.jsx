@@ -106,7 +106,7 @@ export function RoleManager({ currentEmail }) {
   }
 
   return (
-    <Card className="space-y-4">
+    <Card data-tour="roles-card" className="space-y-4">
       <CardTitle
         info={`Solo entran las cuentas @${ALLOWED_DOMAIN} que añadas aquí.`}
       >
@@ -114,6 +114,7 @@ export function RoleManager({ currentEmail }) {
       </CardTitle>
 
       <form
+        data-tour="roles-form"
         onSubmit={handleAdd}
         className="grid gap-4 sm:grid-cols-[1fr_12rem_auto] sm:items-end"
       >

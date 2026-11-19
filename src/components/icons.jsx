@@ -134,6 +134,15 @@ export function IconInfo(props) {
   )
 }
 
+export function IconHelp(props) {
+  return (
+    <svg {...BASE} {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M9.6 9.4a2.5 2.5 0 0 1 4.85.85c0 1.65-2.45 2.25-2.45 3.75M12 16.8v.2" />
+    </svg>
+  )
+}
+
 export function IconTrash(props) {
   return (
     <svg {...BASE} {...props}>

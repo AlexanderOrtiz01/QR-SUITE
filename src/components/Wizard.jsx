@@ -7,7 +7,7 @@ export function StepProgress({ steps, current, onSelect }) {
   const percent = ((current + 1) / steps.length) * 100
 
   return (
-    <div className="space-y-3">
+    <div data-tour="wizard-steps" className="space-y-3">
       <div className="h-1.5 overflow-hidden rounded-full bg-brand-ink/10">
         <div
           className="h-full origin-left rounded-full bg-brand-primary shadow-[0_0_0_1px_rgb(255_255_255/0.4)_inset] transition-transform duration-500 ease-ios"

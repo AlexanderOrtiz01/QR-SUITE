@@ -59,7 +59,7 @@ export function Dashboard() {
         ) : null}
       </PageHeader>
 
-      <Card>
+      <Card data-tour="dashboard-stats">
         <dl className="grid grid-cols-3 divide-x divide-brand-ink/8">
           <Stat label="Proyectos" value={projects.length} />
           <Stat
