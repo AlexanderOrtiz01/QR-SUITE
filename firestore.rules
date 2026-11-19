@@ -4,11 +4,13 @@ rules_version = '2';
  * Reglas de seguridad de Firestore (Módulo 1 del plan).
  *
  * Replican `src/lib/roles.js`, que es solo la comprobación de la interfaz:
- * esta es la frontera real. El acceso se concede a quien tenga en `roles` un
- * documento con su correo y un rol válido, y ese documento solo lo puede crear
- * un administrador: no hay autorregistro, porque el dominio institucional
- * también incluye a los estudiantes. Al primer administrador de un proyecto
- * nuevo hay que crearlo a mano desde la consola de Firebase.
+ * esta es la frontera real. El acceso se concede a quien entre con una cuenta
+ * verificada @clases.edu.sv (el mismo dominio fijo de `src/lib/config.js`) y
+ * tenga además en `roles` un documento con su correo y un rol válido. Ese
+ * documento solo lo puede crear un administrador: no hay autorregistro,
+ * porque el dominio institucional también incluye a los estudiantes. Al
+ * primer administrador de un proyecto nuevo (también @clases.edu.sv) hay que
+ * crearlo a mano desde la consola de Firebase.
  *
  * Dos rutas quedan abiertas sin sesión, y solo esas: leer un código suelto y
  * leer los ajustes. Las necesita el motor de redirección, que lo usa alguien
@@ -22,7 +24,8 @@ service cloud.firestore {
     function signedIn() {
       return request.auth != null
         && request.auth.token.email != null
-        && request.auth.token.email_verified == true;
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.lower().matches('.*@clases[.]edu[.]sv');
     }
 
     function callerEmail() {

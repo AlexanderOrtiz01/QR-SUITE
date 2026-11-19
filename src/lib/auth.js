@@ -94,6 +94,11 @@ export function observeSession(allowedDomain, callback) {
     } catch {
       session = null
     }
+    // Una sesión simulada guardada con otro dominio no se restaura.
+    const domain = session?.email?.toLowerCase().split('@')[1]
+    if (session && allowedDomain && domain !== allowedDomain.toLowerCase()) {
+      session = null
+    }
     callback({ session, error: '' })
     return () => {}
   }
