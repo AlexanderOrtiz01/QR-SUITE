@@ -255,23 +255,23 @@ export function AppProvider({ children }) {
   )
 
   /**
-   * Carga un juego de datos de ejemplo para poder evaluar la analítica sin
+   * Carga un juego de datos de prueba para poder enseñar la analítica sin
    * escanear códigos a mano. Se añade a lo que ya haya, no lo reemplaza.
    */
   const loadDemoData = useCallback(() => {
-    const demo = buildDemoData({ createdBy: session?.email })
-    setProjects((current) => [demo.project, ...current])
+    const demo = buildDemoData({
+      createdBy: session?.email,
+      takenCodes: qrs.map((qr) => qr.short_code),
+      deprecatedUrl: settings.deprecatedUrl,
+    })
+    setProjects((current) => [...demo.projects, ...current])
     setQrs((current) => [...demo.qrs, ...current])
     setScans((current) => [...demo.scans, ...current])
-    persist(() =>
-      storage.seed({
-        projects: [demo.project],
-        qrs: demo.qrs,
-        scans: demo.scans,
-      }),
-    )
-    return demo
-  }, [persist, session])
+    persist(async () => {
+      await storage.seed(demo)
+      notify(`Datos de prueba cargados: ${demo.scans.length} escaneos.`)
+    })
+  }, [persist, notify, session, qrs, settings.deprecatedUrl])
 
   const signOut = useCallback(async () => {
     await authSignOut()

@@ -49,6 +49,17 @@ async function deleteAll(refs) {
   }
 }
 
+/** Escribe pares `[referencia, datos]` en lotes. */
+async function setAll(documents) {
+  for (let index = 0; index < documents.length; index += BATCH_LIMIT) {
+    const batch = writeBatch(db)
+    documents
+      .slice(index, index + BATCH_LIMIT)
+      .forEach(([ref, data]) => batch.set(ref, data))
+    await batch.commit()
+  }
+}
+
 async function scanRefsFor(shortCodes) {
   if (shortCodes.length === 0) return []
   const refs = []
@@ -169,18 +180,13 @@ export const firestoreAdapter = {
   },
 
   async seed({ projects = [], qrs = [], scans = [] }) {
-    const documents = [
+    await setAll([
       ...projects.map((item) => [doc(db, 'projects', item.id), item]),
       ...qrs.map((item) => [doc(db, 'qrs', item.short_code), item]),
-      ...scans.map((item) => [doc(db, 'scans', item.id), item]),
-    ]
-    for (let index = 0; index < documents.length; index += BATCH_LIMIT) {
-      const batch = writeBatch(db)
-      documents
-        .slice(index, index + BATCH_LIMIT)
-        .forEach(([ref, data]) => batch.set(ref, data))
-      await batch.commit()
-    }
+    ])
+    // Los escaneos van después, en lotes aparte: su regla exige que el código
+    // ya exista, y dentro del mismo lote `exists()` todavía no lo ve.
+    await setAll(scans.map((item) => [doc(db, 'scans', item.id), item]))
   },
 
   async clear() {
