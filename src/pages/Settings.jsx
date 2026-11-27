@@ -6,6 +6,7 @@ import { urlIssue } from '../lib/urls.js'
 import { usingFallbackDomain } from '../lib/shortUrl.js'
 import { isAuthEnabled } from '../lib/auth.js'
 import { ALLOWED_DOMAIN } from '../lib/config.js'
+import { DEMO_DEPARTMENT } from '../lib/demoData.js'
 import {
   Banner,
   Button,
@@ -36,11 +37,15 @@ function Section({ title, open = false, children }) {
 }
 
 export function Settings() {
-  const { settings, saveSettings, session, loadDemoData } = useApp()
+  const { settings, saveSettings, session, projects, saving, loadDemoData } =
+    useApp()
   const allowed = can(session?.role, 'settings:write')
+  const demoLoaded = projects.some(
+    (project) => project.department === DEMO_DEPARTMENT,
+  )
   const [draft, setDraft] = useState(settings)
   const [saved, setSaved] = useState(false)
-  const [seeded, setSeeded] = useState(0)
+  const [confirmingDemo, setConfirmingDemo] = useState(false)
   const [clearing, setClearing] = useState(false)
   const [confirmingClear, setConfirmingClear] = useState(false)
   const [attempted, setAttempted] = useState(false)
@@ -137,49 +142,70 @@ export function Settings() {
         </p>
       </Section>
 
-      {/* Solo sin Firestore: con la base compartida, los datos de ejemplo se
-          mezclarían con los reales y borrar vaciaría la base de todo el equipo. */}
-      {allowed && !isPersistenceShared ? (
-        <Section title="Datos de este navegador">
+      {allowed ? (
+        <Section
+          title={
+            isPersistenceShared ? 'Demostración' : 'Datos de este navegador'
+          }
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0 flex-1 basis-56">
-              <p className="text-sm font-semibold">Datos de demostración</p>
+              <p className="text-sm font-semibold">Datos de prueba</p>
               <p className="text-sm text-brand-ink/75">
-                Un proyecto con cinco recursos y 30 días de escaneos.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {seeded ? (
-                <span className="text-sm text-brand-primary-deep">
-                  +{seeded} escaneos
-                </span>
-              ) : null}
-              <Button
-                variant="secondary"
-                onClick={() => setSeeded(loadDemoData().scans.length)}
-              >
-                Generar
-              </Button>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-ink/8 pt-4">
-            <div className="min-w-0 flex-1 basis-56">
-              <p className="text-sm font-semibold text-red-700">
-                Borrar datos locales
-              </p>
-              <p className="text-sm text-brand-ink/75">
-                Proyectos, códigos y escaneos.
+                {demoLoaded
+                  ? `Ya están cargados. Para quitarlos, elimina en Proyectos los marcados «${DEMO_DEPARTMENT}».`
+                  : 'Tres proyectos con doce códigos y 30 días de escaneos.'}
               </p>
             </div>
             <Button
-              variant="danger"
-              loading={clearing}
-              onClick={() => setConfirmingClear(true)}
+              variant="secondary"
+              disabled={demoLoaded || saving}
+              onClick={() =>
+                isPersistenceShared ? setConfirmingDemo(true) : loadDemoData()
+              }
             >
-              {clearing ? 'Borrando…' : 'Borrar'}
+              Generar
             </Button>
           </div>
+          {/* Solo sin Firestore: con la base compartida, borrar vaciaría los
+              datos de todo el equipo. */}
+          {!isPersistenceShared ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-ink/8 pt-4">
+              <div className="min-w-0 flex-1 basis-56">
+                <p className="text-sm font-semibold text-red-700">
+                  Borrar datos locales
+                </p>
+                <p className="text-sm text-brand-ink/75">
+                  Proyectos, códigos y escaneos.
+                </p>
+              </div>
+              <Button
+                variant="danger"
+                loading={clearing}
+                onClick={() => setConfirmingClear(true)}
+              >
+                {clearing ? 'Borrando…' : 'Borrar'}
+              </Button>
+            </div>
+          ) : null}
         </Section>
+      ) : null}
+
+      {confirmingDemo ? (
+        <ConfirmDialog
+          title="¿Cargar datos de prueba?"
+          confirmLabel="Cargar datos"
+          onConfirm={() => {
+            setConfirmingDemo(false)
+            loadDemoData()
+          }}
+          onCancel={() => setConfirmingDemo(false)}
+        >
+          <p>
+            Se añadirán a la base compartida y los verá todo el equipo. Para
+            quitarlos, elimina sus proyectos en Proyectos.
+          </p>
+        </ConfirmDialog>
       ) : null}
 
       {confirmingClear ? (
